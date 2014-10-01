@@ -44,3 +44,8 @@ $qmake $PWD/SRC/synchronizer/sychronizer.pro -r -spec $spec \
   CONFIG+=$configs DEFINES+=$defines
 make
 
+# backup
+$qmake $PWD/SRC/backup/backup.pro -r -spec $spec \
+  CONFIG+=$configs DEFINES+=$defines
+make
+

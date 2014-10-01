@@ -173,10 +173,10 @@ void MainWindow::updateEverySecond()
 void MainWindow::updateEveryHour()
 {
   // Delete syncronized events
-  int time = settings->value("timeEvents", 15).toInt();
-  if (!eventsDB->deleteEventsSyncronized(time)) {
-    DEBUG("Unable to delete events syncronized...");
-  }
+  // int time = settings->value("timeEvents", 15).toInt();
+  // if (!eventsDB->deleteEventsSyncronized(time)) {
+  //   DEBUG("Unable to delete events syncronized...");
+  // }
   
   if (Utils::fileExists("/usr/local/firmware.tar.gz") && Utils::fileExists("/usr/local/firmware.tar.gz.md5")) {
     DEBUG("THERE ARE UPDATES AVAILABLE... VERIFYING MD5...");

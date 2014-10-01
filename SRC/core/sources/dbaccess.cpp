@@ -6,6 +6,8 @@
 #include <QSqlError>
 #include <QByteArray>
 #include <QStringList>
+#include <QFile>
+#include <QTextStream>
 
 EventsDB::EventsDB() {}
 
@@ -49,7 +51,6 @@ bool EventsDB::init(const char *databaseName)
   QSqlQuery qry(this->db);
   if (!qry.exec("CREATE TABLE IF NOT EXISTS events ("
                 "id INTEGER PRIMARY KEY,"   // identificador del evento
-                "username VARCHAR(100),"    // username
                 "sense INTEGER,"            // sentido (entrada/salida)
                 "ident VARCHAR(32),"        // identificador de la persona
                 "date INTEGER,"             // fecha del evento (unixtimestamp)
@@ -65,7 +66,7 @@ bool EventsDB::init(const char *databaseName)
   }
 }
 
-int EventsDB::insertEvent(char *username, int sense, char *ident, int date, int synchronized)
+int EventsDB::insertEvent(int sense, char *ident, int date, int synchronized)
 {
   if (!this->db.isOpen()) { 
     DEBUG("Database events is not open");
@@ -76,12 +77,11 @@ int EventsDB::insertEvent(char *username, int sense, char *ident, int date, int 
   if (sense == 2) { sense = 0; }
 
   QSqlQuery qry(this->db);
-  qry.prepare("INSERT INTO events(id, username, sense, ident, date, synchronized) VALUES(NULL, :f1, :f2, :f3, :f4, :f5)"); 
-  qry.bindValue(":f1", username);
-  qry.bindValue(":f2", sense);
-  qry.bindValue(":f3", ident);
-  qry.bindValue(":f4", date);
-  qry.bindValue(":f5", synchronized);
+  qry.prepare("INSERT INTO events(id, sense, ident, date, synchronized) VALUES(NULL, :f1, :f2, :f3, :f4)"); 
+  qry.bindValue(":f1", sense);
+  qry.bindValue(":f2", ident);
+  qry.bindValue(":f3", date);
+  qry.bindValue(":f4", synchronized);
   if (!qry.exec()) {
     LOG_ERROR("Error inserting event: %s", qry.lastError().text().toStdString().c_str());
     qry.finish();
@@ -125,21 +125,74 @@ bool EventsDB::setEventSynchronized(int id)
   return true;
 }
 
-bool EventsDB::deleteEventsSyncronized(int time)
+bool EventsDB::deleteEventsSyncronized()
 {
   QSqlQuery qry(this->db);
 
-  QString query = "DELETE FROM events WHERE synchronized = 1 AND date < strftime('%s', date('now', '-%1 day'))";
-  DEBUG("%s", query.arg(time).toStdString().c_str());
-  if (!qry.exec(query.arg(time))) {
-    LOG_ERROR("Error deleting event: %s", qry.lastError().text().toStdString().c_str());
+  if (!qry.exec("DELETE FROM events WHERE synchronized = 1")) {
+    LOG_ERROR("Error deleting synchronized events: %s", qry.lastError().text().toStdString().c_str());
     qry.finish();
     return false;
   }
 
-  DEBUG("Events deleted from events table.");
+  DEBUG("Synchronized events deleted...");
   qry.finish();
   return true;
+}
+
+bool EventsDB::writeDatabaseToFile()
+{
+  int eventsCount = 0;
+  QString filename = QDate::currentDate().toString("'/mnt/jffs2/backup/events_'yyyy_MM_dd'.bak'");
+  QDateTime eventDateTime;
+  QSqlQuery qry(this->db);
+
+  QFile file(filename);
+  bool fileOpened = false;
+  bool fileIsNew = false;
+  if (Utils::fileExists(filename.toStdString().c_str())) {
+    fileOpened = file.open(QIODevice::Append | QIODevice::Text);
+    fileIsNew = false;
+  } else {
+    fileOpened = file.open(QIODevice::WriteOnly | QIODevice::Text);
+    fileIsNew = true;
+  }
+
+  if (fileOpened) {
+    QTextStream stream(&file);
+    if (fileIsNew)
+      stream << "#sentido;identificator;fecha;sincronizado (Timestamp: " << QDate::currentDate().toString("yyyy/MM/dd hh:mm:ss") << ")\n\n";
+
+    if (!qry.exec("SELECT sense, ident, date, synchronized FROM events WHERE synchronized = 1")) {
+      LOG_ERROR("Query error: %s.", qry.lastError().databaseText().toStdString().c_str());
+      file.close();
+      return false;
+    } 
+    
+    DEBUG("Selected. Beginnning to write synchronized events to file: %s.", filename.toStdString().c_str());
+    while(qry.next()) {
+      int sentido = qry.value(0).toInt();
+      QString ident = qry.value(1).toString();
+      int unixDate = qry.value(2).toInt();
+      int synchronized = qry.value(3).toInt();
+      
+      Utils::getFromUnixTimestamp(eventDateTime, unixDate);
+      stream << QString("%1;%2;%3;%4").arg(sentido).arg(ident).arg(eventDateTime.toString("yyyy-MM-dd hh:mm")).arg(synchronized) << "\n";
+      eventsCount += 1;
+    }
+
+    file.close();
+    DEBUG("%d events written to file: %s.", eventsCount, filename.toStdString().c_str());
+    if (eventsCount > 0) this->deleteEventsSyncronized();
+    return true;
+  } else {
+    if (fileIsNew)
+      LOG_ERROR("Error creating new file %s", filename.toStdString().c_str());
+    else
+      LOG_ERROR("Error opening file %s", filename.toStdString().c_str());
+
+    return false;
+  }
 }
 
 int EventsDB::isUserIdentifiedOnLastMinute(QString identifier, int type)

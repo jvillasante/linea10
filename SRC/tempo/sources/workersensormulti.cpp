@@ -101,7 +101,7 @@ void WorkerSensorMulti::doIdentify()
             printer->write_user(typeStr, QString(userIdentifier), QString(userName), QString(userRut));
           }
           
-          rc = eventsDB->insertEvent(userName, typeInt, userIdentifier, Utils::getCurrentUnixTimestamp(), 0);
+          rc = eventsDB->insertEvent(typeInt, userIdentifier, Utils::getCurrentUnixTimestamp(), 0);
           if (rc == 0) {
             emit error("Ha ocurrido un error<br>Por favor, notifique<br>a los encargados.");
           } else if (rc == 1) {

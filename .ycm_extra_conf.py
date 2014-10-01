@@ -70,6 +70,7 @@ flags = [
 '-I./SRC/tempo/headers',
 '-I./SRC/updater/headers',
 '-I./SRC/synchronizer/headers',
+'-I./SRC/backup/headers',
 ]
 
 # Set this to the absolute path to the folder (NOT the file!) containing the

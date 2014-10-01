@@ -23,6 +23,11 @@ if [ ! -s /mnt/jffs2/pointercal ]; then
   /usr/bin/ts_calibrate
 fi
 
+# Create folder for events backup
+if [ ! -d /mnt/jffs2/backup ]; then
+  mkdir /mnt/jffs2/backup
+fi
+
 # Start Genera Embedded Applications
 mkfifo /tmp/app.log 
 
@@ -32,6 +37,7 @@ if [ -n "$BOARD" ]; then
     sleep 30 
     nohup /usr/local/bin/updater 2>&1 | /usr/local/bin/ftee /tmp/app.log &
     nohup /usr/local/bin/synchronizer 2>&1 | /usr/local/bin/ftee /tmp/app.log &
+    nohup /usr/local/bin/backup 2>&1 | /usr/local/bin/ftee /tmp/app.log &
 		exit
 	elif [ "$BOARD" == "ultragate" ]; then
 		# nohup  /usr/local/bin/KAIROSApp -qws  2>&1 | /usr/local/bin/ftee /tmp/app.log &

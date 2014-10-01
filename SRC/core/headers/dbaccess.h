@@ -17,10 +17,11 @@ class EventsDB : public QObject
     bool init(const char *databaseName);
 
     QSqlQuery *getEventsToSynchronize();
-    int insertEvent(char *username, int sense, char *ident, int date, int synchronized);
+    int insertEvent(int sense, char *ident, int date, int synchronized);
     bool setEventSynchronized(int id);
-    bool deleteEventsSyncronized(int time);
     int isUserIdentifiedOnLastMinute(QString identifier, int type);
+    bool deleteEventsSyncronized();
+    bool writeDatabaseToFile();
 
   private:
     QSqlDatabase db;

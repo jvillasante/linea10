@@ -11,6 +11,7 @@ rm -f FIRMWARE-*.tar.gz
 cp -f ../BUILD/tempo/tempo bin/tempo
 cp -f ../BUILD/updater/updater bin/updater
 cp -f ../BUILD/synchronizer/synchronizer bin/synchronizer
+cp -f ../BUILD/backup/backup bin/backup
 cp -fr ../SRC/tempo/Resources/ bin
 rm -rf bin/Resources/images/
 
