@@ -1,0 +1,9 @@
+#!/bin/ash
+echo "Content-type: text/html"
+echo ""
+echo "OBTENIENDO VARIABLES DE ENTORNO HORUS9 "
+echo '<br>'
+echo '<br>'
+ env 
+echo ""
+echo ""

@@ -1,0 +1,12 @@
+#!/bin/ash
+# get today's date
+OUTPUT="$(date)"
+# You must add following two lines before
+# outputting data to the web browser from shell
+# script
+ echo "Content-type: text/html"
+ echo ""
+ echo "<html><head><title>FECHA Y HORA DEL HORUS9 </title></head><body>"
+ echo "FECHA Y HORA:  $OUTPUT <br>"
+ 
+ echo "</body></html>"

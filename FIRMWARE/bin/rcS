@@ -1,0 +1,41 @@
+#!/bin/sh
+
+echo Starting Genera scripts
+hostname -F /usr/local/bin/hostname
+
+source /usr/local/bin/profile                                                        
+
+# Call web server
+/usr/sbin/httpd -p 80 -h /usr/local/bin/www
+
+# TIME ZONE update
+cp /usr/local/bin/Santiago /etc/localtime
+
+# NTP CLIENTE
+echo Starting NTP
+ntpd -p 152.139.23.23   # ip del banco
+
+# Install Genera Drivers
+/usr/local/bin/GeneraDriversInstall.sh
+
+# Calibration, check for missing or empty file
+if [ ! -s /mnt/jffs2/pointercal ]; then
+  /usr/bin/ts_calibrate
+fi
+
+# Start Genera Embedded Applications
+mkfifo /tmp/app.log 
+
+if [ -n "$BOARD" ]; then
+	if [ "$BOARD" == "cerebro" ]; then
+    nohup /usr/local/bin/tempo -qws -display transformed:Rot270 2>&1 | /usr/local/bin/ftee /tmp/app.log &
+    sleep 30 
+    nohup /usr/local/bin/updater 2>&1 | /usr/local/bin/ftee /tmp/app.log &
+    nohup /usr/local/bin/synchronizer 2>&1 | /usr/local/bin/ftee /tmp/app.log &
+		exit
+	elif [ "$BOARD" == "ultragate" ]; then
+		# nohup  /usr/local/bin/KAIROSApp -qws  2>&1 | /usr/local/bin/ftee /tmp/app.log &
+		exit
+	fi
+fi
+

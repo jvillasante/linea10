@@ -1,0 +1,8 @@
+# files to ignore
+BUILD/*
+FIRMWARE/*.*
+
+# ignore all files ending with ~
+*~
+
+# personal stuff

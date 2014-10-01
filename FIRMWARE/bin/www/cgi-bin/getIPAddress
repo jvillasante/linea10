@@ -1,0 +1,12 @@
+#!/bin/ash
+#test
+set -f
+echo 'Content-type: text/plain'
+ echo "DIRECCION IP HORUS 9:"
+echo 
+/sbin/ifconfig
+
+echo "<br>"
+
+echo "GATEWAY"
+/sbin/route -n

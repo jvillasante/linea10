@@ -1,0 +1,7 @@
+lumidigm vcom version 4.50.31
+
+modificacion en TransportUSB.cpp
+
+para el manejo de varios sensores 
+
+pTransport->DeviceNumber
