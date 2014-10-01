@@ -1,6 +1,10 @@
 # files to ignore
 BUILD/*
 FIRMWARE/*.*
+FIRMWARE/bin/synchronizer
+FIRMWARE/bin/tempo
+FIRMWARE/bin/updater
+Makefile
 
 # ignore all files ending with ~
 *~
