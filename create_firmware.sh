@@ -30,4 +30,4 @@ mv /usr/local/firmware.tar.gz.md5 .
 chmod 664 firmware.tar.gz
 chmod 664 firmware.tar.gz.md5
 
-tar -cvzf FIRMWARE-$(date +%d.%m.%Y).tar.gz app.ini firmware.tar.gz firmware.tar.gz.md5
+tar -cvzf FIRMWARE-$(date +%Y.%m.%d).tar.gz app.ini firmware.tar.gz firmware.tar.gz.md5

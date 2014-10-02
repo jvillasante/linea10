@@ -9,13 +9,7 @@
 #include <QSqlQuery>
 #include <QDir>
 #include <QFileInfo>
-
-void scheduleSlotAt(QObject *obj, const char *member, const QTime &at) {
-  const int msecsPerDay = 24 * 60 * 60 * 1000;
-  int msecs = QTime::currentTime().msecsTo(at);
-  if (msecs < 0) msecs += msecsPerDay;
-  QTimer::singleShot(msecs, obj, member);
-}
+#include <QTime>
 
 Backup::Backup()
 {
@@ -26,29 +20,28 @@ Backup::Backup()
   QString db = settings->value("eventsDB").toString();
   eventsDB = new EventsDB();
   eventsDB->init(db.toStdString().c_str());
-
-  scheduleWork();
+  
+  timer = new QTimer(this);
+  timer->setInterval(3600000);
+  connect(timer, SIGNAL(timeout()), this, SLOT(doWork()));
+  timer->start();
 }
 
 Backup::~Backup()
 {
+  delete timer;
   delete settings;
   delete eventsDB;
 }
 
-void Backup::scheduleWork()
-{
-  scheduleSlotAt(this, SLOT(atMidnight()), QTime(0, 0));
-}
-
 void Backup::deleteOldFiles()
 {
-  QDateTime keepEvents = QDateTime::currentDateTime().addDays(daysToKeepBackup);
+  QDateTime keepEvents = QDateTime::currentDateTime().addDays(-daysToKeepBackup);
   QDir dir("/mnt/jffs2/backup");
 
   dir.setFilter(QDir::NoDotAndDotDot | QDir::Files);
   foreach(QFileInfo file, dir.entryInfoList()) {
-    if (file.created() >= keepEvents) {
+    if (file.created() <= keepEvents) {
       if(dir.remove(file.path())) {
         DEBUG("Deleted /mnt/jffs2/backup/%s", file.absolutePath().toStdString().c_str());
       } else {
@@ -58,11 +51,16 @@ void Backup::deleteOldFiles()
   } 
 }
 
-void Backup::atMidnight()
+void Backup::doWork()
 {
-  // Do some work here...
-  eventsDB->writeDatabaseToFile();
-  deleteOldFiles();
-  scheduleWork();
+  QDateTime currentDateTime =QDateTime::currentDateTime();
+  QTime currentTime = currentDateTime.time();
+
+  if (currentTime.hour() == 23) {
+    DEBUG("Starting backup process...");
+    eventsDB->writeDatabaseToFile();
+    deleteOldFiles();
+    DEBUG("Backup process done...");
+  }
 }
 

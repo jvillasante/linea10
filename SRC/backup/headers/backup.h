@@ -3,6 +3,8 @@
 
 #include <QObject>
 #include <QSettings>
+#include <QTimer>
+#include <QDateTime>
 
 #include "debug_macros.h"
 #include "dbaccess.h"
@@ -15,15 +17,15 @@ class Backup : public QObject
     ~Backup();
 
   public slots:
-    void atMidnight();
+    void doWork();
 
   private:
     int daysToKeepBackup;
-    void scheduleWork();
     void deleteOldFiles();
     
     QSettings *settings;
     EventsDB *eventsDB;
+    QTimer *timer;
 };
 
 #endif // BACKUP_H

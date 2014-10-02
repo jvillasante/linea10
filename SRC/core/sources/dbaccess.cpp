@@ -145,7 +145,6 @@ bool EventsDB::writeDatabaseToFile()
   int eventsCount = 0;
   QString filename = QDate::currentDate().toString("'/mnt/jffs2/backup/events_'yyyy_MM_dd'.bak'");
   QDateTime eventDateTime;
-  QSqlQuery qry(this->db);
 
   QFile file(filename);
   bool fileOpened = false;
@@ -159,12 +158,14 @@ bool EventsDB::writeDatabaseToFile()
   }
 
   if (fileOpened) {
+    QSqlQuery qry(this->db);
     QTextStream stream(&file);
     if (fileIsNew)
-      stream << "#sentido;identificator;fecha;sincronizado (Timestamp: " << QDate::currentDate().toString("yyyy/MM/dd hh:mm:ss") << ")\n\n";
+      stream << "#sentido;identificador;fecha;sincronizado (Timestamp: " << QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss") << ")\n\n";
 
     if (!qry.exec("SELECT sense, ident, date, synchronized FROM events WHERE synchronized = 1")) {
       LOG_ERROR("Query error: %s.", qry.lastError().databaseText().toStdString().c_str());
+      qry.finish();
       file.close();
       return false;
     } 
@@ -177,10 +178,11 @@ bool EventsDB::writeDatabaseToFile()
       int synchronized = qry.value(3).toInt();
       
       Utils::getFromUnixTimestamp(eventDateTime, unixDate);
-      stream << QString("%1;%2;%3;%4").arg(sentido).arg(ident).arg(eventDateTime.toString("yyyy-MM-dd hh:mm")).arg(synchronized) << "\n";
+      stream << QString("%1;%2;%3;%4").arg(sentido).arg(ident).arg(eventDateTime.toString("yyyy-MM-dd hh:mm:ss")).arg(synchronized) << "\n";
       eventsCount += 1;
     }
 
+    qry.finish();
     file.close();
     DEBUG("%d events written to file: %s.", eventsCount, filename.toStdString().c_str());
     if (eventsCount > 0) this->deleteEventsSyncronized();
