@@ -83,7 +83,9 @@ int main(int argc, char *argv[])
     Utils::removeFile("/mnt/jffs2/Gen_Config.sql");
   } else {
     settings = new QSettings("/mnt/jffs2/app.ini", QSettings::IniFormat);
-    if (!settings->contains("keepEvents")) { settings->setValue("keepEvents", 15); }
+    if (!settings->contains("keepEvents")) { 
+      settings->setValue("keepEvents", 15); 
+    }
   }
   
   settings->sync();
