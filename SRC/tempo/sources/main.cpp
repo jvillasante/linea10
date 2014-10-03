@@ -38,25 +38,6 @@ void configure(const char *configDb)
   db.init(configDb); 
   db.getOldConfigs(configMap);
   
-  // settings->setValue("iengineDB", "/mnt/jffs2/iengine.db");
-  // settings->setValue("eventsDB", "/mnt/jffs2/events.db");
-  // settings->setValue("lang", "es");
-  // settings->setValue("empresaHolding", "Banco de Chile");
-  // settings->setValue("tipoEquipo", "ASISTENCIA");
-  // settings->setValue("interfazImpresora", "Serial");
-  // settings->setValue("modeloImpresora", "SP_MP_E3");
-  // settings->setValue("importDB", "/usr/local/bin/Resources/import.db");
-  // settings->setValue("fw", "/usr/local/bin/Resources/firmware.tar.gz");
-  // settings->setValue("fwMD5", "/usr/local/bin/Resources/firmware.tar.gz.md5");
-  // settings->setValue("timerReloj", "1000");
-  // settings->setValue("timerActualizacionEfectiva", "3600000");
-  // settings->setValue("timerSincronizacion", "60000");
-  // settings->setValue("timerActualizacion", "60000");
-  // settings->setValue("timerEnrolamiento", "60000");
-  // settings->setValue("timerCloseEnrollDialog", "60000");
-  // settings->setValue("wsNamespace", "http://tempuri.org/");
-  // settings->setValue("fwVersion", "FW-22092014-00");
-
   settings->setValue("serieImpresora", configMap["serie_impresora"]);
   QString cliente = configMap["cliente"];
   QString clienteUpdate = configMap["cliente"].replace("HORUS9", "Update");
@@ -102,6 +83,7 @@ int main(int argc, char *argv[])
     Utils::removeFile("/mnt/jffs2/Gen_Config.sql");
   } else {
     settings = new QSettings("/mnt/jffs2/app.ini", QSettings::IniFormat);
+    if (!settings->contains("keepEvents")) { settings->setValue("keepEvents", 15); }
   }
   
   settings->sync();
