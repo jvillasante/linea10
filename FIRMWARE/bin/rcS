@@ -13,7 +13,11 @@ cp /usr/local/bin/Santiago /etc/localtime
 
 # NTP CLIENTE
 echo Starting NTP
+<<<<<<< HEAD
 ntpd -p 200.54.149.19
+=======
+ntpd -p 200.54.149.19   # ip del banco
+>>>>>>> Se agrega la funcionalidad de Empresa/Subempresa.
 
 # Install Genera Drivers
 /usr/local/bin/GeneraDriversInstall.sh
