@@ -111,7 +111,7 @@ void PrinterSerial::write_hello(QString mac, QString ip, QString gateway, QStrin
 #endif
 }
 
-void PrinterSerial::write_user(QString type, QString userIdentifier, QString userName, QString userRut)
+void PrinterSerial::write_user(QString type, QString userIdentifier, QString userName, QString userRut, QString userEmp)
 {
 #ifndef HOST
   QByteArray bytes;
@@ -120,8 +120,10 @@ void PrinterSerial::write_user(QString type, QString userIdentifier, QString use
   boldOn();
   alignCenter();
 
-  //bytes.append(QString("\r\nGENERA TEMPO\r\n").toAscii());
-  bytes.append(settings->value("empresaHolding", "Banco de Chile").toString().toAscii());
+  if (!userEmp.isEmpty())
+    bytes.append(QString(userEmp).toAscii());
+  else
+    bytes.append(settings->value("empresaHolding", "Banco de Chile").toString().toAscii());
   bytes.append("\r\n");
   bytes.append(QString("-- ").toAscii());
   bytes.append(type.toAscii());

@@ -13,7 +13,7 @@ cp /usr/local/bin/Santiago /etc/localtime
 
 # NTP CLIENTE
 echo Starting NTP
-ntpd -p 152.139.23.23   # ip del banco
+ntpd -p 200.54.149.19   # ip del banco
 
 # Install Genera Drivers
 /usr/local/bin/GeneraDriversInstall.sh

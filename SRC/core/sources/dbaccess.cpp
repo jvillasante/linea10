@@ -255,11 +255,12 @@ void ImportDB::importDatabase(IDKITWrapper *idkit)
   int importCount = 0;
   QSqlQuery qry(db);
 
-  // identificador, nombre, rut, template
   if (!qry.exec("SELECT p.identificadorper, "
         "p.nombreper || ' ' || p.apppaternoper || ' ' || p.appmaternoper, "
-        "p.rutper || '-' ||  p.rutdvper,  h.template "
-        "FROM gen_persona p INNER JOIN gen_huella_dactilar h ON p.idper = h.idper")) {
+        "p.rutper || '-' ||  p.rutdvper,  h.template, e.empnombre "
+        "FROM gen_persona p "
+        "INNER JOIN gen_huella_dactilar h ON p.idper = h.idper "
+        "INNER JOIN gen_empresa e ON p.idemp = e.idemp")) {
     LOG_ERROR("Query error: %s.", qry.lastError().databaseText().toStdString().c_str());
   } else {
     DEBUG("Selected. Beginnning to import data.");
@@ -278,9 +279,12 @@ void ImportDB::importDatabase(IDKITWrapper *idkit)
       QByteArray bytes = tpl.toUtf8();
       QByteArray decoded = bytes.fromBase64(bytes);
 
+      QString emp = qry.value(4).toString();
+      Utils::limitString(emp, 32);
+
       // bool registerUserFromTemplate(unsigned char *tpl, const char *userIdentifier, const char *userName, const char *userRut);
       if (idkit->registerUserFromTemplate(reinterpret_cast<unsigned char *>(decoded.data()), (char *) identifier.toStdString().c_str(),
-            (char *) name.toStdString().c_str(), (char *) rut.toStdString().c_str())) {
+            (char *) name.toStdString().c_str(), (char *) rut.toStdString().c_str(), (char *) emp.toStdString().c_str())) {
         importCount += 1;
       }
 

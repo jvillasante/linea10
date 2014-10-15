@@ -60,6 +60,7 @@ void WorkerSensorMulti::doIdentify()
   char userIdentifier[32];
   char userName[100];
   char userRut[15];
+  char userEmp[32];
   
   width = this->vcom->getImageWidth();
   height = this->vcom->getImageHeight();
@@ -69,6 +70,7 @@ void WorkerSensorMulti::doIdentify()
   memset(userIdentifier, 0, sizeof(char) * 32);
   memset(userName, 0, sizeof(char) * 100);
   memset(userRut, 0, sizeof(char) * 8);
+  memset(userEmp, 0, sizeof(char) * 32);
 
   bool stop = false;
   while (stop == false) {
@@ -83,7 +85,7 @@ void WorkerSensorMulti::doIdentify()
   }
 
   if (rc == 0) {
-    if (idkit->matchFromRawImage(compositeImage, width, height, &userIdentifier[0], &userName[0], &userRut[0])) {
+    if (idkit->matchFromRawImage(compositeImage, width, height, &userIdentifier[0], &userName[0], &userRut[0], &userEmp[0])) {
       emit match(QString(userIdentifier), QString(userName), QString(userRut));
 
       QString typeStr;
@@ -98,7 +100,7 @@ void WorkerSensorMulti::doIdentify()
           emit buttonPressed(typeInt, QString(userName));
           
           if (printer->getStatus()) {
-            printer->write_user(typeStr, QString(userIdentifier), QString(userName), QString(userRut));
+            printer->write_user(typeStr, QString(userIdentifier), QString(userName), QString(userRut), QString(userEmp));
           }
           
           rc = eventsDB->insertEvent(typeInt, userIdentifier, Utils::getCurrentUnixTimestamp(), 0);
@@ -146,10 +148,6 @@ void WorkerSensorMulti::doEnroll()
   int spoof;
   int rc;
 
-  char userIdentifier[32];
-  char userName[100];
-  char userRut[15];
-  
   width = this->vcom->getImageWidth();
   height = this->vcom->getImageHeight();
   compositeImage = new uchar[width * height];
@@ -157,9 +155,6 @@ void WorkerSensorMulti::doEnroll()
   
   memset(templateImage, 0, 2048);
   memset(compositeImage, 0, sizeof(uchar) * width * height);
-  memset(userIdentifier, 0, sizeof(char) * 32);
-  memset(userName, 0, sizeof(char) * 100);
-  memset(userRut, 0, sizeof(char) * 8);
   
   bool stop = false;
   while (stop == false) {
