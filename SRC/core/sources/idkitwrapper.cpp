@@ -81,7 +81,7 @@ error:
   return false;
 }
 
-bool IDKITWrapper::registerUserFromRawImage(unsigned char *rawImage, int width, int height, char *userIdentifier, char *userName, char *userRut)
+bool IDKITWrapper::registerUserFromRawImage(unsigned char *rawImage, int width, int height, char *userIdentifier, char *userName, char *userRut, char *userEmp)
 {
   int rc, bmpLength;
 
@@ -92,51 +92,57 @@ bool IDKITWrapper::registerUserFromRawImage(unsigned char *rawImage, int width, 
     goto error;
   }
 
-  rc = IEngine_ConvertRawImage2Bmp(rawImage, width, height, NULL, &bmpLength);
-  CHECK_IDKIT(rc, "IEngine_ConvertRawImage2Bmp (First Call)");
+  {
+    rc = IEngine_ConvertRawImage2Bmp(rawImage, width, height, NULL, &bmpLength);
+    CHECK_IDKIT(rc, "IEngine_ConvertRawImage2Bmp (First Call)");
 
-  unsigned char bmpImage[bmpLength];
-  memset(&bmpImage[0], 0x00, bmpLength);
-  rc = IEngine_ConvertRawImage2Bmp(rawImage, width, height, &bmpImage[0], &bmpLength);
-  CHECK_IDKIT(rc, "IEngine_ConvertRawImage2Bmp (Second Call)");
+    unsigned char bmpImage[bmpLength];
+    memset(&bmpImage[0], 0x00, bmpLength);
+    rc = IEngine_ConvertRawImage2Bmp(rawImage, width, height, &bmpImage[0], &bmpLength);
+    CHECK_IDKIT(rc, "IEngine_ConvertRawImage2Bmp (Second Call)");
 
-  rc = IEngine_AddFingerprint(user, RIGHT_INDEX, bmpImage);
-  CHECK_IDKIT(rc, "IEngine_AddFingerprint");
+    rc = IEngine_AddFingerprint(user, RIGHT_INDEX, bmpImage);
+    CHECK_IDKIT(rc, "IEngine_AddFingerprint");
 
-  rc = IEngine_SetStringTag(user, "identifier", userIdentifier);
-  CHECK_IDKIT(rc, "IEngine_SetStringTag (identifier)");
+    rc = IEngine_SetStringTag(user, "identifier", userIdentifier);
+    CHECK_IDKIT(rc, "IEngine_SetStringTag (identifier)");
 
-  rc = IEngine_SetStringTag(user, "name", userName);
-  CHECK_IDKIT(rc, "IEngine_SetStringTag (name)");
+    rc = IEngine_SetStringTag(user, "name", userName);
+    CHECK_IDKIT(rc, "IEngine_SetStringTag (name)");
 
-  rc = IEngine_SetStringTag(user, "rut", userRut);
-  CHECK_IDKIT(rc, "IEngine_SetStringTag (rut)");
+    rc = IEngine_SetStringTag(user, "rut", userRut);
+    CHECK_IDKIT(rc, "IEngine_SetStringTag (rut)");
 
-  // Register user
-  int userID;
-  rc = IEngine_RegisterUser(user, &userID);
-  CHECK_IDKIT(rc, "IEngine_RegisterUser");
+    rc = IEngine_SetStringTag(user, "empresa", userEmp);
+    CHECK_IDKIT(rc, "IEngine_SetStringTag (empresa)");
 
-  // Free user
-  rc = IEngine_FreeUser(user);
-  CHECK_IDKIT(rc, "IEngine_FreeUser");
+    // Register user
+    int userID;
+    rc = IEngine_RegisterUser(user, &userID);
+    CHECK_IDKIT(rc, "IEngine_RegisterUser");
 
-  LOG_INFO("IDKITWrapper::registerUserFromRawImage OK");
-  LOG_INFO("User %s registered", userName);
-  return true;
+    // Free user
+    rc = IEngine_FreeUser(user);
+    CHECK_IDKIT(rc, "IEngine_FreeUser");
+
+    LOG_INFO("IDKITWrapper::registerUserFromRawImage OK");
+    LOG_INFO("User %s registered", userName);
+    return true;
+  }
 
 error:
   if (user) {
     IEngine_ClearTag(user, "identifier");
     IEngine_ClearTag(user, "name");
     IEngine_ClearTag(user, "rut");
+    IEngine_ClearTag(user, "empresa");
     IEngine_FreeUser(user);
   }
   LOG_ERROR("IDKITWrapper::registerUserFromRawImage FAIL");
   return false;
 }
 
-bool IDKITWrapper::registerUserFromTemplate(unsigned char *tpl, char *userIdentifier, char *userName, char *userRut)
+bool IDKITWrapper::registerUserFromTemplate(unsigned char *tpl, char *userIdentifier, char *userName, char *userRut, char *userEmp)
 {
   int rc;
   IENGINE_USER user;
@@ -148,51 +154,52 @@ bool IDKITWrapper::registerUserFromTemplate(unsigned char *tpl, char *userIdenti
     goto error;
   }
 
-  rc = IEngine_ImportUserTemplate(user, FORMAT_ICS, tpl);
-  CHECK_IDKIT(rc, "IEngine_ImportUserTemplate");
+  {
+    rc = IEngine_ImportUserTemplate(user, FORMAT_ICS, tpl);
+    CHECK_IDKIT(rc, "IEngine_ImportUserTemplate");
 
-  rc = IEngine_SetStringTag(user, "identifier", userIdentifier);
-  CHECK_IDKIT(rc, "IEngine_SetStringTag (identifier)");
+    rc = IEngine_SetStringTag(user, "identifier", userIdentifier);
+    CHECK_IDKIT(rc, "IEngine_SetStringTag (identifier)");
 
-  rc = IEngine_SetStringTag(user, "name", userName);
-  CHECK_IDKIT(rc, "IEngine_SetStringTag (name)");
+    rc = IEngine_SetStringTag(user, "name", userName);
+    CHECK_IDKIT(rc, "IEngine_SetStringTag (name)");
 
-  rc = IEngine_SetStringTag(user, "rut", userRut);
-  CHECK_IDKIT(rc, "IEngine_SetStringTag (rut)");
+    rc = IEngine_SetStringTag(user, "rut", userRut);
+    CHECK_IDKIT(rc, "IEngine_SetStringTag (rut)");
 
-  // Register user
-  int userID;
-  rc = IEngine_RegisterUser(user, &userID);
-  CHECK_IDKIT(rc, "IEngine_RegisterUser");
+    rc = IEngine_SetStringTag(user, "empresa", userEmp);
+    CHECK_IDKIT(rc, "IEngine_SetStringTag (empresa)");
 
-  // Free user
-  rc = IEngine_FreeUser(user);
-  CHECK_IDKIT(rc, "IEngine_FreeUser");
+    // Register user
+    int userID;
+    rc = IEngine_RegisterUser(user, &userID);
+    CHECK_IDKIT(rc, "IEngine_RegisterUser");
 
-  LOG_INFO("IDKITWrapper::registerUserFromTemplate OK");
-  LOG_INFO("User %s registered", userName);
-  return true;
+    // Free user
+    rc = IEngine_FreeUser(user);
+    CHECK_IDKIT(rc, "IEngine_FreeUser");
+
+    LOG_INFO("IDKITWrapper::registerUserFromTemplate OK");
+    LOG_INFO("User %s registered", userName);
+    return true;
+  }
 
 error:
   if (user) {
     IEngine_ClearTag(user, "identifier");
     IEngine_ClearTag(user, "name");
     IEngine_ClearTag(user, "rut");
+    IEngine_ClearTag(user, "empresa");
     IEngine_FreeUser(user);
   }
   LOG_ERROR("IDKITWrapper::registerUserFromTemplate FAIL");
   return false;
 }
 
-bool IDKITWrapper::matchFromRawImage(unsigned char *rawImage, int width, int height, char *userIdentifier, char *userName, char *userRut)
+bool IDKITWrapper::matchFromRawImage(unsigned char *rawImage, int width, int height, char *userIdentifier, char *userName, char *userRut, char *userEmp)
 {
-#ifndef NDEBUG
-  time_t start, stop;
-  time(&start);
-#endif
-
   int rc, bmpLength, userID, score;
-  bool result;
+  bool result = false;
   IENGINE_USER user;
 
   // Initializing user structure
@@ -205,80 +212,80 @@ bool IDKITWrapper::matchFromRawImage(unsigned char *rawImage, int width, int hei
   rc = IEngine_ConvertRawImage2Bmp(rawImage, width, height, NULL, &bmpLength);
   CHECK_IDKIT(rc, "IEngine_ConvertRawImage2Bmp (First Call)");
 
-  unsigned char bmpImage[bmpLength];
-  memset(&bmpImage[0], 0x00, bmpLength);
-  rc = IEngine_ConvertRawImage2Bmp(rawImage, width, height, &bmpImage[0], &bmpLength);
-  CHECK_IDKIT(rc, "IEngine_ConvertRawImage2Bmp (Second Call)");
+  { // get rid of lint error by creating a new scope
+    unsigned char bmpImage[bmpLength];
+    memset(&bmpImage[0], 0x00, bmpLength);
+    rc = IEngine_ConvertRawImage2Bmp(rawImage, width, height, &bmpImage[0], &bmpLength);
+    CHECK_IDKIT(rc, "IEngine_ConvertRawImage2Bmp (Second Call)");
 
-  // Add unknown fingerprint to user structure.
-  // The index of unknown fingerprint in user structure will be 0, as it is
-  // the first fingerprint added to this structure
-  rc = IEngine_AddFingerprint(user, UNKNOWN_FINGER, bmpImage);
-  CHECK_IDKIT(rc, "IEngine_AddFingerprint");
+    // Add unknown fingerprint to user structure.
+    // The index of unknown fingerprint in user structure will be 0, as it is
+    // the first fingerprint added to this structure
+    rc = IEngine_AddFingerprint(user, UNKNOWN_FINGER, bmpImage);
+    CHECK_IDKIT(rc, "IEngine_AddFingerprint");
 
-  rc = IEngine_FindUser(user, &userID, &score);
-  CHECK_IDKIT(rc, "IEngine_FindUser");
+    rc = IEngine_FindUser(user, &userID, &score);
+    CHECK_IDKIT(rc, "IEngine_FindUser");
 
-  if (userID > 0)  {
-    DEBUG("User already registered in the database with registration ID: %d.", userID);
-    DEBUG("(Detected similarity score: %d)", score);
+    if (userID > 0)  {
+      DEBUG("User already registered in the database with registration ID: %d.", userID);
+      DEBUG("(Detected similarity score: %d)", score);
 
-    // Load user data into user
-    rc = IEngine_GetUser(user, userID);
-    CHECK_IDKIT(rc, "IEngine_GetUser");
+      // Load user data into user
+      rc = IEngine_GetUser(user, userID);
+      CHECK_IDKIT(rc, "IEngine_GetUser");
 
-    int tagLength = 0;
-    rc = IEngine_GetStringTag(user, "identifier", NULL, &tagLength);
-    CHECK_IDKIT(rc, "IEngine_GetStringTag (identifier - First Call)");
-    char identifier[tagLength];
-    rc = IEngine_GetStringTag(user, "identifier", &identifier[0], &tagLength);
-    CHECK_IDKIT(rc, "IEngine_GetStringTag (identifier - Second Call)");
+      int tagLength = 0;
+      rc = IEngine_GetStringTag(user, "identifier", NULL, &tagLength);
+      CHECK_IDKIT(rc, "IEngine_GetStringTag (identifier - First Call)");
+      char identifier[tagLength];
+      rc = IEngine_GetStringTag(user, "identifier", &identifier[0], &tagLength);
+      CHECK_IDKIT(rc, "IEngine_GetStringTag (identifier - Second Call)");
 
-    tagLength = 0;
-    rc = IEngine_GetStringTag(user, "name", NULL, &tagLength);
-    CHECK_IDKIT(rc, "IEngine_GetStringTag (name - First Call)");
-    char name[tagLength];
-    rc = IEngine_GetStringTag(user, "name", &name[0], &tagLength);
-    CHECK_IDKIT(rc, "IEngine_GetStringTag (name - Second Call)");
+      tagLength = 0;
+      rc = IEngine_GetStringTag(user, "name", NULL, &tagLength);
+      CHECK_IDKIT(rc, "IEngine_GetStringTag (name - First Call)");
+      char name[tagLength];
+      rc = IEngine_GetStringTag(user, "name", &name[0], &tagLength);
+      CHECK_IDKIT(rc, "IEngine_GetStringTag (name - Second Call)");
 
-    tagLength = 0;
-    rc = IEngine_GetStringTag(user, "rut", NULL, &tagLength);
-    CHECK_IDKIT(rc, "IEngine_GetStringTag (rut - First Call)");
-    char rut[tagLength];
-    rc = IEngine_GetStringTag(user, "rut", &rut[0], &tagLength);
-    CHECK_IDKIT(rc, "IEngine_GetStringTag (rut - Second Call)");
+      tagLength = 0;
+      rc = IEngine_GetStringTag(user, "rut", NULL, &tagLength);
+      CHECK_IDKIT(rc, "IEngine_GetStringTag (rut - First Call)");
+      char rut[tagLength];
+      rc = IEngine_GetStringTag(user, "rut", &rut[0], &tagLength);
+      CHECK_IDKIT(rc, "IEngine_GetStringTag (rut - Second Call)");
 
-    strcpy(userIdentifier, identifier);
-    strcpy(userName, name);
-    strcpy(userRut, rut);
+      tagLength = 0;
+      rc = IEngine_GetStringTag(user, "empresa", NULL, &tagLength);
+      CHECK_IDKIT(rc, "IEngine_GetStringTag (empresa - First Call)");
+      char empresa[tagLength];
+      rc = IEngine_GetStringTag(user, "empresa", &empresa[0], &tagLength);
+      CHECK_IDKIT(rc, "IEngine_GetStringTag (empresa - Second Call)");
 
-    LOG_INFO("User found in the database.");
-    result = true;
-  } else {
-    // if no user with the same fingerprint is present in the database,
-    // userID (and score) is set to 0 by IEngine_FindUser function
-    LOG_INFO("User not found in the database.");
-    result = false;
+      strcpy(userIdentifier, identifier);
+      strcpy(userName, name);
+      strcpy(userRut, rut);
+      strcpy(userEmp, empresa);
+
+      LOG_INFO("User found in the database.");
+      result = true;
+    } else {
+      // if no user with the same fingerprint is present in the database,
+      // userID (and score) is set to 0 by IEngine_FindUser function
+      LOG_INFO("User not found in the database.");
+      result = false;
+    }
   }
 
   rc = IEngine_FreeUser(user);
   CHECK_IDKIT(rc, "IEngine_FreeUser");
-
-#ifndef NDEBUG
-  time(&stop);
-  DEBUG("IDKIT identification finished in about %.0f seconds", difftime(stop, start));
-#endif
 
   LOG_INFO("IDKITWrapper::matchFromRawImage OK");
   return result;
 
 error:
   if (user) { IEngine_FreeUser(user); }
-
-#ifndef NDEBUG
-  time(&stop);
-  DEBUG("IDKIT identification finished in about %.0f seconds", difftime(stop, start));
-#endif
 
   LOG_ERROR("IDKITWrapper::matchFromRawImage FAIL");
   return false;

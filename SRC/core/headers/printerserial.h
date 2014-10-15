@@ -18,7 +18,7 @@ class PrinterSerial : public QObject
 
     bool init();
     void write_hello(QString mac, QString ip, QString gateway, QString masc, QString broadcast);
-    void write_user(QString type, QString userIdentifier, QString userName, QString userRut);
+    void write_user(QString type, QString userIdentifier, QString userName, QString userRut, QString userEmp);
     bool getRealTimePaperStatus(QString &msg);
     bool getRealTimeStatus(QString &msg);
     bool getRealTimeOfflineStatus(QString &msg);
