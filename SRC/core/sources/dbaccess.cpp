@@ -325,7 +325,9 @@ bool ConfigDB::getOldConfigs(QMap<QString, QString> &configMap)
       QString param = qry.value(0).toString();
       QString value = qry.value(1).toString();
 
-      if (param == "SERIAL_EQUIPO") {
+      if (param == "EMPRESA_HOLDING_NOMBRE") {
+        configMap["empresa_holding"] = value;
+      } else if (param == "SERIAL_EQUIPO") {
         configMap["serial_equipo"] = value;
       } else if (param == "IDENTIFICADOR_EQUIPO") {
         configMap["identificador_equipo"] = value;

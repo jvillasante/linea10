@@ -42,6 +42,7 @@ void configure(const char *configDb)
   QString cliente = configMap["cliente"];
   QString clienteUpdate = configMap["cliente"].replace("HORUS9", "Update");
   
+  settings->setValue("empresaHolding", configMap["empresa_holding"]);
   settings->setValue("serialEquipo", configMap["serial_equipo"]);
   settings->setValue("identificadorEquipo", configMap["identificador_equipo"]);
   settings->setValue("wsIP", configMap["ws_ip"]);
