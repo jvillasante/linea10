@@ -13,7 +13,7 @@
 target1=$PWD/FIRMWARE/firmware.tar.gz
 target2=$PWD/FIRMWARE/firmware.tar.gz.md5
 # target3=$PWD/FIRMWARE/app.ini
-# target4=$PWD/FIRMWARE/Gen_Config.sql
+# target4=/home/jvillasante/Desktop/iengine.db
 scp -Cpr $target1 $target2 root@192.168.1.252:"/usr/local/"
-# scp -Cpr $target3 root@192.168.1.252:"/mnt/jffs2/"
+# scp -Cpr $target3 $target4 root@192.168.1.252:"/mnt/jffs2/"
 
