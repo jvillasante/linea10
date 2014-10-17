@@ -13,18 +13,13 @@ cp /usr/local/bin/Santiago /etc/localtime
 
 # NTP CLIENTE
 echo Starting NTP
-<<<<<<< HEAD
-<<<<<<< HEAD
 ntpd -p 200.54.149.19
-=======
-ntpd -p 200.54.149.19   # ip del banco
->>>>>>> Se agrega la funcionalidad de Empresa/Subempresa.
-=======
-ntpd -p 200.54.149.19
->>>>>>> La empresa ahora es GENERA S.A.
 
 # Install Genera Drivers
 /usr/local/bin/GeneraDriversInstall.sh
+
+# # Install udev rules
+# /usr/local/bin/vcom_driver/installRule.sh
 
 # Calibration, check for missing or empty file
 if [ ! -s /mnt/jffs2/pointercal ]; then

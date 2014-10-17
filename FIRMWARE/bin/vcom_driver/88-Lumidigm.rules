@@ -1,0 +1,6 @@
+KERNEL=="*", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ACTION=="add", ATTR{idVendor}=="0525", ATTR{idProduct}=="3424", MODE:="0666", TAG="Lumidigm V30x-V4xx"
+KERNEL=="*", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ACTION=="add", ATTR{idVendor}=="1fae", ATTR{idProduct}=="212c", MODE:="0666", TAG="Lumidigm M30x"
+KERNEL=="*", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ACTION=="add", ATTR{idVendor}=="1fae", ATTR{idProduct}=="0020", TAG="Lumidigm V31X PreEnum", RUN+="/usr/local/Lumidigm/bin/LumiDownloader"
+KERNEL=="*", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ACTION=="add", ATTR{idVendor}=="1fae", ATTR{idProduct}=="0021", MODE:="0666", TAG="Lumidigm V31x", RUN+="/usr/local/Lumidigm/bin/udev-pm.sh"
+KERNEL=="*", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ACTION=="add", ATTR{idVendor}=="1fae", ATTR{idProduct}=="0040", TAG="Lumidigm M31X PreEnum", RUN+="/usr/local/Lumidigm/bin/LumiDownloader"
+KERNEL=="*", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ACTION=="add", ATTR{idVendor}=="1fae", ATTR{idProduct}=="0041", MODE:="0666", TAG="Lumidigm M31x"

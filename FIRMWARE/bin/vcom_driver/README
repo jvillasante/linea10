@@ -1,0 +1,3 @@
+This will install a udev rule to allow access to the usb driver
+
+** Must be run with root privileges **
