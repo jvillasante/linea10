@@ -174,7 +174,7 @@ void EnrollDialog::enrollWorkDone(uchar *compositeImage, uchar *templateImage, i
   
   btnOk->setVisible(true);
   lblMsgScreen2->setPixmap(QPixmap::fromImage(scaled_image));
-  lblEmpresa->setText(tr("Aceptar para enrollar"));
+  lblEmpresa->setText(tr("Aceptar para enrolar"));
 
   update();
   qApp->processEvents();
