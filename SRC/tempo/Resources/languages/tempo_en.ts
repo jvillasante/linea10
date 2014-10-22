@@ -5,15 +5,19 @@
 <context>
     <name>EnrollDialog</name>
     <message>
-        <location filename="../../sources/enrolldialog.cpp" line="177"/>
         <source>Aceptar para enrollar</source>
-        <translation>Accept to enroll</translation>
+        <translation type="obsolete">Accept to enroll</translation>
+    </message>
+    <message>
+        <location filename="../../sources/enrolldialog.cpp" line="177"/>
+        <source>Aceptar para enrolar</source>
+        <translation>Acept to enroll</translation>
     </message>
     <message>
         <location filename="../../sources/enrolldialog.cpp" line="238"/>
         <location filename="../../sources/enrolldialog.cpp" line="253"/>
         <location filename="../../sources/enrolldialog.cpp" line="261"/>
-        <location filename="../../sources/enrolldialog.cpp" line="321"/>
+        <location filename="../../sources/enrolldialog.cpp" line="327"/>
         <source>Error procesando...</source>
         <translation>Error processing...</translation>
     </message>
@@ -34,37 +38,37 @@
     </message>
     <message>
         <location filename="../../sources/enrolldialog.cpp" line="297"/>
-        <location filename="../../sources/enrolldialog.cpp" line="306"/>
+        <location filename="../../sources/enrolldialog.cpp" line="312"/>
         <source>RUT Inválido</source>
         <translation>INVALID RUT</translation>
     </message>
     <message>
-        <location filename="../../sources/enrolldialog.cpp" line="315"/>
+        <location filename="../../sources/enrolldialog.cpp" line="321"/>
         <source>Enrolando... Espere...</source>
         <translation>Enrolling... Wait...</translation>
     </message>
     <message>
-        <location filename="../../sources/enrolldialog.cpp" line="327"/>
+        <location filename="../../sources/enrolldialog.cpp" line="333"/>
         <source>Operacion cancelada...</source>
         <translation>Canceled Operation...</translation>
     </message>
     <message>
-        <location filename="../../sources/enrolldialog.cpp" line="332"/>
+        <location filename="../../sources/enrolldialog.cpp" line="338"/>
         <source>Enrolamiento Timeout...</source>
         <translation>Enroll Timeout...</translation>
     </message>
     <message>
-        <location filename="../../sources/enrolldialog.cpp" line="361"/>
+        <location filename="../../sources/enrolldialog.cpp" line="367"/>
         <source>Introduzca su RUT</source>
         <translation>Enter your RUT</translation>
     </message>
     <message>
-        <location filename="../../sources/enrolldialog.cpp" line="578"/>
+        <location filename="../../sources/enrolldialog.cpp" line="584"/>
         <source>Usuario no encontrado</source>
         <translation>User not found</translation>
     </message>
     <message>
-        <location filename="../../sources/enrolldialog.cpp" line="580"/>
+        <location filename="../../sources/enrolldialog.cpp" line="586"/>
         <source>%1
 %2
 %3</source>
@@ -73,7 +77,7 @@
 %3</translation>
     </message>
     <message>
-        <location filename="../../sources/enrolldialog.cpp" line="586"/>
+        <location filename="../../sources/enrolldialog.cpp" line="592"/>
         <source>Coloque el dedo
 en el sensor para
 capturar huella...</source>
@@ -122,7 +126,7 @@ capture...</translation>
         <translation>Registered Users: %1</translation>
     </message>
     <message>
-        <location filename="../../sources/mainwindow.cpp" line="161"/>
+        <location filename="../../sources/mainwindow.cpp" line="160"/>
         <location filename="../../sources/mainwindow.cpp" line="270"/>
         <source>Coloque el dedo&lt;br&gt;en el sensor...</source>
         <translation>Place finger&lt;br&gt;on sensor...</translation>
@@ -146,77 +150,77 @@ capture...</translation>
 <context>
     <name>PrinterSerial</name>
     <message>
-        <location filename="../../../core/sources/printerserial.cpp" line="82"/>
+        <location filename="../../../core/sources/printerserial.cpp" line="83"/>
         <source>SERIAL: </source>
         <translation>SERIAL:</translation>
     </message>
     <message>
-        <location filename="../../../core/sources/printerserial.cpp" line="83"/>
+        <location filename="../../../core/sources/printerserial.cpp" line="84"/>
         <source>TECNOLOGIA: BIOMETRIA DACTILAR</source>
         <translation>TECHNOLOGY: FINGERPRINT BIOMETRICS</translation>
     </message>
     <message>
-        <location filename="../../../core/sources/printerserial.cpp" line="84"/>
+        <location filename="../../../core/sources/printerserial.cpp" line="85"/>
         <source>SENSORES BIOMETRICOS: </source>
         <translation>BIOMETRICS SENSORS: </translation>
     </message>
     <message>
-        <location filename="../../../core/sources/printerserial.cpp" line="85"/>
+        <location filename="../../../core/sources/printerserial.cpp" line="86"/>
         <source>MODO BIOMETRIA: IDENTIFICACION NO NATIVA</source>
         <translation>BIOMETRICS MODE: NON NATIVE IDENTIFICATION</translation>
     </message>
     <message>
-        <location filename="../../../core/sources/printerserial.cpp" line="86"/>
+        <location filename="../../../core/sources/printerserial.cpp" line="87"/>
         <source>LENGUAJE: </source>
         <translation>LANGUAGE: </translation>
     </message>
     <message>
-        <location filename="../../../core/sources/printerserial.cpp" line="87"/>
+        <location filename="../../../core/sources/printerserial.cpp" line="88"/>
         <source>TIPO DE EQUIPO: </source>
         <translation>EQUIPMENT TYPE: </translation>
     </message>
     <message>
-        <location filename="../../../core/sources/printerserial.cpp" line="88"/>
+        <location filename="../../../core/sources/printerserial.cpp" line="89"/>
         <source>EMPRESA: </source>
         <translation>COMPANY: </translation>
     </message>
     <message>
-        <location filename="../../../core/sources/printerserial.cpp" line="89"/>
+        <location filename="../../../core/sources/printerserial.cpp" line="90"/>
         <source>ETHERNET MAC: </source>
         <translation>ETHERNET MAC: </translation>
     </message>
     <message>
-        <location filename="../../../core/sources/printerserial.cpp" line="90"/>
+        <location filename="../../../core/sources/printerserial.cpp" line="91"/>
         <source>ETHERNET IP: </source>
         <translation>ETHERNET IP: </translation>
     </message>
     <message>
-        <location filename="../../../core/sources/printerserial.cpp" line="91"/>
+        <location filename="../../../core/sources/printerserial.cpp" line="92"/>
         <source>ETHERNET GATEWAY: </source>
         <translation>ETHERNET GATEWAY: </translation>
     </message>
     <message>
-        <location filename="../../../core/sources/printerserial.cpp" line="92"/>
+        <location filename="../../../core/sources/printerserial.cpp" line="93"/>
         <source>ETHERNET MASC: </source>
         <translation>ETHERNET MASC: </translation>
     </message>
     <message>
-        <location filename="../../../core/sources/printerserial.cpp" line="93"/>
+        <location filename="../../../core/sources/printerserial.cpp" line="94"/>
         <source>ETHERNET BROADCASTING: </source>
         <translation>ETHERNET BROADCASTING: </translation>
     </message>
     <message>
-        <location filename="../../../core/sources/printerserial.cpp" line="143"/>
+        <location filename="../../../core/sources/printerserial.cpp" line="146"/>
         <source>Ident  :</source>
         <translation>Ident  :</translation>
     </message>
     <message>
-        <location filename="../../../core/sources/printerserial.cpp" line="147"/>
+        <location filename="../../../core/sources/printerserial.cpp" line="150"/>
         <source>RUT    :</source>
         <translation>RUT    :</translation>
     </message>
     <message>
-        <location filename="../../../core/sources/printerserial.cpp" line="151"/>
+        <location filename="../../../core/sources/printerserial.cpp" line="154"/>
         <source>Nombre :</source>
         <translation>Name :</translation>
     </message>
@@ -322,12 +326,12 @@ capture...</translation>
 <context>
     <name>WorkerSensorMulti</name>
     <message>
-        <location filename="../../sources/workersensormulti.cpp" line="285"/>
+        <location filename="../../sources/workersensormulti.cpp" line="289"/>
         <source>ENTRADA</source>
         <translation>IN</translation>
     </message>
     <message>
-        <location filename="../../sources/workersensormulti.cpp" line="291"/>
+        <location filename="../../sources/workersensormulti.cpp" line="294"/>
         <source>SALIDA</source>
         <translation>OUT</translation>
     </message>
