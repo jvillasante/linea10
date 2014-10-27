@@ -15,7 +15,7 @@ namespace Utils
     if (aString.length() <= maxLength)
       return;
 
-    aString.truncate(maxLength - 3);
+    aString.truncate(maxLength - 4);
     aString.append("...");
   }
 
