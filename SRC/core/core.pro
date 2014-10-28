@@ -42,7 +42,7 @@ OTHER_FILES += \
     core_updater.pri \
     core_tempo.pri \
     core_synchronizer.pri \
-    core_backup.pri \
+    core_backup.pri
 
 INCLUDEPATH += $$PWD/headers
 INCLUDEPATH += $$PWD/../includes
