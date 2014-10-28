@@ -18,5 +18,7 @@ copy_to_dropbox.sh
 create_firmware.sh
 readme.txt
 todo.txt
+.project
 
 
+/.project
