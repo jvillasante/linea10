@@ -1,12 +1,22 @@
 # files to ignore
-BUILD/*
+*~
+BUILD/
 FIRMWARE/*.*
 FIRMWARE/bin/synchronizer
 FIRMWARE/bin/tempo
 FIRMWARE/bin/updater
+FIRMWARE/bin/backup
 Makefile
 
-# ignore all files ending with ~
-*~
+FIRMWARE/bin/Resources/
+.ycm_extra_conf.py
+.ycm_extra_conf.pyc
+build.sh
+clean.sh
+copy_target.sh
+copy_to_dropbox.sh
+create_firmware.sh
+readme.txt
+todo.txt
 
-# personal stuff
+
