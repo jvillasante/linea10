@@ -23,6 +23,7 @@ Backup::Backup()
   
   timer = new QTimer(this);
   timer->setInterval(3600000);
+  // timer->setInterval(60000);
   connect(timer, SIGNAL(timeout()), this, SLOT(doWork()));
   timer->start();
 }
@@ -42,10 +43,10 @@ void Backup::deleteOldFiles()
   dir.setFilter(QDir::NoDotAndDotDot | QDir::Files);
   foreach(QFileInfo file, dir.entryInfoList()) {
     if (file.created() <= keepEvents) {
-      if(dir.remove(file.path())) {
-        DEBUG("Deleted /mnt/jffs2/backup/%s", file.absolutePath().toStdString().c_str());
+      if(dir.remove(file.absoluteFilePath())) {
+        DEBUG("Deleted %s", file.absoluteFilePath().toStdString().c_str());
       } else {
-        DEBUG("Fail to Delete /mnt/jffs2/backup/%s", file.absolutePath().toStdString().c_str());
+        DEBUG("Fail to Delete %s", file.absoluteFilePath().toStdString().c_str());
       }
     }
   } 
