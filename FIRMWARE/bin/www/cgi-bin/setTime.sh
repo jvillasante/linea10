@@ -48,8 +48,8 @@ else
   echo '<br>'
   echo '<br>'
 
-  ./SetTimeKairos $xDate
-  # date $xDate
+  # ./SetTimeKairos $xDate
+  date $xDate
   
   # echo "<br><br>La aplicacion se reiniciara en aproximadamente 5 segundos..."
   # sleep 5

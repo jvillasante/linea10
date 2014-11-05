@@ -22,6 +22,8 @@ namespace Utils
   bool fileExists(const char *name);
 
   char rutVerifyDigit(unsigned rut);
+
+  bool isNtpRunning();
 }
 
 #endif // UTILS_H

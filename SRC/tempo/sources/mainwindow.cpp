@@ -243,9 +243,14 @@ void MainWindow::initializeUI()
   QPixmap lblGeneraLogoPixmap(":/img/Resources/images/genera_logo.png");
   lblGeneraLogo->setPixmap(lblGeneraLogoPixmap);
 
-  lblEmpresaHolding = new QLabel(
-      settings->value("empresaHolding", "GENERA S.A.").toString() + "\n" +
-      settings->value("fwVersion", "").toString());
+  if (Utils::isNtpRunning()) {
+    lblEmpresaHolding = new QLabel(
+        settings->value("empresaHolding", "GENERA S.A.").toString() + "\n" + "[NTP]");
+  } else {
+    lblEmpresaHolding = new QLabel(
+        settings->value("empresaHolding", "GENERA S.A.").toString() + "\n" + "[NO NTP]");
+  }
+
   lblEmpresaHolding->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
   lblEmpresaHolding->setStyleSheet("font-size: 16px;"
       "color: #FFFFFF;"

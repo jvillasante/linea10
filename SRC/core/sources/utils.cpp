@@ -179,4 +179,22 @@ namespace Utils
     else if (result == 10) return 'K';
     else return '0';
   }
+  
+  bool isNtpRunning() {
+    // ps cax | grep httpd | grep -o '^[  ]*[0-9]*'
+    QString psCommand = QString("ps cax");
+    DEBUG("Sending command %s", psCommand.toStdString().c_str());
+
+    QProcess psProcess;
+    psProcess.start(psCommand);
+    psProcess.waitForFinished(-1);
+
+    QString psStdout = psProcess.readAllStandardOutput();
+    
+    if (psStdout.contains(QString("ntpd -p"))) {
+      return true;
+    }
+
+    return false;
+  }
 }
