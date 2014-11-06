@@ -181,20 +181,12 @@ namespace Utils
   }
   
   bool isNtpRunning() {
-    // ps cax | grep httpd | grep -o '^[  ]*[0-9]*'
-    QString psCommand = QString("ps cax");
-    DEBUG("Sending command %s", psCommand.toStdString().c_str());
-
-    QProcess psProcess;
-    psProcess.start(psCommand);
-    psProcess.waitForFinished(-1);
-
-    QString psStdout = psProcess.readAllStandardOutput();
-    
-    if (psStdout.contains(QString("ntpd -p"))) {
+    if (Utils::fileExists("/usr/local/bin/Resources/ntp_is_running")) {
+      DEBUG("NTP is running");
       return true;
+    } else {
+      DEBUG("NTP is NOT running");
+      return false;
     }
-
-    return false;
   }
 }

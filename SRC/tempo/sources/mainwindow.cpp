@@ -33,6 +33,8 @@ MainWindow::MainWindow(QSettings *settings, QWidget *parent) :
   this->soapHandler = new SoapHandler(settings);
   connect(this->soapHandler, SIGNAL(finished(QString)), this, SLOT(alarmasFinished(QString)));
   connect(this->soapHandler, SIGNAL(error(QString)), this, SLOT(alarmasError(QString)));
+
+  ntp_is_running = Utils::isNtpRunning();
   
   updatePrinterStatus();
   updateInternetStatus();
@@ -164,20 +166,19 @@ void MainWindow::updateEverySecond()
   QDateTime now = QDateTime::currentDateTime();
   lblTime->display(now.toString("hh:mm:ss"));
 
-  // solo cambiar la fecha si estamos inicializando o si la hora es 0 (12 de la mannana)
-  if ((lblDate->text().isEmpty()) || (now.time().hour() == 0)) {
+  // is ntp is not running, actualizar la fecha cada segundo
+  if (!ntp_is_running) {
     updateDate(now);
+  } else {
+    // solo cambiar la fecha si estamos inicializando o si la hora es 0 (12 de la mannana)
+    if ((lblDate->text().isEmpty()) || (now.time().hour() == 0)) {
+      updateDate(now);
+    }
   }
 }
 
 void MainWindow::updateEveryHour()
 {
-  // Delete syncronized events
-  // int time = settings->value("timeEvents", 15).toInt();
-  // if (!eventsDB->deleteEventsSyncronized(time)) {
-  //   DEBUG("Unable to delete events syncronized...");
-  // }
-  
   if (Utils::fileExists("/usr/local/firmware.tar.gz") && Utils::fileExists("/usr/local/firmware.tar.gz.md5")) {
     DEBUG("THERE ARE UPDATES AVAILABLE... VERIFYING MD5...");
 
@@ -516,79 +517,78 @@ inline void MainWindow::updateDate(QDateTime now)
   if (lang == "en") {
     strDate = currentDate.toString("ddd, dd MMMM yyyy");
   } else {
-    QString strmonth = "";
-    QString strdayweek = "";
-
     switch (currentDate.dayOfWeek()) {
       case 1:
-        strdayweek = "LUN";
+        strDate = "LUN";
         break;
       case 2:
-        strdayweek = "MAR";
+        strDate = "MAR";
         break;
       case 3:
-        strdayweek = "MIE";
+        strDate = "MIE";
         break;
       case 4:
-        strdayweek = "JUE";
+        strDate = "JUE";
         break;
       case 5:
-        strdayweek = "VIE";
+        strDate = "VIE";
         break;
       case 6:
-        strdayweek = "SAB";
+        strDate = "SAB";
         break;
       case 7:
-        strdayweek = "DOM";
+        strDate = "DOM";
         break;
       default:
-        strdayweek = "ERROR";
+        strDate = "ERROR";
         break;
     }
+    
+    strDate += ", " + now.toString("dd") + " ";
 
     switch(currentDate.month()) {
       case 1:
-        strmonth = "ENERO";
+        strDate += "ENERO";
         break;
       case 2:
-        strmonth = "FEBRERO";
+        strDate += "FEBRERO";
         break;
       case 3:
-        strmonth = "MARZO";
+        strDate += "MARZO";
         break;
       case 4:
-        strmonth = "ABRIL";
+        strDate += "ABRIL";
         break;
       case 5:
-        strmonth = "MAYO";
+        strDate += "MAYO";
         break;
       case 6:
-        strmonth = "JUNIO";
+        strDate += "JUNIO";
         break;
       case 7:
-        strmonth = "JULIO";
+        strDate += "JULIO";
         break;
       case 8:
-        strmonth = "AGOSTO";
+        strDate += "AGOSTO";
         break;
       case 9:
-        strmonth = "SEPTIEMBRE";
+        strDate += "SEPTIEMBRE";
         break;
       case 10:
-        strmonth = "OCTUBRE";
+        strDate += "OCTUBRE";
         break;
       case 11:
-        strmonth = "NOVIEMBRE";
+        strDate += "NOVIEMBRE";
         break;
       case 12:
-        strmonth = "DICIEMBRE";
+        strDate += "DICIEMBRE";
         break;
       default:
-        strmonth = "ERROR";
+        strDate += "ERROR";
         break;
     }
-
-    strDate = strdayweek + ", " + now.toString("dd") + " " + strmonth + " " + now.toString("yyyy");
+    
+    strDate += " " + now.toString("yyyy");
   }
 
   lblDate->setText(strDate);

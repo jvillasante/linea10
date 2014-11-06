@@ -87,6 +87,8 @@ class MainWindow : public QWidget
     NetworkMonitor *networkMonitor;
     SoapHandler *soapHandler;
 
+    bool ntp_is_running;
+
   private:
     void initializeUI();
     void initializeEventsDatabase();
