@@ -20,8 +20,7 @@ echo "<form method=GET action=\"${SCRIPT}\">"\
   '<tr><td>mm: Minutos (num&eacute;rico de dos d&iacute;gitos) </TD></tr>'\
   '<tr><td>cc: Primeros dos d&iacute;gitos del a&ntilde;o </TD></tr>'\
   '<tr><td>yy: Ultimos dos d&iacute;gitos del a&ntilde;o </TD></tr>'\
-  '<tr><td><strong>NOTA: EL SISTEMA SE REINICIARA LUEGO DE REALIZAR ESTA ACCION</strong></td></tr>'\
-  '<tr><td>Fecha y Hora Nueva:</TD><TD><input type="text" name="m_date" size=12></td></tr>'\
+  '<tr><td>Fecha y Hora Nueva:</TD><TD><input type="text" name="m_date" size=14></td></tr>'\
   '</table>'
 
 echo '<br><input type="submit" value="Guardar"></form>'
@@ -50,10 +49,6 @@ else
 
   # ./SetTimeKairos $xDate
   date $xDate
-  
-  # echo "<br><br>La aplicacion se reiniciara en aproximadamente 5 segundos..."
-  # sleep 5
-  # reboot
 fi
 echo '</body>'
 echo '</html>'
