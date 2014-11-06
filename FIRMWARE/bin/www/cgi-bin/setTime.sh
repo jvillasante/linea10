@@ -11,7 +11,8 @@ echo '</head>'
 echo '<body>'
 
 if [ -f /usr/local/bin/Resources/ntp_is_running ]; then
-  echo "NTP actualiza la fecha y hora autom&aacute;ticamente. NTP esta corriendo en este sistema.<br>"
+  echo "NTP actualiza la fecha y hora autom&aacute;ticamente.<br>"
+  echo "<strong>NTP est&aacute corriendo en este sistema.</strong><br>"
   echo "No es necesario actualizar la fecha y hora."
 else
   echo "<form method=GET action=\"${SCRIPT}\">"\
