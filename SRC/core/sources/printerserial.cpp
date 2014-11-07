@@ -18,7 +18,6 @@ PrinterSerial::PrinterSerial(QSettings *settings)
 
 PrinterSerial::~PrinterSerial()
 {
-#ifndef HOST
   if (this->serialPort != NULL) {
     if (this->serialPort->isOpen()) {
       this->serialPort->close();
@@ -27,15 +26,10 @@ PrinterSerial::~PrinterSerial()
     delete this->serialPort;
     LOG_INFO("Printer Serial is now closed");
   }
-#endif
 }
 
 bool PrinterSerial::init()
 {
-#ifdef HOST
-  DEBUG("PrinterSerial: HOST mode...");
-  return true;
-#else
   if (this->serialPort == NULL) {
     this->serialPort = new QextSerialPort("/dev/ttyS1", QextSerialPort::EventDriven);
     this->serialPort->setBaudRate(BAUD9600);
@@ -65,12 +59,10 @@ bool PrinterSerial::init()
     this->serialPort->close();
     return false;
   }
-#endif
 }
 
 void PrinterSerial::write_hello(QString mac, QString ip, QString gateway, QString masc, QString broadcast)
 {
-#ifndef HOST
   QByteArray bytes;
   QString serial = settings->value("serialEquipo").toString();
   QString type = settings->value("tipoEquipo").toString();
@@ -106,14 +98,10 @@ void PrinterSerial::write_hello(QString mac, QString ip, QString gateway, QStrin
   } else {
     LOG_INFO("PrinterSerial::write_hello FAIL");
   }
-#else
-  DEBUG("PrinterSerial: Host: Bienvenido al Tempo10.");
-#endif
 }
 
 void PrinterSerial::write_user(QString type, QString userIdentifier, QString userName, QString userRut, QString userEmp)
 {
-#ifndef HOST
   QByteArray bytes;
 
   fontCompressed();
@@ -164,13 +152,6 @@ void PrinterSerial::write_user(QString type, QString userIdentifier, QString use
   } else {
     LOG_ERROR("PrinterSerial::write_user FAIL");
   }
-#else
-  UNUSED(type);
-  UNUSED(userIdentifier);
-  UNUSED(userName);
-  UNUSED(userRut);
-  DEBUG("Printer Serial: Host Mode: Printing user ticket...");
-#endif
 }
 
 void PrinterSerial::setStatus(bool status) { this->connectedStatus = status; }
@@ -178,10 +159,6 @@ bool PrinterSerial::getStatus() { return this->connectedStatus; }
 
 bool PrinterSerial::getRealTimePaperStatus(QString &msg)
 {
-#ifdef HOST
-  msg = "Printer OK";
-  return true;
-#else
   QByteArray bytes("\x10\x04\x04\x00", 4);
   msg = "";
 
@@ -226,15 +203,10 @@ bool PrinterSerial::getRealTimePaperStatus(QString &msg)
   }
   
   return false;
-#endif
 }
 
 bool PrinterSerial::getRealTimeStatus(QString &msg)
 {
-#ifdef HOST
-  msg = "Printer OK";
-  return true;
-#else
   QByteArray bytes("\x10\x04\x01\x00", 4);
   msg = "";
 
@@ -275,15 +247,10 @@ bool PrinterSerial::getRealTimeStatus(QString &msg)
   }
   
   return false;
-#endif
 }
 
 bool PrinterSerial::getRealTimeOfflineStatus(QString &msg)
 {
-#ifdef HOST
-  msg = "Printer OK";
-  return true;
-#else
   QByteArray bytes("\x10\x04\x02\x00", 4);
   msg = "";
 
@@ -352,12 +319,10 @@ bool PrinterSerial::getRealTimeOfflineStatus(QString &msg)
   }
 
   return false;
-#endif
 }
 
 void PrinterSerial::onReadyRead()
 {
-#ifndef HOST
   QByteArray bytes;
   int availableBytes = this->serialPort->bytesAvailable();
   bytes.resize(availableBytes);
@@ -365,12 +330,10 @@ void PrinterSerial::onReadyRead()
 
   DEBUG("PrinterSerial: bytes read: %d", bytes.size());
   DEBUG("PrinterSerial: data read: %s", QString::fromAscii(bytes).toStdString().c_str());
-#endif
 }
 
 bool PrinterSerial::writeBytes(QByteArray bytes)
 {
-#ifndef HOST
   int size = bytes.size();
 
   if (size > 0) {
@@ -385,15 +348,10 @@ bool PrinterSerial::writeBytes(QByteArray bytes)
   }
 
   return false;
-#else
-  UNUSED(bytes);
-  return true;
-#endif
 }
 
 bool PrinterSerial::send_cut()
 {
-#ifndef HOST
   QByteArray bytes("\x1D\x56\x42\x00", 4);  // hex(42) = decimal(66)
 
   if (this->writeBytes(bytes)) {
@@ -403,14 +361,10 @@ bool PrinterSerial::send_cut()
     DEBUG("PrinterSerial: Send Cut FAIL");
     return false;
   }
-#else
-  return true;
-#endif
 }
 
 bool PrinterSerial::selectPrinter()
 {
-#ifndef HOST
   QByteArray bytes("\x1B\x3D\x01\x00", 4);
 
   if (this->writeBytes(bytes)) {
@@ -420,14 +374,10 @@ bool PrinterSerial::selectPrinter()
     DEBUG("PrinterSerial: Select Printer FAIL");
     return false;
   }
-#else
-  return true;
-#endif
 }
 
 bool PrinterSerial::boldOn()
 {
-#ifndef HOST
   QByteArray bytes("\x1B\x45\xFF\x00", 4);
 
   if (this->writeBytes(bytes)) {
@@ -437,14 +387,10 @@ bool PrinterSerial::boldOn()
     DEBUG("PrinterSerial: BOLD ON FAIL");
     return false;
   }
-#else
-  return true;
-#endif
 }
 
 bool PrinterSerial::boldOff()
 {
-#ifndef HOST
   QByteArray bytes("\x1B\x45\x00\x00", 4);
 
   if (this->writeBytes(bytes)) {
@@ -454,14 +400,10 @@ bool PrinterSerial::boldOff()
     DEBUG("PrinterSerial: BOLD OFF FAIL");
     return false;
   }
-#else
-  return true;
-#endif
 }
 
 bool PrinterSerial::alignLeft()
 {
-#ifndef HOST
   QByteArray bytes("\x1B\x61\x00\x00", 4);
 
   if (this->writeBytes(bytes)) {
@@ -471,14 +413,10 @@ bool PrinterSerial::alignLeft()
     DEBUG("PrinterSerial: ALIGN LEFT FAIL");
     return false;
   }
-#else
-  return true;
-#endif
 }
 
 bool PrinterSerial::alignCenter()
 {
-#ifndef HOST
   QByteArray bytes("\x1B\x61\x01\x00", 4);
 
   if (this->writeBytes(bytes)) {
@@ -488,14 +426,10 @@ bool PrinterSerial::alignCenter()
     DEBUG("PrinterSerial: ALIGN CENTER FAIL");
     return false;
   }
-#else
-  return true;
-#endif
 }
 
 bool PrinterSerial::alignRight()
 {
-#ifndef HOST
   QByteArray bytes("\x1B\x61\x02\x00", 4);
 
   if (this->writeBytes(bytes)) {
@@ -505,14 +439,10 @@ bool PrinterSerial::alignRight()
     DEBUG("PrinterSerial: ALIGN RIGHT FAIL");
     return false;
   }
-#else
-  return true;
-#endif
 }
 
 bool PrinterSerial::fontStandard()
 {
-#ifndef HOST
   QByteArray bytes("\x1B\x21\x00\x00", 4);
 
   if (this->writeBytes(bytes)) {
@@ -522,14 +452,10 @@ bool PrinterSerial::fontStandard()
     DEBUG("PrinterSerial: FONT STANDARD FAIL");
     return false;
   }
-#else
-  return true;
-#endif
 }
 
 bool PrinterSerial::fontCompressed()
 {
-#ifndef HOST
   QByteArray bytes("\x1B\x4D\x01\x00", 4);
 
   if (this->writeBytes(bytes)) {
@@ -539,9 +465,6 @@ bool PrinterSerial::fontCompressed()
     DEBUG("PrinterSerial: FONT COMPRESSED FAIL");
     return false;
   }
-#else
-  return true;
-#endif
 }
 
 QString PrinterSerial::getDate(QDateTime now)

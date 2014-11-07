@@ -21,7 +21,7 @@ WorkerSensorMulti::WorkerSensorMulti(QObject *parent) :
 void WorkerSensorMulti::setVCOMWrapper(VCOMWrapper *vcom) { this->vcom = vcom; }
 void WorkerSensorMulti::setIDKITWrapper(IDKITWrapper *idkit) { this->idkit = idkit; }
 void WorkerSensorMulti::setPrinterSerial(PrinterSerial *printer) { this->printer = printer; }
-void WorkerSensorMulti::setSQLiteManager(EventsDB *manager) { this->eventsDB = manager; }
+void WorkerSensorMulti::setSQLiteManager(GeneraDB *manager) { this->generaDB = manager; }
 
 void WorkerSensorMulti::requestMethod(WorkerSensorMulti::Method method)
 {
@@ -91,7 +91,7 @@ void WorkerSensorMulti::doIdentify()
       QString typeStr;
       int typeInt;
       if (isButtonPressed(typeStr, typeInt)) {
-        rc = eventsDB->isUserIdentifiedOnLastMinute(QString(userIdentifier), typeInt);
+        rc = generaDB->isUserIdentifiedOnLastMinute(QString(userIdentifier), typeInt);
         if (rc == 0) {
           emit error("Ha ocurrido un error<br>Por favor, notifique<br>a los encargados.");
         } else if (rc == 1) {
@@ -103,7 +103,7 @@ void WorkerSensorMulti::doIdentify()
             printer->write_user(typeStr, QString(userIdentifier), QString(userName), QString(userRut), QString(userEmp));
           }
           
-          rc = eventsDB->insertEvent(typeInt, userIdentifier, Utils::getCurrentUnixTimestamp(), 0);
+          rc = generaDB->insertEvent(typeInt, userIdentifier, Utils::getCurrentUnixTimestamp(), 0);
           if (rc == 0) {
             emit error("Ha ocurrido un error<br>Por favor, notifique<br>a los encargados.");
           } else if (rc == 1) {
@@ -233,13 +233,6 @@ void WorkerSensorMulti::mainLoop()
 
 bool WorkerSensorMulti::isButtonPressed(QString &typeStr, int &typeInt)
 {
-#ifdef HOST
-  sleep(2);
-  typeStr = "ENTRADA";
-  typeInt = 1;
-  emit buttonPressed(1, userName);
-  return true;
-#else
   int fd;
   struct input_event event;
   ssize_t bytesRead;
@@ -314,5 +307,4 @@ error:
   if (fd) { if (close(fd) != 0) { LOG_ERROR("Error closing /dev/input/event0"); } }
   DEBUG("/dev/input/event0 closed in error handler");
   return false;
-#endif
 }

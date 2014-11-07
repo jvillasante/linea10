@@ -6,13 +6,13 @@
 #include <QMap>
 #include "idkitwrapper.h"
 
-class EventsDB : public QObject
+class GeneraDB : public QObject
 {
   Q_OBJECT
     
   public:
-    explicit EventsDB();
-    ~EventsDB();
+    explicit GeneraDB();
+    ~GeneraDB();
 
     bool init(const char *databaseName);
 

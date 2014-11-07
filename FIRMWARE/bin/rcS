@@ -36,6 +36,11 @@ else
   fi
 fi
 
+# rename old events.db to genera.db if exists
+if [ -f /mnt/jffs2/events.db ]; then
+  mv /mnt/jffs2/events.db /mnt/jffs2/genera.db
+fi
+
 # Install Genera Drivers
 /usr/local/bin/GeneraDriversInstall.sh
 

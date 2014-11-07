@@ -29,7 +29,7 @@ class WorkerSensorMulti : public QObject
     void setVCOMWrapper(VCOMWrapper *vcom);
     void setIDKITWrapper(IDKITWrapper *idkit);
     void setPrinterSerial(PrinterSerial *printer);
-    void setSQLiteManager(EventsDB *manager);
+    void setSQLiteManager(GeneraDB *manager);
 
   private:
     Method _method;
@@ -41,7 +41,7 @@ class WorkerSensorMulti : public QObject
     VCOMWrapper *vcom;
     IDKITWrapper *idkit;
     PrinterSerial *printer;
-    EventsDB *eventsDB;
+    GeneraDB *generaDB;
 
     bool isButtonPressed(QString &typeStr, int &typeInt);
     void doIdentify();

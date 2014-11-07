@@ -24,7 +24,7 @@ class Backup : public QObject
     void deleteOldFiles();
     
     QSettings *settings;
-    EventsDB *eventsDB;
+    GeneraDB *generaDB;
     QTimer *timer;
 };
 

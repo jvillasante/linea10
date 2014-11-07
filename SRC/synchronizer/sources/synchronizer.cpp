@@ -15,9 +15,9 @@ Synchronizer::Synchronizer()
   // QString appPath = QCoreApplication::applicationDirPath();
   settings = new QSettings("/mnt/jffs2/app.ini", QSettings::IniFormat);
 
-  QString db = settings->value("eventsDB").toString();
-  eventsDB = new EventsDB();
-  eventsDB->init(db.toStdString().c_str());
+  QString db = settings->value("generaDB").toString();
+  generaDB = new GeneraDB();
+  generaDB->init(db.toStdString().c_str());
 
   soapHandler = new SoapHandler(settings);
   connect(soapHandler, SIGNAL(finished(QString)), this, SLOT(finished(QString)));
@@ -33,7 +33,7 @@ Synchronizer::~Synchronizer()
 {
   delete timer;
   delete settings;
-  delete eventsDB;
+  delete generaDB;
   delete soapHandler;
 }
 
@@ -45,7 +45,7 @@ void Synchronizer::doWork()
   QSqlQuery *qry;
   
   timer->stop();
-  qry = eventsDB->getEventsToSynchronize();
+  qry = generaDB->getEventsToSynchronize();
   if (qry == NULL) { timer->start(); return; }
   
   while(qry->next()) { 
@@ -106,7 +106,7 @@ void Synchronizer::finished(QString response)
     DEBUG("Event received on server. result = %d", result);
   }
 
-  eventsDB->setEventSynchronized(id);
+  generaDB->setEventSynchronized(id);
   if (--eventsCount <= 0) { timer->start(); }
   return;
 

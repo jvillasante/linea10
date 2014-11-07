@@ -22,7 +22,7 @@ MainWindow::MainWindow(QSettings *settings, QWidget *parent) :
   rebootCountdownCounter = 10;
 
   initializeUI();
-  initializeEventsDatabase();
+  initializeGeneraDatabase();
   initializeEverySecondTimer();
   initializeEveryHourTimer();
   initializeCore();
@@ -58,7 +58,7 @@ MainWindow::~MainWindow()
   delete idkit;
   delete vcom;
   delete printer;
-  delete eventsDB;
+  delete generaDB;
   delete networkMonitor;
   delete soapHandler;
 
@@ -354,11 +354,11 @@ void MainWindow::initializeUI()
   setLayout(grid);
 }
 
-void MainWindow::initializeEventsDatabase()
+void MainWindow::initializeGeneraDatabase()
 {
-  QString db = settings->value("eventsDB").toString();
-  eventsDB = new EventsDB();
-  eventsDB->init(db.toStdString().c_str());
+  QString db = settings->value("generaDB").toString();
+  generaDB = new GeneraDB();
+  generaDB->init(db.toStdString().c_str());
 }
 
 void MainWindow::initializeEverySecondTimer()
@@ -404,7 +404,7 @@ void MainWindow::initializeWorkerSensor()
   workerSensor->setVCOMWrapper(vcom);
   workerSensor->setIDKITWrapper(idkit);
   workerSensor->setPrinterSerial(printer);
-  workerSensor->setSQLiteManager(eventsDB);
+  workerSensor->setSQLiteManager(generaDB);
   workerSensor->moveToThread(threadSensor);
 
   connect(threadSensor, SIGNAL(started()), workerSensor, SLOT(mainLoop()));

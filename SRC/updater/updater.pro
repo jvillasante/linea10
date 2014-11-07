@@ -42,22 +42,10 @@ unix {
 
 include($$PWD/../core/core_updater.pri)
 
-contains(DEFINES, TARGET) {
-  LIBS += -L$$PWD/../../LIB/vcom_target/lib -lVCOMEx
-  INCLUDEPATH += $$PWD/../../LIB/vcom_target/include
-  DEPENDPATH += $$PWD/../../LIB/vcom_target/include
+LIBS += -L$$PWD/../../LIB/vcom/lib -lVCOMEx
+INCLUDEPATH += $$PWD/../../LIB/vcom/include
+DEPENDPATH += $$PWD/../../LIB/vcom/include
 
-  LIBS += -L$$PWD/../../LIB/idkit_target/lib/ -lidkit
-  INCLUDEPATH += $$PWD/../../LIB/idkit_target/include
-  DEPENDPATH += $$PWD/../../LIB/idkit_target/include$
-} else {
-  LIBS += -L$$PWD/../../LIB/vcom_host/lib -lVCOMEx
-  INCLUDEPATH += $$PWD/../../LIB/vcom_host/include
-  DEPENDPATH += $$PWD/../../LIB/vcom_host/include
-
-  LIBS += -L$$PWD/../../LIB/idkit_host/lib/ -lidkit
-  INCLUDEPATH += $$PWD/../../LIB/idkit_host/include
-  DEPENDPATH += $$PWD/../../LIB/idkit_host/include$
-}
-
-
+LIBS += -L$$PWD/../../LIB/idkit/lib/ -lidkit
+INCLUDEPATH += $$PWD/../../LIB/idkit/include
+DEPENDPATH += $$PWD/../../LIB/idkit/include$

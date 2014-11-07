@@ -68,7 +68,7 @@ class MainWindow : public QWidget
     QSettings *settings;
     QString   lang;
     
-    EventsDB *eventsDB;
+    GeneraDB *generaDB;
 
     int lblOutputCounter;
     int rebootCountdownCounter;
@@ -91,7 +91,7 @@ class MainWindow : public QWidget
 
   private:
     void initializeUI();
-    void initializeEventsDatabase();
+    void initializeGeneraDatabase();
     void initializeEverySecondTimer();
     void initializeEveryHourTimer();
     void initializeCore();

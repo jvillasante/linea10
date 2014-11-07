@@ -17,9 +17,9 @@ Backup::Backup()
   
   daysToKeepBackup = settings->value("keepEvents", 15).toInt();
 
-  QString db = settings->value("eventsDB").toString();
-  eventsDB = new EventsDB();
-  eventsDB->init(db.toStdString().c_str());
+  QString db = settings->value("generaDB").toString();
+  generaDB = new GeneraDB();
+  generaDB->init(db.toStdString().c_str());
   
   timer = new QTimer(this);
   timer->setInterval(3600000);
@@ -32,7 +32,7 @@ Backup::~Backup()
 {
   delete timer;
   delete settings;
-  delete eventsDB;
+  delete generaDB;
 }
 
 void Backup::deleteOldFiles()
@@ -59,7 +59,7 @@ void Backup::doWork()
 
   if (currentTime.hour() == 23) {
     DEBUG("Starting backup process...");
-    eventsDB->writeDatabaseToFile();
+    generaDB->writeDatabaseToFile();
     deleteOldFiles();
     DEBUG("Backup process done...");
   }

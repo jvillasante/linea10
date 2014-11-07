@@ -9,9 +9,9 @@
 #include <QFile>
 #include <QTextStream>
 
-EventsDB::EventsDB() {}
+GeneraDB::GeneraDB() {}
 
-EventsDB::~EventsDB()
+GeneraDB::~GeneraDB()
 {
   if (this->db.isOpen()) {
     DEBUG("Closing Database...");
@@ -19,15 +19,15 @@ EventsDB::~EventsDB()
   }
 }
 
-bool EventsDB::init(const char *databaseName)
+bool GeneraDB::init(const char *databaseName)
 {
   bool dbExists = Utils::fileExists(databaseName);
   
-  if (QSqlDatabase::contains("events")) {
-    this->db = QSqlDatabase::database("events");
+  if (QSqlDatabase::contains("genera")) {
+    this->db = QSqlDatabase::database("genera");
     this->db.setDatabaseName(databaseName);
   } else {
-    this->db = QSqlDatabase::addDatabase("QSQLITE", "events");
+    this->db = QSqlDatabase::addDatabase("QSQLITE", "genera");
     this->db.setDatabaseName(databaseName);
   }
   
@@ -35,17 +35,17 @@ bool EventsDB::init(const char *databaseName)
     LOG_ERROR("Failed to connect to %s: %s", databaseName, this->db.lastError().databaseText().toStdString().c_str());
     return false;
   }
-
-  if (dbExists) {
-    DEBUG("Database %s already exists. No need to create schema.", databaseName);
-    return true;
-  }
   
   LOG_INFO("Connected to %s database", databaseName);
   this->db.exec("PRAGMA auto_vacuum = FULL");
   this->db.exec("PRAGMA busy_timeout = 1000");
   this->db.exec("PRAGMA encoding = UTF-8");
   this->db.exec("PRAGMA shrink_memory");
+
+  if (dbExists) {
+    DEBUG("Database %s already exists. No need to create schema.", databaseName);
+    return true;
+  }
   
   DEBUG("Creating schema on database %s", databaseName);
   QSqlQuery qry(this->db);
@@ -66,10 +66,10 @@ bool EventsDB::init(const char *databaseName)
   }
 }
 
-int EventsDB::insertEvent(int sense, char *ident, int date, int synchronized)
+int GeneraDB::insertEvent(int sense, char *ident, int date, int synchronized)
 {
   if (!this->db.isOpen()) { 
-    DEBUG("Database events is not open");
+    DEBUG("Database genera is not open");
     return 2;
   }
 
@@ -93,7 +93,7 @@ int EventsDB::insertEvent(int sense, char *ident, int date, int synchronized)
   return 1;
 }
 
-QSqlQuery *EventsDB::getEventsToSynchronize()
+QSqlQuery *GeneraDB::getEventsToSynchronize()
 {
   QSqlQuery *qry = new QSqlQuery(this->db);
 
@@ -104,11 +104,11 @@ QSqlQuery *EventsDB::getEventsToSynchronize()
     return NULL;
   } 
 
-  DEBUG("Events selected... events ready to be synchronized...");
+  DEBUG("Genera selected... events ready to be synchronized...");
   return qry;
 }
 
-bool EventsDB::setEventSynchronized(int id)
+bool GeneraDB::setEventSynchronized(int id)
 {
   QSqlQuery qry(this->db);
   qry.prepare("UPDATE events SET synchronized = 1 WHERE id = :f1"); 
@@ -125,7 +125,7 @@ bool EventsDB::setEventSynchronized(int id)
   return true;
 }
 
-bool EventsDB::deleteEventsSyncronized()
+bool GeneraDB::deleteEventsSyncronized()
 {
   QSqlQuery qry(this->db);
 
@@ -140,7 +140,7 @@ bool EventsDB::deleteEventsSyncronized()
   return true;
 }
 
-bool EventsDB::writeDatabaseToFile()
+bool GeneraDB::writeDatabaseToFile()
 {
   int eventsCount = 0;
   QString filename = QDate::currentDate().toString("'/mnt/jffs2/backup/events_'yyyy_MM_dd'.bak'");
@@ -197,7 +197,7 @@ bool EventsDB::writeDatabaseToFile()
   }
 }
 
-int EventsDB::isUserIdentifiedOnLastMinute(QString identifier, int type)
+int GeneraDB::isUserIdentifiedOnLastMinute(QString identifier, int type)
 {
   int count = 0;
   QDateTime eventDateTime;

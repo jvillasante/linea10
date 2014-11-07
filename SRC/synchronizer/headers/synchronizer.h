@@ -27,7 +27,7 @@ class Synchronizer : public QObject
     QSettings *settings;
     QTimer *timer;
     SoapHandler *soapHandler;
-    EventsDB *eventsDB;
+    GeneraDB *generaDB;
     int eventsCount;
 
     bool parseXml(QString &response, int &result, int &id);
