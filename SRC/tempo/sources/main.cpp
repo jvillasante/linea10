@@ -82,17 +82,12 @@ int main(int argc, char *argv[])
 
     configure("/mnt/jffs2/Gen_Config.sql");
     Utils::removeFile("/mnt/jffs2/Gen_Config.sql");
-  } else if (Utils::fileExists("/mnt/jffs2/app.ini")) {
+  } else {
     settings = new QSettings("/mnt/jffs2/app.ini", QSettings::IniFormat);
     if (!settings->contains("keepEvents")) { settings->setValue("keepEvents", 15); }
     if (settings->contains("eventsDB"))    { settings->remove("eventsDB"); }
     if (!settings->contains("generaDB"))   { settings->setValue("generaDB", "/mnt/jffs2/genera.db"); }
-  } else {
-    QString src = appPath + "/Resources/settings/app.ini";
-    const QString dest = "/mnt/jffs2/app.ini";
-    Utils::moveFile(src, dest);
-    settings = new QSettings(dest, QSettings::IniFormat);
-  }
+  } 
   
   settings->sync();
   
