@@ -2,8 +2,8 @@
 *~
 BUILD/
 FIRMWARE/*.*
-FIRMWARE/bin/synchronizer
 FIRMWARE/bin/GeneraApp
+FIRMWARE/bin/synchronizer
 FIRMWARE/bin/updater
 FIRMWARE/bin/backup
 Makefile

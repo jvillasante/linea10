@@ -9,6 +9,9 @@
 #include "idkitwrapper.h"
 #include "printerserial.h"
 #include "dbaccess.h"
+#ifdef SNACK
+#include "dao_service.h"
+#endif
 
 class WorkerSensorMulti : public QObject
 {
@@ -43,21 +46,38 @@ class WorkerSensorMulti : public QObject
     PrinterSerial *printer;
     GeneraDB *generaDB;
 
-    bool isButtonPressed(QString &typeStr, int &typeInt);
+#ifdef SNACK
+    char keypadDevice[20];
+#endif
+
     void doIdentify();
-    void doEnroll();
     void doWait();
 
+#ifdef TEMPO
+    void doIdentifyTempo();
+    void doEnroll();
+    bool isButtonPressed(QString &typeStr, int &typeInt);
+#elif SNACK
+    void doIdentifySnack();
+    void giveService(ServiceDAO *service, int userId, char *userIdentifier, char *userName, char *userRut, char *userEmp);
+    std::string execute(const char* cmd);
+    int determineInputDeviceIndex();
+    int waitForKeyboard();
+    ServiceDAO *getLastServedFromGroup(QMap<int, ServiceDAO*> services, ServiceDAO *service);
+#endif
+
   signals:
-    void finished();
-    
+#ifdef TEMPO
     void match(QString userIdentifier, QString userName, QString userRut);
     void buttonPressed(int button, QString userName);  // 0: TIMEOUT, 1: IN, 2: OUT
-    
-    void identifierWorkDone();
+#elif SNACK
+    void match(QString userIdentifier, QString userName, QString userRut, QString service, int servicesCount);
     void enrollWorkDone(uchar *compositeImage, uchar *templateImage, int width, int height);
-
-    void error(QString msg);
+#endif
+    
+    void finished();
+    void identifierWorkDone();
+    void message(QString msg);
 
   public slots:
       void mainLoop();

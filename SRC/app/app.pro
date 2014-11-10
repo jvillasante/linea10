@@ -53,6 +53,11 @@ unix {
   QMAKE_CXXFLAGS += -Werror
 }
 
+contains(DEFINES, TEMPO) {
+}
+contains(DEFINES, SNACK) {
+}
+
 include($$PWD/../core/core_app.pri)
 include($$PWD/../../LIB/qextserialport-1.2rc/src/qextserialport.pri)
 

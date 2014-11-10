@@ -3,7 +3,9 @@
 #include "unistd.h"
 #include "debug_macros.h"
 #include "utils.h"
+#ifdef TEMPO
 #include "enrolldialog.h"
+#endif
 
 #include <QSharedPointer>
 #include <QApplication>
@@ -30,9 +32,11 @@ MainWindow::MainWindow(QSettings *settings, QWidget *parent) :
   initializeWorkerEnroller();
 
   this->networkMonitor = new NetworkMonitor(settings);
+#ifdef TEMPO
   this->soapHandler = new SoapHandler(settings);
   connect(this->soapHandler, SIGNAL(finished(QString)), this, SLOT(alarmasFinished(QString)));
   connect(this->soapHandler, SIGNAL(error(QString)), this, SLOT(alarmasError(QString)));
+#endif
 
   updatePrinterStatus();
   updateInternetStatus();
@@ -58,7 +62,9 @@ MainWindow::~MainWindow()
   delete printer;
   delete generaDB;
   delete networkMonitor;
+#ifdef TEMPO
   delete soapHandler;
+#endif
 
   delete lblGeneraLogo;
   delete lblEmpresaHolding;
@@ -66,7 +72,9 @@ MainWindow::~MainWindow()
   delete lblTime;
   delete lblOutput;
   delete lblMsg;
+#ifdef TEMPO
   delete enrollButton;
+#endif
   delete lbl1;
   delete lbl2;
   delete lbl3;
@@ -75,9 +83,11 @@ MainWindow::~MainWindow()
   delete grid;
 }
 
+#ifdef TEMPO
 void MainWindow::match(QString userIdentifier, QString userName, QString userRut)
 {
   updatePrinterStatus();
+  lblOutputCounter = 30;
 
   if (userIdentifier == NULL && userName != NULL && userRut != NULL) {
     Utils::limitString(userName, 25);
@@ -93,10 +103,48 @@ void MainWindow::match(QString userIdentifier, QString userName, QString userRut
     lblOutput->setText(tr("<h4>Usuario no encontrado</h4>"));
   }
 }
+#elif SNACK
+void MainWindow::match(QString userIdentifier, QString userName, QString userRut, QString service, int servicesCount)
+{
+  updatePrinterStatus();
+  lblOutputCounter = 30;
 
+  if (userIdentifier == NULL && userName == NULL && userRut == NULL) {
+    lblOutput->setText(tr("<h4>Usuario no encontrado</h4>"));
+    return;
+  }
+  
+  if (servicesCount == -1) {  // Servicio ya dado
+    Utils::limitString(userName, 25);
+    lblOutput->setText(tr("%1<br>Rut: %2<br><br><font size=4>(%3)</font><br><font size=4>Servicio ya dado!</fond>")
+        .arg(userName)
+        .arg(userRut)
+        .arg(service));
+  } else if (servicesCount == 0) {  // no tiene servicios
+    Utils::limitString(userName, 25);
+    lblOutput->setText(tr("%1<br>Rut: %2<br><br><font size=4>No tiene servicios!</font>")
+        .arg(userName)
+        .arg(userRut));
+  } else if (servicesCount == 1) {  // tiene 1 servicio
+    Utils::limitString(userName, 25);
+    lblOutput->setText(tr("%1<br>Rut: %2<br><br><font size=4>%3</font>")
+        .arg(userName)
+        .arg(userRut)
+        .arg(service));
+  } else if (servicesCount > 1) {  // tiene multiples servicios
+    Utils::limitString(userName, 25);
+    lblOutput->setText(tr("%1<br>Rut: %2<br><br><font size=4>Múltiples Servicios...<br>Seleccione Uno</font>")
+        .arg(userName)
+        .arg(userRut));
+  }
+}
+#endif
+
+#ifdef TEMPO
 void MainWindow::buttonPressed(int button, QString userName)
 {
   Utils::limitString(userName, 25);
+  lblOutputCounter = 30;
   
   if (button == 0) {
     lblOutput->setText(tr("%1<br><br><font size=6>TIMEOUT</font>").arg(userName));
@@ -106,6 +154,7 @@ void MainWindow::buttonPressed(int button, QString userName)
     lblOutput->setText(tr("%1<br><br><font size=6>SALIDA</font>").arg(userName));
   }
 }
+#endif
 
 void MainWindow::enrollFinished() // massive enroll
 {
@@ -132,6 +181,7 @@ void MainWindow::identifierWorkDone()
   workerSensor->requestMethod(WorkerSensorMulti::Identify);
 }
 
+#ifdef TEMPO
 void MainWindow::enrollButtonPressed()  // enroll on board
 {
   workerSensor->requestMethod(WorkerSensorMulti::Wait);
@@ -146,10 +196,11 @@ void MainWindow::enrollDialogClosed(QString msg)
   lblOutputCounter = 5;
   lblOutput->setText(msg);
 }
+#endif
 
-void MainWindow::error(QString msg)
+void MainWindow::message(QString msg)
 {
-  lblOutputCounter = 5;
+  lblOutputCounter = 30;
   lblOutput->setText(msg);
 }
 
@@ -186,7 +237,9 @@ void MainWindow::updateEveryHour()
     lblDate->setVisible(false);
     lblTime->setVisible(false);
     lblMsg->setVisible(false);
+#ifdef TEMPO
     enrollButton->setVisible(false);
+#endif
     lbl1->setVisible(false);
     lbl2->setVisible(false);
     lbl3->setVisible(false);
@@ -233,9 +286,13 @@ void MainWindow::initializeUI()
   lblGeneraLogo->setStyleSheet("margin-left: 5px;");
   QPixmap lblGeneraLogoPixmap(":/img/Resources/images/genera_logo.png");
   lblGeneraLogo->setPixmap(lblGeneraLogoPixmap);
-  
   lblEmpresaHolding = new QLabel(
       settings->value("empresaHolding", "GENERA S.A.").toString() + "\n" + settings->value("fwVersion", "").toString());
+
+  QString app = "TEMPO";
+#ifdef SNACK
+  app = "SNACK";
+#endif
 
   lblEmpresaHolding->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
   lblEmpresaHolding->setStyleSheet("font-size: 16px;"
@@ -278,6 +335,7 @@ void MainWindow::initializeUI()
       "color: #00FF00;"
       "font-style: normal;");
 
+#ifdef TEMPO
   enrollButton = new QPushButton();
   enrollButton->setFlat(true);
   enrollButton->setStyleSheet("background-color: #019934;"
@@ -285,6 +343,7 @@ void MainWindow::initializeUI()
   enrollButton->setIcon(QIcon(":/img/Resources/images/huella_enrolamiento.bmp"));
   enrollButton->setIconSize(QSize(48, 50));
   connect(enrollButton, SIGNAL(clicked()), this, SLOT(enrollButtonPressed()));
+#endif
 
   lbl1 = new QLabel();
   lbl1->setAlignment(Qt::AlignCenter);
@@ -327,7 +386,9 @@ void MainWindow::initializeUI()
   hbox->setMargin(0);
   hbox->setContentsMargins(0, 0, 0, 0);
 
+#ifdef TEMPO
   hbox->addWidget(enrollButton, 0, Qt::AlignCenter);
+#endif
   hbox->addWidget(lbl1, 0, Qt::AlignCenter);
   hbox->addWidget(lbl2, 0, Qt::AlignCenter);
   hbox->addWidget(lbl3, 0, Qt::AlignCenter);
@@ -383,7 +444,6 @@ void MainWindow::initializeCore()
 
 void MainWindow::initializeWorkerSensor()
 {
-  // The thread and the worker are created in the constructor so it is always safe to delete them.
   threadSensor = new QThread();
   workerSensor = new WorkerSensorMulti();
   workerSensor->setVCOMWrapper(vcom);
@@ -396,17 +456,20 @@ void MainWindow::initializeWorkerSensor()
   connect(workerSensor, SIGNAL(finished()), threadSensor, SLOT(quit()), Qt::DirectConnection);
   DEBUG("Starting thread in Thread %p", this->QObject::thread()->currentThreadId());
   threadSensor->start();
+#ifdef TEMPO
   connect(workerSensor, SIGNAL(match(QString, QString, QString)), this, SLOT(match(QString, QString, QString)));
   connect(workerSensor, SIGNAL(buttonPressed(int, QString)), this, SLOT(buttonPressed(int, QString)));
+#elif SNACK
+  connect(workerSensor, SIGNAL(match(QString, QString, QString, QString, int)), this, SLOT(match(QString, QString, QString, QString, int)));
+#endif
   connect(workerSensor, SIGNAL(identifierWorkDone()), this, SLOT(identifierWorkDone()));
-  connect(workerSensor, SIGNAL(error(QString)), this, SLOT(error(QString)));
+  connect(workerSensor, SIGNAL(message(QString)), this, SLOT(message(QString)));
 
   workerSensor->requestMethod(WorkerSensorMulti::Identify);
 }
 
 void MainWindow::initializeWorkerEnroller()
 {
-  // The thread and the worker are created in the constructor so it is always safe to delete them.
   threadEnroller = new QThread();
   workerEnroller = new WorkerEnroller(settings, idkit);
   workerEnroller->moveToThread(threadEnroller);
@@ -441,6 +504,7 @@ inline void MainWindow::updatePrinterStatus()
     QPixmap lbl2Pixmap(":/img/Resources/images/impresora_encendida.bmp");
     lbl2->setPixmap(lbl2Pixmap);
 
+#ifdef TEMPO
     const QString method = "alarma";
     const QString wsNamespace = settings->value("wsNamespace").toString();
     QMap<QString, QString> map;
@@ -452,11 +516,13 @@ inline void MainWindow::updatePrinterStatus()
 
     const QUrl url(settings->value("wsAlarmasURL").toString());
     soapHandler->fetch(method, wsNamespace, url, strSOAP);
+#endif
   } else {
     printer->setStatus(false);
     QPixmap lbl2Pixmap(":/img/Resources/images/impresora_sinpapel.bmp");
     lbl2->setPixmap(lbl2Pixmap);
 
+#ifdef TEMPO
     const QString method = "alarma";
     const QString wsNamespace = settings->value("wsNamespace").toString();
     QMap<QString, QString> map;
@@ -468,6 +534,7 @@ inline void MainWindow::updatePrinterStatus()
 
     const QUrl url(settings->value("wsAlarmasURL").toString());
     soapHandler->fetch(method, wsNamespace, url, strSOAP);
+#endif
   }
 }
 
@@ -482,6 +549,7 @@ inline void MainWindow::updateInternetStatus()
   }
 }
 
+#ifdef TEMPO
 void MainWindow::alarmasFinished(QString response)
 {
   DEBUG("Response: %s", response.toStdString().c_str());
@@ -493,6 +561,7 @@ void MainWindow::alarmasError(QString error)
   DEBUG("Error: %s", error.toStdString().c_str());
   UNUSED(error);
 }
+#endif
 
 inline void MainWindow::updateDate(QDateTime now)
 {

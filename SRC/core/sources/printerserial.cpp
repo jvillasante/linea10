@@ -101,6 +101,7 @@ void PrinterSerial::write_hello(QString mac, QString ip, QString gateway, QStrin
   }
 }
 
+#ifdef TEMPO
 void PrinterSerial::write_user(QString type, QString userIdentifier, QString userName, QString userRut, QString userEmp)
 {
   QByteArray bytes;
@@ -154,6 +155,61 @@ void PrinterSerial::write_user(QString type, QString userIdentifier, QString use
     LOG_ERROR("PrinterSerial::write_user FAIL");
   }
 }
+#elif SNACK
+void PrinterSerial::write_user(QString service, QString userIdentifier, QString userName, QString userRut, QString userEmp)
+{
+  QByteArray bytes;
+
+  fontCompressed();
+  boldOn();
+  alignCenter();
+
+  if (!userEmp.isEmpty())
+    bytes.append(QString(userEmp).toAscii());
+  else
+    bytes.append(settings->value("empresaHolding", "Banco de Chile").toString().toAscii());
+  bytes.append("\r\n");
+  bytes.append(QString("-- ").toAscii());
+  bytes.append(service.toAscii());
+  bytes.append(QString(" --").toAscii());
+  bytes.append("\r\n\r\n");
+
+  if (this->writeBytes(bytes)) {
+    boldOff();
+    alignLeft();
+    bytes.clear();
+
+    QDateTime now = Utils::getCurrentTimestamp();
+    
+    if (lang == "en") {
+      bytes.append(QString("Date   :%1 Time: %2\r\n").arg(getDate(now)).arg(now.toString("hh:mm")).toAscii());
+    } else {
+      bytes.append(QString("Fecha  :%1 Hora: %2\r\n").arg(getDate(now)).arg(now.toString("hh:mm")).toAscii());
+    }
+
+    bytes.append(QString(tr("Ident  :")).toAscii());
+    bytes.append(QString(userIdentifier).toAscii());
+    bytes.append(QString("\r\n").toAscii());
+
+    bytes.append(QString(tr("RUT    :")).toAscii());
+    bytes.append(QString(userRut).toAscii());
+    bytes.append(QString("\r\n").toAscii());
+
+    bytes.append(QString(tr("Nombre :")).toAscii());
+    bytes.append(QString(userName).toAscii());
+    bytes.append(QString("\r\n").toAscii());
+
+    if (this->writeBytes(bytes)) {
+      LOG_INFO("PrinterSerial::write_user OK");
+      this->send_cut();
+    } else {
+      LOG_ERROR("PrinterSerial::write_user FAIL");
+    }
+  } else {
+    LOG_ERROR("PrinterSerial::write_user FAIL");
+  }
+}
+#endif
 
 void PrinterSerial::setStatus(bool status) { this->connectedStatus = status; }
 bool PrinterSerial::getStatus() { return this->connectedStatus; }

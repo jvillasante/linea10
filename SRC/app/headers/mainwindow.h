@@ -20,8 +20,10 @@
 #include "workersensormulti.h"
 #include "workerenroller.h"
 #include "dbaccess.h"
+#ifdef TEMPO
 #include "enrolldialog.h"
 #include "soaphandler.h"
+#endif
 #include "networkmonitor.h"
 
 class MainWindow : public QWidget
@@ -32,25 +34,29 @@ class MainWindow : public QWidget
     ~MainWindow();
 
   public slots:
+#ifdef TEMPO
     void match(QString userIdentifier, QString userName, QString userRut);
     void buttonPressed(int button, QString userName);
-    void identifierWorkDone();
-    
-    void updateEverySecond();
-    void updateEveryHour();
-    void updateRebootCountDown();
-    
-    void enrollProgress(int);
-    void enrollFinished();
-    void enrollError();
     
     void enrollButtonPressed();
     void enrollDialogClosed(QString);
 
     void alarmasFinished(QString);
     void alarmasError(QString);
-
-    void error(QString msg);
+#elif SNACK
+    void match(QString userIdentifier, QString userName, QString userRut, QString service, int servicesCount);
+#endif
+    
+    void identifierWorkDone();
+    void message(QString msg);
+    
+    void enrollProgress(int);
+    void enrollFinished();
+    void enrollError();
+    
+    void updateEverySecond();
+    void updateEveryHour();
+    void updateRebootCountDown();
 
   private:
     QGridLayout *grid;
@@ -62,7 +68,9 @@ class MainWindow : public QWidget
     QLCDNumber  *lblTime;
     QLabel      *lblOutput;
     QLabel      *lblMsg;
+#ifdef TEMPO
     QPushButton *enrollButton;
+#endif
     QLabel      *lbl1, *lbl2, *lbl3;
 
     QSettings *settings;
@@ -85,7 +93,9 @@ class MainWindow : public QWidget
     IDKITWrapper *idkit;
     PrinterSerial *printer;
     NetworkMonitor *networkMonitor;
+#ifdef TEMPO
     SoapHandler *soapHandler;
+#endif
 
     bool ntp_is_running;
 

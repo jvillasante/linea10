@@ -173,6 +173,17 @@ namespace Utils
     dateTime.setTime_t(unixTimeStamp);
   }
   
+  void getCurrentDateTimeForSnack(int result[])
+  {
+    QDateTime now = getCurrentTimestamp();
+    QDate currentDate = now.date();
+    
+    int day = currentDate.dayOfWeek();
+    int time = now.toString("hhmm").toInt();
+    result[0] = day;
+    result[1] = time;
+  }
+  
   char rutVerifyDigit(unsigned rut)
   {
     unsigned factor, sum, digit;

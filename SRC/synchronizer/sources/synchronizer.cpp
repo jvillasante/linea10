@@ -43,6 +43,9 @@ void Synchronizer::doWork()
   bool gotResults = false;
   QString ident;
   QSqlQuery *qry;
+#ifdef SNACK
+  int serviceId;
+#endif
   
   timer->stop();
   qry = generaDB->getEventsToSynchronize();
@@ -56,6 +59,9 @@ void Synchronizer::doWork()
     sense = qry->value(1).toInt();
     ident = qry->value(2).toString();
     date  = qry->value(3).toInt();
+#ifdef SNACK
+    serviceId = qry->value(4).toInt();
+#endif
 
     QDateTime dt;
     Utils::getFromUnixTimestamp(dt, date);
@@ -66,12 +72,23 @@ void Synchronizer::doWork()
     const QString method = "SincronizacionMarcasM";
     const QString wsNamespace = settings->value("wsNamespace").toString();
     QMap<QString, QString> map;
+#ifdef TEMPO
     map["evhcodigo"] = QString::number(id);
+#elif SNACK
+    map["evccodigo"] = QString::number(id);
+#endif
     map["identificacion"] = ident;
     map["evhFechaHora"] = fechaHora;
+#ifdef TEMPO
     map["evhCorrelMin"] = min;
+#elif SNACK
+    map["evcCorrelMin"] = min;
+#endif
     map["tieCodigo"] = QString::number(sense);
     map["equSerial"] = serial;
+#ifdef SNACK
+    map["evcServicio"] = serviceId;
+#endif
     const QString strSOAP = soapHandler->getXmlPacket(method, wsNamespace, map);
 
     const QUrl url(settings->value("wsSincronizacionURL").toString());
@@ -124,6 +141,7 @@ void Synchronizer::error(QString error)
 
 bool Synchronizer::parseXml(QString &response, int &result, int &id)
 {
+  UNUSED(id);
   QXmlStreamReader xml(response);
 
   while (!xml.atEnd() && !xml.hasError()) {
@@ -132,6 +150,7 @@ bool Synchronizer::parseXml(QString &response, int &result, int &id)
     if (token == QXmlStreamReader::StartDocument) { continue; }
 
     if (token == QXmlStreamReader::StartElement) {
+#ifdef TEMPO
       if (xml.name() == "evhcodigo") {
         token = xml.readNext();
         if(xml.tokenType() == QXmlStreamReader::Characters) {
@@ -140,6 +159,16 @@ bool Synchronizer::parseXml(QString &response, int &result, int &id)
           continue;
         }
       }
+#elif SNACK
+      if (xml.name() == "evccodigo") {
+        token = xml.readNext();
+        if(xml.tokenType() == QXmlStreamReader::Characters) {
+          DEBUG("evccodigo %s", xml.text().toString().toStdString().c_str());
+          id = xml.text().toString().toInt();
+          continue;
+        }
+      }
+#endif
 
       if (xml.name() == "estado") {
         token = xml.readNext();
@@ -158,7 +187,11 @@ bool Synchronizer::parseXml(QString &response, int &result, int &id)
     continue;
   }
 
+#ifdef TEMPO
   DEBUG("WS OK. evhcodigo = %d, estado = %d", id, result);
+#elif SNACK
+  DEBUG("WS OK. evccodigo = %d, estado = %d", id, result);
+#endif
   return true;
 }
 

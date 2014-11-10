@@ -5,6 +5,7 @@
 #include <QSqlDatabase>
 #include <QMap>
 #include "idkitwrapper.h"
+#include "dao_service.h"
 
 class GeneraDB : public QObject
 {
@@ -17,11 +18,18 @@ class GeneraDB : public QObject
     bool init(const char *databaseName);
 
     QSqlQuery *getEventsToSynchronize();
-    int insertEvent(int sense, char *ident, int date, int synchronized);
     bool setEventSynchronized(int id);
-    int isUserIdentifiedOnLastMinute(QString identifier, int type);
     bool deleteEventsSyncronized();
     bool writeDatabaseToFile();
+
+#ifdef TEMPO
+    int insertEvent(int sense, char *ident, int date, int synchronized);
+    int isUserIdentifiedOnLastMinute(QString identifier, int type);
+#elif SNACK
+    int insertEvent(int sense, char *ident, int date, int serviceId, int synchronized);
+    int getServicesForUser(int userId, int day, int hour, QMap<int, ServiceDAO*> *services);   
+    int updateService(int userId, int serviceGroup);
+#endif
 
   private:
     QSqlDatabase db;
@@ -34,6 +42,13 @@ class ImportDB : public QObject
   public:
     bool init(const char *databaseName);
     void importDatabase(IDKITWrapper *idkit);
+
+  private:
+#ifdef TEMPO
+    void importDatabaseTempo(IDKITWrapper *idkit, QSqlDatabase *db);
+#elif SNACK
+    void importDatabaseSnack(IDKITWrapper *idkit, QSqlDatabase *db);
+#endif
 
   signals:
     void importProgress(int);

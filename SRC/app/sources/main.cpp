@@ -47,7 +47,7 @@ void configure(const char *configDb)
   settings->setValue("identificadorEquipo", configMap["identificador_equipo"]);
   settings->setValue("wsIP", configMap["ws_ip"]);
   settings->setValue("wsPort", configMap["ws_port"]);
-  
+
   settings->setValue("wsCargaMasivaURL", QString("http://%1:%2/%3/WS_HORUS9.asmx?WSDL")
       .arg(configMap["ws_ip"]).arg(configMap["ws_port"]).arg(cliente));
   settings->setValue("wsFirmwareUpdateURL", QString("http://%1:%2/%3/UpdateLinea9.asmx")
@@ -72,11 +72,10 @@ int main(int argc, char *argv[])
   app.setOrganizationName("Genera");
 #ifdef TEMPO
   app.setApplicationName("Tempo10");
-#endif
-#ifdef SNACK
+#elif SNACK
   app.setApplicationName("Snack10");
 #endif
-
+  
   QString appPath = QApplication::applicationDirPath();
   
   QString src = appPath + "/Resources/settings/app.ini";

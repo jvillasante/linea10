@@ -3,6 +3,7 @@ INCLUDEPATH += $$PWD/headers
 DEPENDPATH += $$PWD
 
 SOURCES += \
+    sources/dao_service.cpp \
     sources/vcomwrapper.cpp \
     sources/idkitwrapper.cpp \
     sources/printerserial.cpp \
@@ -13,6 +14,7 @@ SOURCES += \
     sources/networkmonitor.cpp
 
 HEADERS += \
+    headers/dao_service.h \
     headers/vcomwrapper.h \
     headers/idkitwrapper.h \
     headers/printerserial.h \
@@ -21,3 +23,4 @@ HEADERS += \
     headers/biobase64.h \
     headers/utils.h \
     headers/networkmonitor.h
+
