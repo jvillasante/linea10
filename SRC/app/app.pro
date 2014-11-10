@@ -12,13 +12,13 @@ QT += network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-DESTDIR     = $$PWD/../../BUILD/tempo
-OBJECTS_DIR = $$PWD/../../BUILD/tempo/obj
-UI_DIR      = $$PWD/../../BUILD/tempo/ui
-MOC_DIR     = $$PWD/../../BUILD/tempo/moc
-RCC_DIR     = $$PWD/../../BUILD/tempo/rcc
+DESTDIR     = $$PWD/../../BUILD/app
+OBJECTS_DIR = $$PWD/../../BUILD/app/obj
+UI_DIR      = $$PWD/../../BUILD/app/ui
+MOC_DIR     = $$PWD/../../BUILD/app/moc
+RCC_DIR     = $$PWD/../../BUILD/app/rcc
 
-TARGET   = tempo
+TARGET   = app
 TEMPLATE = app
 
 HEADERS  += \
@@ -37,8 +37,8 @@ SOURCES += \
 RESOURCES += \
     resources.qrc
 
-TRANSLATIONS = Resources/languages/tempo_es.ts \
-               Resources/languages/tempo_en.ts
+TRANSLATIONS = Resources/languages/app_es.ts \
+               Resources/languages/app_en.ts
 CODECFORTR = UTF-8
 
 INCLUDEPATH += $$PWD/headers
@@ -53,7 +53,7 @@ unix {
   QMAKE_CXXFLAGS += -Werror
 }
 
-include($$PWD/../core/core_tempo.pri)
+include($$PWD/../core/core_app.pri)
 include($$PWD/../../LIB/qextserialport-1.2rc/src/qextserialport.pri)
 
 LIBS += -L$$PWD/../../LIB/vcom/lib -lVCOMEx

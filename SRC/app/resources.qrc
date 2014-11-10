@@ -31,9 +31,9 @@
         <file>Resources/settings/app.ini</file>
     </qresource>
     <qresource prefix="/lang">
-        <file>Resources/languages/tempo_en.ts</file>
-        <file>Resources/languages/tempo_es.ts</file>
-        <file>Resources/languages/tempo_en.qm</file>
-        <file>Resources/languages/tempo_es.qm</file>
+        <file>Resources/languages/app_en.ts</file>
+        <file>Resources/languages/app_es.ts</file>
+        <file>Resources/languages/app_en.qm</file>
+        <file>Resources/languages/app_es.qm</file>
     </qresource>
 </RCC>

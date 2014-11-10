@@ -18,6 +18,7 @@ if [ "$TERM" != "linux" ]; then
         stty erase ^H
 fi
 
+alias ls='ls -lFh --color=auto'
 alias quit="exit"
 alias dir="ls"
 alias vdir="ls -l"
