@@ -70,7 +70,12 @@ int main(int argc, char *argv[])
 
   QApplication app(argc, argv);
   app.setOrganizationName("Genera");
+#ifdef TEMPO
   app.setApplicationName("Tempo10");
+#endif
+#ifdef SNACK
+  app.setApplicationName("Snack10");
+#endif
 
   QString appPath = QApplication::applicationDirPath();
   
@@ -111,16 +116,16 @@ int main(int argc, char *argv[])
   QTextCodec::setCodecForTr(QTextCodec::codecForName("utf8"));
   QTranslator translator;
   if (lang == "es") {
-    if (translator.load("tempo_es.qm", appPath + "/Resources/languages")) {
+    if (translator.load("app_es.qm", appPath + "/Resources/languages")) {
       app.installTranslator(&translator);
     } else {
-      DEBUG("Unable to install tempo_es.qm translation.");
+      DEBUG("Unable to install app_es.qm translation.");
     }
   } else {
-    if (translator.load("tempo_en.qm", appPath + "/Resources/languages")) {
+    if (translator.load("app_en.qm", appPath + "/Resources/languages")) {
       app.installTranslator(&translator);
     } else {
-      DEBUG("Unable to install tempo_en.qm translation.");
+      DEBUG("Unable to install app_en.qm translation.");
     }
   }
   
