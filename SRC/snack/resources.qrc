@@ -1,0 +1,39 @@
+<RCC>
+    <qresource prefix="/img">
+        <file>Resources/images/genera_logo.png</file>
+        <file>Resources/images/huella_habilitada.bmp</file>
+        <file>Resources/images/huella_deshabilitada.bmp</file>
+        <file>Resources/images/huella_enrolamiento.bmp</file>
+        <file>Resources/images/0.bmp</file>
+        <file>Resources/images/1.bmp</file>
+        <file>Resources/images/2.bmp</file>
+        <file>Resources/images/3.bmp</file>
+        <file>Resources/images/4.bmp</file>
+        <file>Resources/images/5.bmp</file>
+        <file>Resources/images/6.bmp</file>
+        <file>Resources/images/7.bmp</file>
+        <file>Resources/images/8.bmp</file>
+        <file>Resources/images/9.bmp</file>
+        <file>Resources/images/aceptar.bmp</file>
+        <file>Resources/images/borrar.bmp</file>
+        <file>Resources/images/cancelar.bmp</file>
+        <file>Resources/images/guion.bmp</file>
+        <file>Resources/images/k.bmp</file>
+        <file>Resources/images/impresora_apagada.bmp</file>
+        <file>Resources/images/impresora_desconectada.bmp</file>
+        <file>Resources/images/impresora_encendida.bmp</file>
+        <file>Resources/images/impresora_pocopapel.bmp</file>
+        <file>Resources/images/impresora_sinpapel.bmp</file>
+        <file>Resources/images/internet_deshabilitada.bmp</file>
+        <file>Resources/images/internet_habilitada.bmp</file>
+    </qresource>
+    <qresource prefix="/app">
+        <file>Resources/settings/app.ini</file>
+    </qresource>
+    <qresource prefix="/lang">
+        <file>Resources/languages/snack_en.ts</file>
+        <file>Resources/languages/snack_es.ts</file>
+        <file>Resources/languages/snack_en.qm</file>
+        <file>Resources/languages/snack_es.qm</file>
+    </qresource>
+</RCC>
