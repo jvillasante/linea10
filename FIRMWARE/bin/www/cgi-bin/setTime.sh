@@ -48,8 +48,9 @@ else
     echo '<br>'
     echo '<br>'
 
-    date $xDate
-    hwclock --systohc
+    # date $xDate
+    # hwclock --systohc
+    ./SetTimeKairos  $xDate
   fi
 fi
 

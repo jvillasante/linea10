@@ -8,19 +8,19 @@ source /usr/local/bin/profile
 # Call web server
 /usr/sbin/httpd -p 80 -h /usr/local/bin/www
 
-# TIME ZONE update
-if [ -f /etc/localtime ]; then
-  cp -p /etc/localtime /etc/localtime.bak
-  ln -sf /usr/local/bin/Santiago /etc/localtime
-else
-  cp /usr/local/bin/Santiago /etc/localtime
-fi
-
 # NTP
 NTP_IP=200.54.149.19
 if ping -c 1 $NTP_IP &> /dev/null
 then
   echo "ntp is up"
+  
+  # TIME ZONE update
+  if [ -f /etc/localtime ]; then
+    cp -p /etc/localtime /etc/localtime.bak
+    ln -sf /usr/local/bin/Santiago /etc/localtime
+  else
+    cp /usr/local/bin/Santiago /etc/localtime
+  fi
   
   # start up ntp
   ntpd -p $NTP_IP
@@ -29,6 +29,10 @@ then
   touch /usr/local/bin/Resources/ntp_is_running
 else
   echo "ntp is down"
+  
+  if [ -f /etc/localtime ]; then
+    rm -f /etc/localtime
+  fi
 
   # delete ntp flag
   if [ -f /usr/local/bin/Resources/ntp_is_running ]; then
@@ -59,7 +63,7 @@ mkfifo /tmp/app.log
 
 if [ -n "$BOARD" ]; then
 	if [ "$BOARD" == "cerebro" ]; then
-    nohup /usr/local/bin/tempo -qws -display transformed:Rot270 2>&1 | /usr/local/bin/ftee /tmp/app.log &
+    nohup /usr/local/bin/GeneraApp -qws -display transformed:Rot270 2>&1 | /usr/local/bin/ftee /tmp/app.log &
     sleep 30 
     nohup /usr/local/bin/updater 2>&1 | /usr/local/bin/ftee /tmp/app.log &
     nohup /usr/local/bin/synchronizer 2>&1 | /usr/local/bin/ftee /tmp/app.log &
