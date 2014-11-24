@@ -50,7 +50,7 @@ else
 
     # date $xDate
     # hwclock --systohc
-    ./SetTimeKairos  $xDate
+    ./SetTimeKairosLocal $xDate
   fi
 fi
 

@@ -161,7 +161,7 @@ bool GeneraDB::writeDatabaseToFile()
     QSqlQuery qry(this->db);
     QTextStream stream(&file);
     if (fileIsNew)
-      stream << "#sentido;identificador;fecha;sincronizado (Timestamp: " << QDateTime::currentDateTime().toString("yyyy/MM/dd hh:mm:ss") << ")\n\n";
+      stream << "#sentido;identificador;fecha;sincronizado (Timestamp: " << Utils::getCurrentTimestamp().toString("yyyy/MM/dd hh:mm:ss") << ")\n\n";
 
     if (!qry.exec("SELECT sense, ident, date, synchronized FROM events WHERE synchronized = 1")) {
       LOG_ERROR("Query error: %s.", qry.lastError().databaseText().toStdString().c_str());
@@ -200,7 +200,7 @@ bool GeneraDB::writeDatabaseToFile()
 int GeneraDB::isUserIdentifiedOnLastMinute(QString identifier, int type)
 {
   int count = 0;
-  QDateTime eventDateTime;
+  uint dbTimestamp = 0;
 
   // Salida...
   if (type == 2) { type = 0; }
@@ -215,8 +215,8 @@ int GeneraDB::isUserIdentifiedOnLastMinute(QString identifier, int type)
     return 0;
   }
   
-  while(qry.next()) {
-    Utils::getFromUnixTimestamp(eventDateTime, qry.value(1).toInt());
+  while (qry.next()) {
+    dbTimestamp = qry.value(1).toInt();
     count += 1;
   }
 
@@ -224,8 +224,14 @@ int GeneraDB::isUserIdentifiedOnLastMinute(QString identifier, int type)
     qry.finish();
     return 2;
   }
+
+  DEBUG("*********************************************************");
+  DEBUG("DB %d      : ", dbTimestamp);
+  DEBUG("DB + 60 %d : ", dbTimestamp + 60);
+  DEBUG("CURRENT %d : ", Utils::getCurrentUnixTimestamp());
+  DEBUG("*********************************************************");
   
-  if (eventDateTime.addSecs(60) >= QDateTime::currentDateTime()) {
+  if ((dbTimestamp + 60) >= Utils::getCurrentUnixTimestamp()) {
     qry.finish();
     return 1;
   } else {

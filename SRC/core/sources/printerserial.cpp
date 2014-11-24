@@ -3,6 +3,7 @@
 #include <debug_macros.h>
 #include <unistd.h>
 #include "qextserialenumerator.h"
+#include "utils.h"
 
 #include <QByteArray>
 #include <QDateTime>
@@ -85,7 +86,7 @@ void PrinterSerial::write_hello(QString mac, QString ip, QString gateway, QStrin
   bytes.append(tr("ETHERNET MASC: ").toAscii()).append(masc.toAscii()).append("\r\n");
   bytes.append(tr("ETHERNET BROADCASTING: ").toAscii()).append(broadcast.toAscii()).append("\r\n");
   
-  QDateTime now = QDateTime::currentDateTime();
+  QDateTime now = Utils::getCurrentTimestamp();
   if (lang == "EN") {
     bytes.append(QString("Date :%1 Time: %2\r\n").arg(getDate(now)).arg(now.toString("hh:mm")).toAscii());
   } else {
@@ -123,7 +124,7 @@ void PrinterSerial::write_user(QString type, QString userIdentifier, QString use
     alignLeft();
     bytes.clear();
 
-    QDateTime now = QDateTime::currentDateTime();
+    QDateTime now = Utils::getCurrentTimestamp();
     
     if (lang == "en") {
       bytes.append(QString("Date   :%1 Time: %2\r\n").arg(getDate(now)).arg(now.toString("hh:mm")).toAscii());

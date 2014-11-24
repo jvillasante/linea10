@@ -37,7 +37,7 @@ Backup::~Backup()
 
 void Backup::deleteOldFiles()
 {
-  QDateTime keepEvents = QDateTime::currentDateTime().addDays(-daysToKeepBackup);
+  QDateTime keepEvents = Utils::getCurrentTimestamp().addDays(-daysToKeepBackup);
   QDir dir("/mnt/jffs2/backup");
 
   dir.setFilter(QDir::NoDotAndDotDot | QDir::Files);
@@ -54,7 +54,7 @@ void Backup::deleteOldFiles()
 
 void Backup::doWork()
 {
-  QDateTime currentDateTime =QDateTime::currentDateTime();
+  QDateTime currentDateTime = Utils::getCurrentTimestamp();
   QTime currentTime = currentDateTime.time();
 
   if (currentTime.hour() == 23) {

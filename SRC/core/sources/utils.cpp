@@ -19,12 +19,6 @@ namespace Utils
     aString.append("...");
   }
 
-  QString dateFormat(const QString &format)
-  {
-    QDateTime now = QDateTime::currentDateTime();
-    return now.date().toString(format);
-  }
-
   void reboot()
   {
     DEBUG("rebooting.................................");
@@ -146,9 +140,31 @@ namespace Utils
     return (stat(name, &buffer) == 0);
   }
   
+  QString dateFormat(const QString &format)
+  {
+    QDateTime now = getCurrentTimestamp();
+    return now.date().toString(format);
+  }
+  
+  QDateTime getCurrentTimestamp()
+  {
+    return QDateTime::currentDateTime();
+  }
+  
+  QDateTime getCurrentTimestampUtc()
+  {
+    return QDateTime::currentDateTimeUtc();
+  }
+  
   uint getCurrentUnixTimestamp()
   {
-    QDateTime now = QDateTime::currentDateTime();
+    QDateTime now = getCurrentTimestamp();
+    return now.toTime_t();
+  }
+  
+  uint getCurrentUnixTimestampUtc()
+  {
+    QDateTime now = getCurrentTimestampUtc();
     return now.toTime_t();
   }
   
@@ -156,7 +172,7 @@ namespace Utils
   {
     dateTime.setTime_t(unixTimeStamp);
   }
-
+  
   char rutVerifyDigit(unsigned rut)
   {
     unsigned factor, sum, digit;
@@ -182,10 +198,10 @@ namespace Utils
   
   bool isNtpRunning() {
     if (Utils::fileExists("/usr/local/bin/Resources/ntp_is_running")) {
-      DEBUG("NTP is running");
+      // DEBUG("NTP is running");
       return true;
     } else {
-      DEBUG("NTP is NOT running");
+      // DEBUG("NTP is NOT running");
       return false;
     }
   }

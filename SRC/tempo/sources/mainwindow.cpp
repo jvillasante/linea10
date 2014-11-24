@@ -163,7 +163,7 @@ void MainWindow::updateEverySecond()
   }
 
   // cambiar la hora cada segundo
-  QDateTime now = QDateTime::currentDateTime();
+  QDateTime now = Utils::getCurrentTimestamp();
   lblTime->display(now.toString("hh:mm:ss"));
 
   // is ntp is not running, actualizar la fecha cada segundo
@@ -462,7 +462,7 @@ inline void MainWindow::updatePrinterStatus()
     map["equSerial"] = settings->value("serialEquipo").toString();
     map["codigoAlarma"] = "2";
     map["estado"] = "0";
-    map["fechHorAlarma"] = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm");
+    map["fechHorAlarma"] = Utils::getCurrentTimestamp().toString("yyyy-MM-dd hh:mm");
     const QString strSOAP = soapHandler->getXmlPacket(method, wsNamespace, map);
 
     const QUrl url(settings->value("wsAlarmasURL").toString());
@@ -478,7 +478,7 @@ inline void MainWindow::updatePrinterStatus()
     map["equSerial"] = settings->value("serialEquipo").toString();
     map["codigoAlarma"] = "2";
     map["estado"] = "1";
-    map["fechHorAlarma"] = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm");
+    map["fechHorAlarma"] = Utils::getCurrentTimestamp().toString("yyyy-MM-dd hh:mm");
     const QString strSOAP = soapHandler->getXmlPacket(method, wsNamespace, map);
 
     const QUrl url(settings->value("wsAlarmasURL").toString());
