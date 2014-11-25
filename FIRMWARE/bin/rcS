@@ -9,7 +9,7 @@ source /usr/local/bin/profile
 /usr/sbin/httpd -p 80 -h /usr/local/bin/www
 
 # TIMEZONE
-if [ -f /etc/localtime ]; then
+if [ ! -f /etc/localtime ]; then
   touch /etc/localtime
 fi
 ln -sf /usr/local/bin/Santiago /etc/localtime
