@@ -12,7 +12,12 @@ echo '<body>'
 
 echo "Eventos:"
 echo '<br>'
-echo '<br>'
+echo '<br>ntp manual
+
+# This is the 2nd commit message:
+
+ntp esta listo
+'
 
 echo "id|sentido|identificador|fecha|sincronizado"
 echo "<br>"

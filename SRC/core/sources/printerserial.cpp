@@ -34,9 +34,9 @@ bool PrinterSerial::init()
   if (this->serialPort == NULL) {
     this->serialPort = new QextSerialPort("/dev/ttyS1", QextSerialPort::EventDriven);
     this->serialPort->setBaudRate(BAUD9600);
-    this->serialPort->setFlowControl(FLOW_OFF);
-    this->serialPort->setParity(PAR_NONE);
     this->serialPort->setDataBits(DATA_8);
+    this->serialPort->setParity(PAR_NONE);
+    this->serialPort->setFlowControl(FLOW_OFF);
     this->serialPort->setStopBits(STOP_1);
     this->serialPort->setTimeout(500);
     this->serialPort->waitForReadyRead(100);

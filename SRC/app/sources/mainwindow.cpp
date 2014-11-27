@@ -114,9 +114,14 @@ void MainWindow::match(QString userIdentifier, QString userName, QString userRut
     return;
   }
   
-  if (servicesCount == -1) {  // Servicio ya dado
+  if (servicesCount == -2) {  // impresora sin papel o desconectada
     Utils::limitString(userName, 25);
-    lblOutput->setText(tr("%1<br>Rut: %2<br><br><font size=4>(%3)</font><br><font size=4>Servicio ya dado!</fond>")
+    lblOutput->setText(tr("%1<br>Rut: %2<br><br><font size=4>Impresora sin papel<br>o desconectada.</font>")
+        .arg(userName)
+        .arg(userRut));
+  } else if (servicesCount == -1) {  // Servicio ya dado
+    Utils::limitString(userName, 25);
+    lblOutput->setText(tr("%1<br>Rut: %2<br><br><font size=4>(%3)</font><br><font size=4>Servicio ya dado!</font>")
         .arg(userName)
         .arg(userRut)
         .arg(service));
@@ -288,11 +293,6 @@ void MainWindow::initializeUI()
   lblGeneraLogo->setPixmap(lblGeneraLogoPixmap);
   lblEmpresaHolding = new QLabel(
       settings->value("empresaHolding", "GENERA S.A.").toString() + "\n" + settings->value("fwVersion", "").toString());
-
-  QString app = "TEMPO";
-#ifdef SNACK
-  app = "SNACK";
-#endif
 
   lblEmpresaHolding->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
   lblEmpresaHolding->setStyleSheet("font-size: 16px;"
