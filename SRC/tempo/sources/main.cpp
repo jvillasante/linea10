@@ -74,8 +74,8 @@ int main(int argc, char *argv[])
 
   QString appPath = QApplication::applicationDirPath();
   
+  QString src = appPath + "/Resources/settings/app.ini";
   if (Utils::fileExists("/mnt/jffs2/Gen_Config.sql")) {
-    QString src = appPath + "/Resources/settings/app.ini";
     const QString dest = "/mnt/jffs2/app.ini";
     Utils::moveFile(src, dest);
     settings = new QSettings(dest, QSettings::IniFormat);
@@ -83,12 +83,15 @@ int main(int argc, char *argv[])
     configure("/mnt/jffs2/Gen_Config.sql");
     Utils::removeFile("/mnt/jffs2/Gen_Config.sql");
   } else {
+    QSettings newSettings(src, QSettings::IniFormat);
+    QString fwVersion = newSettings.value("fwVersion").toString();
+    
     settings = new QSettings("/mnt/jffs2/app.ini", QSettings::IniFormat);
+    settings->setValue("fwVersion", fwVersion);
     if (!settings->contains("keepEvents")) { settings->setValue("keepEvents", 15); }
     if (settings->contains("eventsDB"))    { settings->remove("eventsDB"); }
     if (!settings->contains("generaDB"))   { settings->setValue("generaDB", "/mnt/jffs2/genera.db"); }
   } 
-  
   settings->sync();
   
   QString lang = settings->value("lang", "es").toString();

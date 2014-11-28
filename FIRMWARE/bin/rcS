@@ -14,11 +14,11 @@ if [ ! -f /etc/localtime ]; then
 fi
 ln -sf /usr/local/bin/Santiago /etc/localtime
 
-# NTP
-NTP_IP=200.54.149.19   # ip genera
-# NTP_IP=152.139.23.23   # ip banco de chile
-if ping -c 1 $NTP_IP &> /dev/null
-then
+# NTP_IP=200.54.149.19   # ip genera
+NTP_IP=152.139.23.23   # ip banco de chile
+ping -c 1 $NTP_IP > /dev/null 2>&1; NTP_RESPONSE=$?;
+echo "ping $NTP_IP Response: $NTP_RESPONSE"
+if [ $NTP_RESPONSE -eq 0 ]; then
   echo "ntp is up"
 
   # start up ntp
