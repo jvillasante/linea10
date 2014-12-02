@@ -73,5 +73,8 @@ else
   done
 fi
 
+echo "<hr />"
+echo "<a href="../web_kairos.html">Regresar a EpiGenesis</a>"
+
 echo '</body>'
 echo '</html>'

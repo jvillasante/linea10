@@ -1,7 +1,7 @@
 #!/bin/sh
 
 echo Starting Genera scripts
-hostname -F /usr/local/bin/hostname
+# hostname -F /usr/local/bin/hostname
 
 source /usr/local/bin/profile                                                        
 
@@ -14,26 +14,12 @@ if [ ! -f /etc/localtime ]; then
 fi
 ln -sf /usr/local/bin/Santiago /etc/localtime
 
-# NTP_IP=200.54.149.19   # ip genera
-NTP_IP=152.139.23.23   # ip banco de chile
-ping -c 1 $NTP_IP > /dev/null 2>&1; NTP_RESPONSE=$?;
-echo "ping $NTP_IP Response: $NTP_RESPONSE"
-if [ $NTP_RESPONSE -eq 0 ]; then
-  echo "ntp is up"
-
-  # start up ntp
-  ntpd -p $NTP_IP
-  
-  # flag to know that ntp is running
-  touch /usr/local/bin/Resources/ntp_is_running
-else
-  echo "ntp is down"
-  
-  # delete ntp flag
-  if [ -f /usr/local/bin/Resources/ntp_is_running ]; then
-    rm -f /usr/local/bin/Resources/ntp_is_running
-  fi
+NTP_IP=$(sed -n 's/^ntpIP*=*\([^ ]*.*\)/\1/p' < /mnt/jffs2/app.ini)
+if [ -z $NTP_IP ]; then # first run on old systems could fail!!!
+  NTP_IP=200.54.149.19   # ip genera
+  # NTP_IP=152.139.23.23   # ip banco de chile
 fi
+ntpd -p $NTP_IP
 
 # rename old events.db to genera.db if exists
 if [ -f /mnt/jffs2/events.db ]; then

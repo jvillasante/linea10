@@ -11,12 +11,15 @@ echo '</head>'
 echo '<body>'
 
 echo "<form method=GET action=\"${SCRIPT}\">"\
+  '<input type="hidden" name="reset" value="1">'\
   '<table nowrap>'\
   '<tr><td>Opcion para Resetear el Dispositivo</TD></tr>'\
   '</tr></table>'
 
+echo '<br><input type="submit" value="Resetear Ahora!"></form>'
 
-echo '<br><input type="submit" value="Reset"></form>'
+echo "<hr />"
+echo "<a href="../web_kairos.html">Regresar a EpiGenesis</a>"
 
 # Make sure we have been invoked properly.
 
@@ -28,24 +31,16 @@ if [ "$REQUEST_METHOD" != "GET" ]; then
 fi
 
 # If no search arguments, exit gracefully now.
+if [ -z "$QUERY_STRING" ]; then
+  exit 0
+fi
 
-
-echo '<br>'
-echo "RESETEANDO EQUIPO: "
-echo '<br>'
-echo '<br>'
-
-LOGFILE=/mnt/jffs2/TEMPO_LOG.log
-
-
-
-echo "Reseteando_Equipo:" >>date>>$LOGFILE 
+echo "<br><hr /><br>"
+echo "RESETEANDO EQUIPO: $(date)" 
 echo '<br>'
 echo '<br>'
 
 reboot
-
-
 
 echo '</body>'
 echo '</html>'

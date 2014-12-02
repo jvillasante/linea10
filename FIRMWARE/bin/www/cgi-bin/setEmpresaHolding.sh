@@ -12,13 +12,15 @@ echo '<body>'
 
 echo "<form method=GET action=\"${SCRIPT}\">"\
   '<table nowrap>'\
-  '<tr><td>DEFINIR EL NOMBRE DE LA EMPRESA HOLDING</TD></tr>'\
+  '<tr><td>DEFINIR EL NOMBRE DE LA EMPRESA HOLDING</td></tr>'\
   '<tr><td><strong>NOTA: EL SISTEMA SE REINICIARA LUEGO DE REALIZAR ESTA ACCION</strong></td></tr>'\
-  '<tr><td>EMPRESA:</TD><TD><input type="text" name="m_holding" size=12></td></tr>'\
-  '</tr></table>'
-
+  '<tr><td>EMPRESA: <input type="text" name="m_holding" size=24></td></tr>'\
+  '</table>'
 
 echo '<br><input type="submit" value="Guardar"></form>'
+
+echo "<hr />"
+echo "<a href="../web_kairos.html">Regresar a EpiGenesis</a>"
 
 # Make sure we have been invoked properly.
 
@@ -34,6 +36,8 @@ fi
 if [ -z "$QUERY_STRING" ]; then
   exit 0
 else
+  echo "<br><hr /><br>"
+  
   # No looping this time, just extract the data you are looking for with sed:
   xHolding=`echo "$QUERY_STRING" | sed -n 's/^.*m_holding=\([^&]*\).*$/\1/p' | sed "s/%20/ /g"`
 

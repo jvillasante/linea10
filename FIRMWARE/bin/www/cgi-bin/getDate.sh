@@ -11,12 +11,9 @@ echo '</head>'
 echo '<body>'
 
 echo "FECHA Y HORA: $(date) <br><br>"
-echo "NTP actualiza la fecha y hora autom&aacute;ticamente.<br>"
-if [ -f /usr/local/bin/Resources/ntp_is_running ]; then
-  echo "<strong>NTP est&aacute corriendo en este sistema.</strong>"
-else
-  echo "<strong>NTP NO est&aacute corriendo en este sistema.</strong>"
-fi
+
+echo "<hr />"
+echo "<a href="../web_kairos.html">Regresar a EpiGenesis</a>"
   
 echo '</body>'
 echo '</html>'

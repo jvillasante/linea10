@@ -12,14 +12,16 @@ echo '<body>'
 
 echo "<form method=GET action=\"${SCRIPT}\">"\
   '<table nowrap>'\
-  '<tr><td>INTERFAZ PARA MODIFICAR IP Y PUERTO DE LOS WEB SERVICES</TD></tr>'\
+  '<tr><td>INTERFAZ PARA MODIFICAR IP Y PUERTO DE LOS WEB SERVICES</td></tr>'\
   '<tr><td><strong>NOTA: EL SISTEMA SE REINICIARA LUEGO DE REALIZAR ESTA ACCION</strong></td></tr>'\
-  '<tr><td>WS IP:</TD><TD><input type="text" name="m_wsip" size=20></td></tr>'\
-  '<tr><td>WS PUERTO:</TD><TD><input type="text" name="m_wspuerto" size=20></td></tr>'\
-  '<tr><td>WS CLIENTE:</TD><TD><input type="text" name="m_wscliente" size=80></td></tr>'\
+  '<tr><td>WS IP:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <input type="text" name="m_wsip" size=24></td></tr>'\
+  '<tr><td>WS PUERTO:&nbsp;&nbsp; <input type="text" name="m_wspuerto" size=24></td></tr>'\
+  '<tr><td>WS CLIENTE:&nbsp; <input type="text" name="m_wscliente" size=80></td></tr>'\
   '</table>'
-
 echo '<br><input type="submit" value="Guardar"></form>'
+
+echo "<hr />"
+echo "<a href="../web_kairos.html">Regresar a EpiGenesis</a>"
 
 # Make sure we have been invoked properly.
 
@@ -35,6 +37,8 @@ fi
 if [ -z "$QUERY_STRING" ]; then
   exit 0
 else
+  echo "<br><hr /><br>"
+  
   # No looping this time, just extract the data you are looking for with sed:
   xWSIP=`echo "$QUERY_STRING" | sed -n 's/^.*m_wsip=\([^&]*\).*$/\1/p' | sed "s/%20/ /g"`
   xWSPuerto=`echo "$QUERY_STRING" | sed -n 's/^.*m_wspuerto=\([^&]*\).*$/\1/p' | sed "s/%20/ /g"`

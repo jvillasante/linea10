@@ -34,8 +34,6 @@ MainWindow::MainWindow(QSettings *settings, QWidget *parent) :
   connect(this->soapHandler, SIGNAL(finished(QString)), this, SLOT(alarmasFinished(QString)));
   connect(this->soapHandler, SIGNAL(error(QString)), this, SLOT(alarmasError(QString)));
 
-  ntp_is_running = Utils::isNtpRunning();
-  
   updatePrinterStatus();
   updateInternetStatus();
   printInitTicket();
@@ -166,15 +164,7 @@ void MainWindow::updateEverySecond()
   QDateTime now = Utils::getCurrentTimestamp();
   lblTime->display(now.toString("hh:mm:ss"));
 
-  // is ntp is not running, actualizar la fecha cada segundo
-  if (!ntp_is_running) {
-    updateDate(now);
-  } else {
-    // solo cambiar la fecha si estamos inicializando o si la hora es 0 (12 de la mannana)
-    if ((lblDate->text().isEmpty()) || (now.time().hour() == 0)) {
-      updateDate(now);
-    }
-  }
+  updateDate(now);
 }
 
 void MainWindow::updateEveryHour()
@@ -243,14 +233,9 @@ void MainWindow::initializeUI()
   lblGeneraLogo->setStyleSheet("margin-left: 5px;");
   QPixmap lblGeneraLogoPixmap(":/img/Resources/images/genera_logo.png");
   lblGeneraLogo->setPixmap(lblGeneraLogoPixmap);
-
-  if (Utils::isNtpRunning()) {
-    lblEmpresaHolding = new QLabel(
-        settings->value("empresaHolding", "GENERA S.A.").toString() + "\n" + "[NTP]");
-  } else {
-    lblEmpresaHolding = new QLabel(
-        settings->value("empresaHolding", "GENERA S.A.").toString() + "\n" + "[NO NTP]");
-  }
+  
+  lblEmpresaHolding = new QLabel(
+      settings->value("empresaHolding", "GENERA S.A.").toString() + "\n" + settings->value("fwVersion", "").toString());
 
   lblEmpresaHolding->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
   lblEmpresaHolding->setStyleSheet("font-size: 16px;"

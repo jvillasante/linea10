@@ -12,14 +12,16 @@ echo '<body>'
 
 echo "<form method=GET action=\"${SCRIPT}\">"\
   '<table nowrap>'\
-  '<tr><td>IP:</TD><TD><input type="text" name="m_ip" size=12></td></tr>'\
-  '<tr><td>MASCARA:</td><td><input type="text" name="m_mask" size=12 value=""></td>'\
-  '<tr><td>GATEWAY:</td><td><input type="text" name="m_gw" size=12 value=""></td>'\
+  '<tr><td>IP:</TD><TD><input type="text" name="m_ip" size=24></td></tr>'\
+  '<tr><td>MASCARA:</td><td><input type="text" name="m_mask" size=24 value=""></td>'\
+  '<tr><td>GATEWAY:</td><td><input type="text" name="m_gw" size=24 value=""></td>'\
   '</tr></table>'
-
 
 echo '<br><input type="submit" value="Guardar">'\
   '<input type="reset" value="Reset"></form>'
+
+echo "<hr />"
+echo "<a href="../web_kairos.html">Regresar a EpiGenesis</a>"
 
 # Make sure we have been invoked properly.
 
@@ -35,6 +37,8 @@ fi
 if [ -z "$QUERY_STRING" ]; then
   exit 0
 else
+  echo "<br><hr /><br>"
+  
   # No looping this time, just extract the data you are looking for with sed:
   xIP=`echo "$QUERY_STRING" | sed -n 's/^.*m_ip=\([^&]*\).*$/\1/p' | sed "s/%20/ /g"`
   xMASK=`echo "$QUERY_STRING" | sed -n 's/^.*m_mask=\([^&]*\).*$/\1/p' | sed "s/%20/ /g"`

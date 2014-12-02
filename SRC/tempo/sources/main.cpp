@@ -84,13 +84,24 @@ int main(int argc, char *argv[])
     Utils::removeFile("/mnt/jffs2/Gen_Config.sql");
   } else {
     QSettings newSettings(src, QSettings::IniFormat);
-    QString fwVersion = newSettings.value("fwVersion").toString();
-    
     settings = new QSettings("/mnt/jffs2/app.ini", QSettings::IniFormat);
-    settings->setValue("fwVersion", fwVersion);
-    if (!settings->contains("keepEvents")) { settings->setValue("keepEvents", 15); }
+    
+    if (settings->contains("key1"))        { settings->remove("key1"); }
+    if (settings->contains("key2"))        { settings->remove("key2"); }
+    if (settings->contains("key3"))        { settings->remove("key3"); }
+    if (settings->contains("key4"))        { settings->remove("key4"); }
+    if (settings->contains("key5"))        { settings->remove("key5"); }
+    if (settings->contains("key6"))        { settings->remove("key6"); }
+    if (settings->contains("key7"))        { settings->remove("key7"); }
+    if (settings->contains("key8"))        { settings->remove("key8"); }
+    if (settings->contains("key9"))        { settings->remove("key9"); }
+    if (settings->contains("key10"))       { settings->remove("key10"); }
     if (settings->contains("eventsDB"))    { settings->remove("eventsDB"); }
+    
+    if (!settings->contains("keepEvents")) { settings->setValue("keepEvents", 15); }
     if (!settings->contains("generaDB"))   { settings->setValue("generaDB", "/mnt/jffs2/genera.db"); }
+    if (!settings->contains("ntpIP"))      { settings->setValue("ntpIP", newSettings.value("ntpIP").toString()); }
+    settings->setValue("fwVersion", newSettings.value("fwVersion").toString());
   } 
   settings->sync();
   

@@ -3,7 +3,7 @@
 BUILD/
 FIRMWARE/*.*
 FIRMWARE/bin/synchronizer
-FIRMWARE/bin/tempo
+FIRMWARE/bin/GeneraApp
 FIRMWARE/bin/updater
 FIRMWARE/bin/backup
 Makefile

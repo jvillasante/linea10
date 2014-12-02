@@ -10,7 +10,6 @@ echo '<title>Interfaz para listas las Personas Habilitadas </title>'
 echo '</head>'
 echo '<body>'
 
-
 echo "LISTADO DE PERSONAS :"
 echo '<br>'
 echo '<br>'
@@ -34,6 +33,9 @@ sqlite3 /mnt/jffs2/iengine.db "SELECT name, value FROM iengine_tags WHERE 1" | w
     echo " | $Value <br>"
   fi
 done
+
+echo "<hr />"
+echo "<a href="../web_kairos.html">Regresar a EpiGenesis</a>"
 
 echo '</body>'
 echo '</html>'
