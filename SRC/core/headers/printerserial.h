@@ -21,7 +21,8 @@ class PrinterSerial : public QObject
 #ifdef TEMPO
     void write_user(QString type, QString userIdentifier, QString userName, QString userRut, QString userEmp);
 #elif SNACK
-    void write_user(QString service, QString userIdentifier, QString userName, QString userRut, QString userEmp);
+    void write_user(QString service, QString userIdentifier, QString userName, QString userRut, QString userEmp, 
+        QString userCentroCosto);
 #endif
     bool getRealTimePaperStatus(QString &msg);
     bool getRealTimeStatus(QString &msg);

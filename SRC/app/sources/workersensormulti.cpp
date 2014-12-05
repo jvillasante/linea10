@@ -207,16 +207,17 @@ void WorkerSensorMulti::doIdentifySnack()
   }
 
   if (rc == 0) {
-    char userIdentifier[32], userName[100], userRut[15], userEmp[32];
+    char userIdentifier[32], userName[100], userRut[15], userEmp[32], userCentroCosto[32];
     int userId, repeticion;
     
     memset(userIdentifier, 0, sizeof(char) * 32);
     memset(userName, 0, sizeof(char) * 100);
     memset(userRut, 0, sizeof(char) * 8);
     memset(userEmp, 0, sizeof(char) * 32);
+    memset(userCentroCosto, 0, sizeof(char) * 32);
     
     if (idkit->matchFromRawImageSnack(compositeImage, width, height, &userId, &userIdentifier[0], &userName[0], 
-          &userRut[0], &userEmp[0], &repeticion)) {
+          &userRut[0], &userEmp[0], &repeticion, &userCentroCosto[0])) {
       int datetime[2];  // hora actual: [2,1330] (martes, 13:30 horas)
       Utils::getCurrentDateTimeForSnack(datetime);
       
@@ -233,7 +234,7 @@ void WorkerSensorMulti::doIdentifySnack()
           service = it.value();
         
         if ((repeticion == 1) || (service->repetition == 1)) {
-          giveService(service, userId, userIdentifier, userName, userRut, userEmp);
+          giveService(service, userId, userIdentifier, userName, userRut, userEmp, userCentroCosto);
         } else {
           QDateTime lastServed;
           Utils::getFromUnixTimestamp(lastServed, service->lastServed);
@@ -242,7 +243,7 @@ void WorkerSensorMulti::doIdentifySnack()
           if (lastServed.date() >= current.date()) { // servicio ya dado
             emit match(userIdentifier, userName, userRut, service->name, -1);
           } else { // servicio no dado aun
-            giveService(service, userId, userIdentifier, userName, userRut, userEmp);
+            giveService(service, userId, userIdentifier, userName, userRut, userEmp, userCentroCosto);
           }
         }
       } else {
@@ -265,7 +266,7 @@ void WorkerSensorMulti::doIdentifySnack()
             DEBUG("Last served service in group: %s", lastServedServiceInGroup->name.toStdString().c_str());
             
             if ((repeticion == 1) || (service->repetition == 1)) {
-              giveService(service, userId, userIdentifier, userName, userRut, userEmp);
+              giveService(service, userId, userIdentifier, userName, userRut, userEmp, userCentroCosto);
             } else {
               QDateTime lastServed;
               Utils::getFromUnixTimestamp(lastServed, lastServedServiceInGroup->lastServed);
@@ -274,7 +275,7 @@ void WorkerSensorMulti::doIdentifySnack()
               if (lastServed.date() >= current.date()) { // servicio ya dado
                 emit match(userIdentifier, userName, userRut, service->name, -1);
               } else { // servicio no dado aun
-                giveService(service, userId, userIdentifier, userName, userRut, userEmp);
+                giveService(service, userId, userIdentifier, userName, userRut, userEmp, userCentroCosto);
               }
             }
           } else {
@@ -304,7 +305,7 @@ void WorkerSensorMulti::doIdentifySnack()
 }
 
 void WorkerSensorMulti::giveService(ServiceDAO *service, int userId, char *userIdentifier, char *userName, 
-    char *userRut, char *userEmp)
+    char *userRut, char *userEmp, char *userCentroCosto)
 {
   int rc;
 
@@ -315,7 +316,8 @@ void WorkerSensorMulti::giveService(ServiceDAO *service, int userId, char *userI
     return;
   }
   
-  printer->write_user(service->name, QString(userIdentifier), QString(userName), QString(userRut), QString(userEmp));
+  printer->write_user(service->name, QString(userIdentifier), QString(userName), QString(userRut), 
+      QString(userEmp), QString(userCentroCosto));
 
   rc = generaDB->updateService(userId, service->group);
   if (rc == 0) {

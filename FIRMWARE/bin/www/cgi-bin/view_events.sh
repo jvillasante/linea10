@@ -12,20 +12,26 @@ echo '<body>'
 
 echo "Eventos:"
 echo '<br>'
-echo '<br>ntp manual
+echo '<br>'
 
-# This is the 2nd commit message:
+if [ $EQUIPO = "TEMPO" ]; then
+  echo "id|sentido|identificador|fecha|sincronizado"
+elif [ $EQUIPO = "SNACK" ]; then
+  echo "id|servicio|identificador|fecha|sincronizado"
+fi
 
-ntp esta listo
-'
-
-echo "id|sentido|identificador|fecha|sincronizado"
 echo "<br>"
 echo "<br>"
 
-sqlite3 /mnt/jffs2/genera.db "SELECT substr('0000000000' || id, -10, 10), sense, ident, datetime(date, 'unixepoch', 'localtime'), synchronized FROM events" | while read ROW; do
-  echo "$ROW <br>"
-done
+if [ $EQUIPO = "TEMPO" ]; then
+  sqlite3 /mnt/jffs2/genera.db "SELECT substr('0000000000' || id, -10, 10), sense, ident, datetime(date, 'unixepoch', 'localtime'), synchronized FROM events" | while read ROW; do
+    echo "$ROW <br>"
+  done
+elif [ $EQUIPO = "SNACK" ]; then
+  sqlite3 /mnt/jffs2/genera.db "SELECT substr('0000000000' || id, -10, 10), service, ident, datetime(date, 'unixepoch', 'localtime'), synchronized FROM events" | while read ROW; do
+    echo "$ROW <br>"
+  done
+fi
 
 echo "<hr />"
 echo "<a href="../web_kairos.html">Regresar a EpiGenesis</a>"

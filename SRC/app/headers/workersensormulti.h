@@ -59,7 +59,8 @@ class WorkerSensorMulti : public QObject
     bool isButtonPressed(QString &typeStr, int &typeInt);
 #elif SNACK
     void doIdentifySnack();
-    void giveService(ServiceDAO *service, int userId, char *userIdentifier, char *userName, char *userRut, char *userEmp);
+    void giveService(ServiceDAO *service, int userId, char *userIdentifier, char *userName, char *userRut, 
+        char *userEmp, char *userCentroCosto);
     std::string execute(const char* cmd);
     int determineInputDeviceIndex();
     int waitForKeyboard();

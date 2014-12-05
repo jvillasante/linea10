@@ -655,9 +655,140 @@ void ImportDB::importDatabaseTempo(IDKITWrapper *idkit, QSqlDatabase *db)
 #ifdef SNACK
 void ImportDB::importDatabaseSnack(IDKITWrapper *idkit, QSqlDatabase *db)
 {
+<<<<<<< HEAD
   UNUSED(idkit);
   UNUSED(db);
   DEBUG("Not implemented yet...");
+=======
+  int importCount = 0;
+  QSqlQuery qry(*importDb);
+  
+  int rc = generaDb->truncateTables();
+  if (rc != 0) {
+    LOG_ERROR("Error truncating genera tables.");
+    return;
+  }
+
+  if (!qry.exec("SELECT s.id_service, s.name, s.repetition FROM services s")) {
+    LOG_ERROR("Query error: %s.", qry.lastError().databaseText().toStdString().c_str());
+    qry.finish();
+    return;
+  } else {
+    while (qry.next()) {
+      int service_id = qry.value(0).toInt();
+      QString service_name = qry.value(1).toString();
+      int service_repetition = qry.value(2).toInt();
+
+      generaDb->insertService(service_id, service_name, service_repetition);
+    }
+    
+    qry.finish();
+  }
+  
+  if (!qry.exec("SELECT s.id_schedule, s.init_hour, s.end_hour, s.on_lu, s.on_ma, s.on_mi, s.on_ju, s.on_vi, s.on_sa, s.on_do FROM schedules s")) {
+    LOG_ERROR("Query error: %s.", qry.lastError().databaseText().toStdString().c_str());
+    qry.finish();
+    return;
+  } else {
+    while (qry.next()) {
+      int schedule_id = qry.value(0).toInt();
+      int init_hour = qry.value(1).toInt();
+      int end_hour = qry.value(2).toInt();
+      int onLu = qry.value(3).toInt();
+      int onMa = qry.value(4).toInt();
+      int onMi = qry.value(5).toInt();
+      int onJu = qry.value(6).toInt();
+      int onVi = qry.value(7).toInt();
+      int onSa = qry.value(8).toInt();
+      int onDo = qry.value(9).toInt();
+
+      generaDb->insertSchedule(schedule_id, init_hour, end_hour, onLu, onMa, onMi, onJu, onVi, onSa, onDo);
+    }
+    
+    qry.finish();
+  }
+  
+  if (!qry.exec("SELECT s.id_schedule, s.id_service FROM schedules_services s")) {
+    LOG_ERROR("Query error: %s.", qry.lastError().databaseText().toStdString().c_str());
+    qry.finish();
+    return;
+  } else {
+    while (qry.next()) {
+      int schedule_id = qry.value(0).toInt();
+      int service_id = qry.value(1).toInt();
+
+      generaDb->insertScheduleService(schedule_id, service_id);
+    }
+    
+    qry.finish();
+  }
+  
+  if (!qry.exec("SELECT p.id_person, p.id_service, p.service_group FROM persons_services p")) {
+    LOG_ERROR("Query error: %s.", qry.lastError().databaseText().toStdString().c_str());
+    qry.finish();
+    return;
+  } else {
+    while (qry.next()) {
+      int person_id = qry.value(0).toInt();
+      int service_id = qry.value(1).toInt();
+      int service_group = qry.value(2).toInt();
+
+      generaDb->insertPersonService(person_id, service_id, service_group);
+    }
+    
+    qry.finish();
+  }
+
+  if (!qry.exec("SELECT p.cas_idper, p.cas_identificadorper, "
+        "p.cas_nombreper || ' ' || p.cas_apppaternoper || ' ' || p.cas_appmaternoper, "
+        "p.cas_rutper || '-' ||  p.cas_rutdvper, p.cas_repeticion, p.cas_codigocentrocosto, "
+        "h.template, e.cas_empnombre "
+        "FROM gen_cas_persona p "
+        "INNER JOIN gen_cas_huella_dactilar h ON p.cas_idper = h.idper "
+        "INNER JOIN gen_cas_empresa e ON p.cas_idemp = e.cas_idemp")) {
+    LOG_ERROR("Query error: %s.", qry.lastError().databaseText().toStdString().c_str());
+    qry.finish();
+  } else {
+    DEBUG("Selected. Beginnning to import data.");
+
+    while(qry.next()) {
+      int userId = qry.value(0).toInt();
+      
+      QString identifier = qry.value(1).toString();
+      Utils::limitString(identifier, 32);
+
+      QString name = qry.value(2).toString();
+      Utils::limitString(name, 100);
+
+      QString rut = qry.value(3).toString();
+      Utils::limitString(rut, 15);
+
+      int repeticion = qry.value(4).toInt();
+
+      QString centroCosto = qry.value(5).toString();
+      Utils::limitString(centroCosto, 32);
+
+      QString tpl = qry.value(6).toString();
+      QByteArray bytes = tpl.toUtf8();
+      QByteArray decoded = bytes.fromBase64(bytes);
+
+      QString emp = qry.value(7).toString();
+      Utils::limitString(emp, 32);
+
+      if (idkit->registerUserFromTemplateSnack(reinterpret_cast<unsigned char *>(decoded.data()), userId, 
+            (char *) identifier.toStdString().c_str(), (char *) name.toStdString().c_str(), 
+            (char *) rut.toStdString().c_str(), (char *) emp.toStdString().c_str(), repeticion,
+            (char *) centroCosto.toStdString().c_str())) {
+        importCount += 1;
+      }
+
+      if (importCount % 10 == 0) {
+        emit importProgress(importCount);
+      }
+    }
+    qry.finish();
+  }
+>>>>>>> 9bf309d... snack10 v0.8 almost ready
 }
 #endif
 

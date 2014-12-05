@@ -82,7 +82,7 @@ error:
 }
 
 #ifdef TEMPO
-bool IDKITWrapper::registerUserFromTemplate(unsigned char *tpl, char *userIdentifier, char *userName, char *userRut, char *userEmp)
+bool IDKITWrapper::registerUserFromTemplate(unsigned char *tpl, int userId, char *userIdentifier, char *userName, char *userRut, char *userEmp)
 {
   int rc;
   IENGINE_USER user;
@@ -111,8 +111,7 @@ bool IDKITWrapper::registerUserFromTemplate(unsigned char *tpl, char *userIdenti
     CHECK_IDKIT(rc, "IEngine_SetStringTag (empresa)");
 
     // Register user
-    int userID;
-    rc = IEngine_RegisterUser(user, &userID);
+    rc = IEngine_RegisterUserAs(user, userId);
     CHECK_IDKIT(rc, "IEngine_RegisterUser");
 
     // Free user
@@ -138,8 +137,8 @@ error:
 #endif
 
 #ifdef SNACK
-bool IDKITWrapper::registerUserFromTemplateSnack(unsigned char *tpl, char *userIdentifier, char *userName, 
-    char *userRut, char *userEmp, int repeticion)
+bool IDKITWrapper::registerUserFromTemplateSnack(unsigned char *tpl, int userId, char *userIdentifier, char *userName, 
+    char *userRut, char *userEmp, int userRepeticion, char *userCentroCosto)
 {
   int rc;
   IENGINE_USER user;
@@ -167,13 +166,15 @@ bool IDKITWrapper::registerUserFromTemplateSnack(unsigned char *tpl, char *userI
     rc = IEngine_SetStringTag(user, "empresa", userEmp);
     CHECK_IDKIT(rc, "IEngine_SetStringTag (empresa)");
     
-    rc = IEngine_SetIntTag(user, "repeticion", repeticion);
+    rc = IEngine_SetIntTag(user, "repeticion", userRepeticion);
     CHECK_IDKIT(rc, "IEngine_SetStringTag (repeticion)");
+    
+    rc = IEngine_SetStringTag(user, "centro_costo", userCentroCosto);
+    CHECK_IDKIT(rc, "IEngine_SetStringTag (centro_costo)");
 
     // Register user
-    int userID;
-    rc = IEngine_RegisterUser(user, &userID);
-    CHECK_IDKIT(rc, "IEngine_RegisterUser");
+    rc = IEngine_RegisterUserAs(user, userId);
+    CHECK_IDKIT(rc, "IEngine_RegisterUserAs");
 
     // Free user
     rc = IEngine_FreeUser(user);
@@ -191,6 +192,7 @@ error:
     IEngine_ClearTag(user, "rut");
     IEngine_ClearTag(user, "empresa");
     IEngine_ClearTag(user, "repeticion");
+    IEngine_ClearTag(user, "centro_costo");
     IEngine_FreeUser(user);
   }
   LOG_ERROR("IDKITWrapper::registerUserFromTemplate FAIL");
@@ -297,7 +299,7 @@ error:
 
 #ifdef SNACK
 bool IDKITWrapper::matchFromRawImageSnack(unsigned char *rawImage, int width, int height, int *userId, 
-    char *userIdentifier, char *userName, char *userRut, char *userEmp, int *repeticion)
+    char *userIdentifier, char *userName, char *userRut, char *userEmp, int *repeticion, char *userCentroCosto)
 {
   int rc, bmpLength, userID, score;
   bool result = false;
@@ -366,12 +368,20 @@ bool IDKITWrapper::matchFromRawImageSnack(unsigned char *rawImage, int width, in
 
       rc = IEngine_GetIntTag(user, "repeticion", repeticion);
       CHECK_IDKIT(rc, "IEngine_GetIntTag (repeticion)");
+      
+      tagLength = 0;
+      rc = IEngine_GetStringTag(user, "centro_costo", NULL, &tagLength);
+      CHECK_IDKIT(rc, "IEngine_GetStringTag (centro_costo - First Call)");
+      char centroCosto[tagLength];
+      rc = IEngine_GetStringTag(user, "centro_costo", &centroCosto[0], &tagLength);
+      CHECK_IDKIT(rc, "IEngine_GetStringTag (centro_costo - Second Call)");
 
       strcpy(userIdentifier, identifier);
       strcpy(userName, name);
       strcpy(userRut, rut);
       strcpy(userEmp, empresa);
       *userId = userID;
+      strcpy(userCentroCosto, centroCosto);
 
       LOG_INFO("User found in the database.");
       result = true;

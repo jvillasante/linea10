@@ -156,7 +156,8 @@ void PrinterSerial::write_user(QString type, QString userIdentifier, QString use
   }
 }
 #elif SNACK
-void PrinterSerial::write_user(QString service, QString userIdentifier, QString userName, QString userRut, QString userEmp)
+void PrinterSerial::write_user(QString service, QString userIdentifier, QString userName, QString userRut, 
+    QString userEmp, QString userCentroCosto)
 {
   QByteArray bytes;
 
@@ -197,6 +198,10 @@ void PrinterSerial::write_user(QString service, QString userIdentifier, QString 
 
     bytes.append(QString(tr("Nombre :")).toAscii());
     bytes.append(QString(userName).toAscii());
+    bytes.append(QString("\r\n").toAscii());
+    
+    bytes.append(QString(tr("C.Costo:")).toAscii());
+    bytes.append(QString(userCentroCosto).toAscii());
     bytes.append(QString("\r\n").toAscii());
 
     if (this->writeBytes(bytes)) {

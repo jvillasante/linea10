@@ -75,7 +75,7 @@ void Synchronizer::doWork()
 #ifdef TEMPO
     map["evhcodigo"] = QString::number(id);
 #elif SNACK
-    map["evccodigo"] = QString::number(id);
+    map["evcCodigo"] = QString::number(id);
 #endif
     map["identificacion"] = ident;
     map["evhFechaHora"] = fechaHora;
@@ -87,7 +87,7 @@ void Synchronizer::doWork()
     map["tieCodigo"] = QString::number(sense);
     map["equSerial"] = serial;
 #ifdef SNACK
-    map["evcServicio"] = serviceId;
+    map["evcServicio"] = QString::number(serviceId);
 #endif
     const QString strSOAP = soapHandler->getXmlPacket(method, wsNamespace, map);
 
