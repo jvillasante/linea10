@@ -17,6 +17,7 @@ WorkerEnroller::WorkerEnroller(QSettings *settings, IDKITWrapper *idkit, QObject
 
   this->settings = settings;
   this->idkit = idkit;
+  this->generaDB = NULL;
 }
 
 WorkerEnroller::~WorkerEnroller()
@@ -24,6 +25,8 @@ WorkerEnroller::~WorkerEnroller()
   if (timer) { delete timer; }
   if (soapHandler) { delete soapHandler; }
 }
+
+void WorkerEnroller::setSQLiteManager(GeneraDB *manager) { this->generaDB = manager; }
 
 void WorkerEnroller::requestWork()
 {
@@ -71,7 +74,9 @@ void WorkerEnroller::run()
   QMap<QString, QString> map;
   map["equSerial"] = settings->value("serialEquipo").toString();
   map["opcion"] = "0";
+#ifdef TEMPO
   map["nativo"] = "0";
+#endif
   const QString strSOAP = soapHandler->getXmlPacket(method, wsNamespace, map);
 
   const QUrl url(settings->value("wsCargaMasivaURL").toString());
@@ -189,15 +194,15 @@ bool WorkerEnroller::parseXml(QString &response, QString &pathGenMaster, int &si
   return true;
 }
 
-void WorkerEnroller::import(QString db, int restart)
+void WorkerEnroller::import(QString importDbName, int restart)
 {
   if (restart == 1) {
     DEBUG("Cleaning database...");
     if (idkit->clearDatabase()) {
       ImportDB dbImport;
-      dbImport.init(db.toStdString().c_str());
+      dbImport.init(importDbName.toStdString().c_str());
       connect(&dbImport, SIGNAL(importProgress(int)), this, SLOT(enrollProgress(int)));
-      dbImport.importDatabase(idkit);
+      dbImport.importDatabase(idkit, this->generaDB);
       disconnect(&dbImport, SIGNAL(importProgress(int)), this, SLOT(enrollProgress(int)));
       DEBUG("Mass Import OK.");
     }

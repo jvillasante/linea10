@@ -201,7 +201,8 @@ error:
 #endif
 
 #ifdef TEMPO
-bool IDKITWrapper::matchFromRawImage(unsigned char *rawImage, int width, int height, char *userIdentifier, char *userName, char *userRut, char *userEmp)
+bool IDKITWrapper::matchFromRawImage(unsigned char *rawImage, int width, int height, char *userIdentifier, 
+    char *userName, char *userRut, char *userEmp)
 {
   int rc, bmpLength, userID, score;
   bool result = false;

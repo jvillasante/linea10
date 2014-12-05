@@ -8,6 +8,7 @@
 
 #include "idkitwrapper.h"
 #include "soaphandler.h"
+#include "dbaccess.h"
 
 class WorkerEnroller : public QObject
 {
@@ -18,6 +19,7 @@ class WorkerEnroller : public QObject
 
     void requestWork();
     void abort();
+    void setSQLiteManager(GeneraDB *manager);
 
   private:
     bool _abort;
@@ -26,18 +28,19 @@ class WorkerEnroller : public QObject
 
     QSettings *settings;
     IDKITWrapper *idkit;
+    GeneraDB *generaDB;
     QTimer *timer;
     SoapHandler *soapHandler;
 
-signals:
+  signals:
     void workRequested();
     void finished();
     void enrollProgressSignal(int);
     void enrollFinished();
     void enrollError();
 
-    public slots:
-      void doWork();
+  public slots:
+    void doWork();
 
   private slots:
     void run();
@@ -47,7 +50,7 @@ signals:
 
   private:
     bool parseXml(QString &response, QString &pathGenMaster, int &sizeGenMaster, int &restart);
-    void import(QString db, int restart);
+    void import(QString importDbName, int restart);
     bool isAborted();
 };
 

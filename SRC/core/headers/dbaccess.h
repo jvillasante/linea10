@@ -29,6 +29,11 @@ class GeneraDB : public QObject
     int insertEvent(int sense, char *ident, int date, int serviceId, int synchronized);
     int getServicesForUser(int userId, int day, int hour, QMap<int, ServiceDAO*> *services);   
     int updateService(int userId, int serviceGroup);
+    int truncateTables();
+    int insertService(int id, QString name, int repetition);
+    int insertSchedule(int id, int initHour, int endHour, int onLu, int onMa, int onMi, int onJu, int onVi, int onSa, int onDo);
+    int insertScheduleService(int idSchedule, int idService);
+    int insertPersonService(int idPerson, int idService, int serviceGroup);
 #endif
 
   private:
@@ -41,13 +46,13 @@ class ImportDB : public QObject
     
   public:
     bool init(const char *databaseName);
-    void importDatabase(IDKITWrapper *idkit);
+    void importDatabase(IDKITWrapper *idkit, GeneraDB *generaDb);
 
   private:
 #ifdef TEMPO
-    void importDatabaseTempo(IDKITWrapper *idkit, QSqlDatabase *db);
+    void importDatabaseTempo(IDKITWrapper *idkit, QSqlDatabase *importDb);
 #elif SNACK
-    void importDatabaseSnack(IDKITWrapper *idkit, QSqlDatabase *db);
+    void importDatabaseSnack(IDKITWrapper *idkit, QSqlDatabase *importDb, GeneraDB *generaDb);
 #endif
 
   signals:

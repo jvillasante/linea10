@@ -473,6 +473,9 @@ void MainWindow::initializeWorkerEnroller()
   threadEnroller = new QThread();
   workerEnroller = new WorkerEnroller(settings, idkit);
   workerEnroller->moveToThread(threadEnroller);
+#ifdef SNACK 
+  workerEnroller->setSQLiteManager(generaDB);
+#endif
 
   connect(workerEnroller, SIGNAL(enrollFinished()), this, SLOT(enrollFinished()));
   connect(workerEnroller, SIGNAL(enrollError()), this, SLOT(enrollError()));

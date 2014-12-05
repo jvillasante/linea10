@@ -115,8 +115,8 @@ bool GeneraDB::init(const char *databaseName)
   
   if (!qry.exec("CREATE TABLE IF NOT EXISTS schedules ("
                 "id INTEGER PRIMARY KEY,"              // identificador del horario
-                "init_hour VARCHAR(4) DEFAULT 0,"      // hora de inicio (0800 para las 08:00 horas)
-                "end_hour VARCHAR(4) DEFAULT 0,"       // hora de terminacion (1500 para las 15:00 horas)
+                "init_hour INTEGER DEFAULT 0,"         // hora de inicio (0800 para las 08:00 horas)
+                "end_hour INTEGER DEFAULT 0,"          // hora de terminacion (1500 para las 15:00 horas)
                 "on_lu INTEGER DEFAULT 0,"             // dias del servicio activo (1 o 0)
                 "on_ma INTEGER DEFAULT 0,"
                 "on_mi INTEGER DEFAULT 0,"
@@ -403,12 +403,12 @@ int GeneraDB::getServicesForUser(int userId, int day, int hour, QMap<int, Servic
         " INNER JOIN schedules_services ss ON s.id = ss.id_service"
         " INNER JOIN schedules sh ON ss.id_schedule = sh.id"
         " WHERE ps.id_person = :f1 AND sh.on_lu = 1 AND"
-        " CASE WHEN CAST(sh.init_hour AS INTEGER) <= CAST(sh.end_hour AS INTEGER)"
-        " THEN CAST(sh.init_hour AS INTEGER) <= :f2 AND CAST(sh.end_hour AS INTEGER) >= :f3"
+        " CASE WHEN sh.init_hour <= sh.end_hour"
+        " THEN sh.init_hour <= :f2 AND sh.end_hour >= :f3"
         " ELSE"
-        "   (CAST(sh.init_hour AS INTEGER) <= :f4 AND CAST(sh.end_hour AS INTEGER) <= :f5)"
+        "   (sh.init_hour <= :f4 AND sh.end_hour <= :f5)"
         "   OR"
-        "   (CAST(sh.init_hour AS INTEGER) >= :f6 AND CAST(sh.end_hour AS INTEGER) >= :f7)"
+        "   (sh.init_hour >= :f6 AND sh.end_hour >= :f7)"
         " END";
       break;
     case 2:
@@ -419,12 +419,12 @@ int GeneraDB::getServicesForUser(int userId, int day, int hour, QMap<int, Servic
         " INNER JOIN schedules_services ss ON s.id = ss.id_service"
         " INNER JOIN schedules sh ON ss.id_schedule = sh.id"
         " WHERE ps.id_person = :f1 AND sh.on_ma = 1 AND"
-        " CASE WHEN CAST(sh.init_hour AS INTEGER) <= CAST(sh.end_hour AS INTEGER)"
-        " THEN CAST(sh.init_hour AS INTEGER) <= :f2 AND CAST(sh.end_hour AS INTEGER) >= :f3"
+        " CASE WHEN sh.init_hour <= sh.end_hour"
+        " THEN sh.init_hour <= :f2 AND sh.end_hour >= :f3"
         " ELSE"
-        "   (CAST(sh.init_hour AS INTEGER) <= :f4 AND CAST(sh.end_hour AS INTEGER) <= :f5)"
+        "   (sh.init_hour <= :f4 AND sh.end_hour <= :f5)"
         "   OR"
-        "   (CAST(sh.init_hour AS INTEGER) >= :f6 AND CAST(sh.end_hour AS INTEGER) >= :f7)"
+        "   (sh.init_hour >= :f6 AND sh.end_hour >= :f7)"
         " END";
       break;
     case 3:
@@ -435,12 +435,12 @@ int GeneraDB::getServicesForUser(int userId, int day, int hour, QMap<int, Servic
         " INNER JOIN schedules_services ss ON s.id = ss.id_service"
         " INNER JOIN schedules sh ON ss.id_schedule = sh.id"
         " WHERE ps.id_person = :f1 AND sh.on_mi = 1 AND"
-        " CASE WHEN CAST(sh.init_hour AS INTEGER) <= CAST(sh.end_hour AS INTEGER)"
-        " THEN CAST(sh.init_hour AS INTEGER) <= :f2 AND CAST(sh.end_hour AS INTEGER) >= :f3"
+        " CASE WHEN sh.init_hour <= sh.end_hour"
+        " THEN sh.init_hour <= :f2 AND sh.end_hour >= :f3"
         " ELSE"
-        "   (CAST(sh.init_hour AS INTEGER) <= :f4 AND CAST(sh.end_hour AS INTEGER) <= :f5)"
+        "   (sh.init_hour <= :f4 AND sh.end_hour <= :f5)"
         "   OR"
-        "   (CAST(sh.init_hour AS INTEGER) >= :f6 AND CAST(sh.end_hour AS INTEGER) >= :f7)"
+        "   (sh.init_hour >= :f6 AND sh.end_hour >= :f7)"
         " END";
       break;
     case 4:
@@ -451,12 +451,12 @@ int GeneraDB::getServicesForUser(int userId, int day, int hour, QMap<int, Servic
         " INNER JOIN schedules_services ss ON s.id = ss.id_service"
         " INNER JOIN schedules sh ON ss.id_schedule = sh.id"
         " WHERE ps.id_person = :f1 AND sh.on_ju = 1 AND"
-        " CASE WHEN CAST(sh.init_hour AS INTEGER) <= CAST(sh.end_hour AS INTEGER)"
-        " THEN CAST(sh.init_hour AS INTEGER) <= :f2 AND CAST(sh.end_hour AS INTEGER) >= :f3"
+        " CASE WHEN sh.init_hour <= sh.end_hour"
+        " THEN sh.init_hour <= :f2 AND sh.end_hour >= :f3"
         " ELSE"
-        "   (CAST(sh.init_hour AS INTEGER) <= :f4 AND CAST(sh.end_hour AS INTEGER) <= :f5)"
+        "   (sh.init_hour <= :f4 AND sh.end_hour <= :f5)"
         "   OR"
-        "   (CAST(sh.init_hour AS INTEGER) >= :f6 AND CAST(sh.end_hour AS INTEGER) >= :f7)"
+        "   (sh.init_hour >= :f6 AND sh.end_hour >= :f7)"
         " END";
       break;
     case 5:
@@ -467,12 +467,12 @@ int GeneraDB::getServicesForUser(int userId, int day, int hour, QMap<int, Servic
         " INNER JOIN schedules_services ss ON s.id = ss.id_service"
         " INNER JOIN schedules sh ON ss.id_schedule = sh.id"
         " WHERE ps.id_person = :f1 AND sh.on_vi = 1 AND"
-        " CASE WHEN CAST(sh.init_hour AS INTEGER) <= CAST(sh.end_hour AS INTEGER)"
-        " THEN CAST(sh.init_hour AS INTEGER) <= :f2 AND CAST(sh.end_hour AS INTEGER) >= :f3"
+        " CASE WHEN sh.init_hour <= sh.end_hour"
+        " THEN sh.init_hour <= :f2 AND sh.end_hour >= :f3"
         " ELSE"
-        "   (CAST(sh.init_hour AS INTEGER) <= :f4 AND CAST(sh.end_hour AS INTEGER) <= :f5)"
+        "   (sh.init_hour <= :f4 AND sh.end_hour <= :f5)"
         "   OR"
-        "   (CAST(sh.init_hour AS INTEGER) >= :f6 AND CAST(sh.end_hour AS INTEGER) >= :f7)"
+        "   (sh.init_hour >= :f6 AND sh.end_hour >= :f7)"
         " END";
       break;
     case 6:
@@ -483,12 +483,12 @@ int GeneraDB::getServicesForUser(int userId, int day, int hour, QMap<int, Servic
         " INNER JOIN schedules_services ss ON s.id = ss.id_service"
         " INNER JOIN schedules sh ON ss.id_schedule = sh.id"
         " WHERE ps.id_person = :f1 AND sh.on_sa = 1 AND"
-        " CASE WHEN CAST(sh.init_hour AS INTEGER) <= CAST(sh.end_hour AS INTEGER)"
-        " THEN CAST(sh.init_hour AS INTEGER) <= :f2 AND CAST(sh.end_hour AS INTEGER) >= :f3"
+        " CASE WHEN sh.init_hour <= sh.end_hour"
+        " THEN sh.init_hour <= :f2 AND sh.end_hour >= :f3"
         " ELSE"
-        "   (CAST(sh.init_hour AS INTEGER) <= :f4 AND CAST(sh.end_hour AS INTEGER) <= :f5)"
+        "   (sh.init_hour <= :f4 AND sh.end_hour <= :f5)"
         "   OR"
-        "   (CAST(sh.init_hour AS INTEGER) >= :f6 AND CAST(sh.end_hour AS INTEGER) >= :f7)"
+        "   (sh.init_hour >= :f6 AND sh.end_hour >= :f7)"
         " END";
       break;
     case 7:
@@ -499,12 +499,12 @@ int GeneraDB::getServicesForUser(int userId, int day, int hour, QMap<int, Servic
         " INNER JOIN schedules_services ss ON s.id = ss.id_service"
         " INNER JOIN schedules sh ON ss.id_schedule = sh.id"
         " WHERE ps.id_person = :f1 AND sh.on_do = 1 AND"
-        " CASE WHEN CAST(sh.init_hour AS INTEGER) <= CAST(sh.end_hour AS INTEGER)"
-        " THEN CAST(sh.init_hour AS INTEGER) <= :f2 AND CAST(sh.end_hour AS INTEGER) >= :f3"
+        " CASE WHEN sh.init_hour <= sh.end_hour"
+        " THEN sh.init_hour <= :f2 AND sh.end_hour >= :f3"
         " ELSE"
-        "   (CAST(sh.init_hour AS INTEGER) <= :f4 AND CAST(sh.end_hour AS INTEGER) <= :f5)"
+        "   (sh.init_hour <= :f4 AND sh.end_hour <= :f5)"
         "   OR"
-        "   (CAST(sh.init_hour AS INTEGER) >= :f6 AND CAST(sh.end_hour AS INTEGER) >= :f7)"
+        "   (sh.init_hour >= :f6 AND sh.end_hour >= :f7)"
         " END";
       break;
     default:
@@ -576,6 +576,138 @@ int GeneraDB::updateService(int userId, int serviceGroup)
   return 0;
 }
 
+int GeneraDB::truncateTables()
+{
+  if (!this->db.isOpen()) { 
+    DEBUG("Database genera is not open");
+    return 1;
+  }
+
+  QSqlQuery qry(this->db);
+  if (!qry.exec("DELETE FROM schedules_services")) {
+    LOG_ERROR("Error deleting synchronized events: %s", qry.lastError().text().toStdString().c_str());
+    qry.finish();
+    return 1;
+  }
+
+  if (!qry.exec("DELETE FROM persons_services")) {
+    LOG_ERROR("Error deleting synchronized events: %s", qry.lastError().text().toStdString().c_str());
+    qry.finish();
+    return 1;
+  }
+
+  if (!qry.exec("DELETE FROM services")) {
+    LOG_ERROR("Error deleting synchronized events: %s", qry.lastError().text().toStdString().c_str());
+    qry.finish();
+    return 1;
+  }
+
+  if (!qry.exec("DELETE FROM schedules")) {
+    LOG_ERROR("Error deleting synchronized events: %s", qry.lastError().text().toStdString().c_str());
+    qry.finish();
+    return 1;
+  }
+
+  return 0;
+}
+
+int GeneraDB::insertService(int id, QString name, int repetition)
+{
+  if (!this->db.isOpen()) { 
+    DEBUG("Database genera is not open");
+    return 1;
+  }
+
+  QSqlQuery qry(this->db);
+  qry.prepare("INSERT INTO services(id, name, repetition) VALUES(:f1, :f2, :f3)"); 
+  qry.bindValue(":f1", id);
+  qry.bindValue(":f2", name);
+  qry.bindValue(":f3", repetition);
+  if (!qry.exec()) {
+    LOG_ERROR("Error inserting service: %s", qry.lastError().text().toStdString().c_str());
+    qry.finish();
+    return 1;
+  }
+  
+  DEBUG("Service %d inserted", qry.lastInsertId().toInt());
+  qry.finish();
+  return 0;
+}
+
+int GeneraDB::insertSchedule(int id, int initHour, int endHour, int onLu, int onMa, int onMi, int onJu, int onVi, int onSa, int onDo)
+{
+  if (!this->db.isOpen()) { 
+    DEBUG("Database genera is not open");
+    return 1;
+  }
+
+  QSqlQuery qry(this->db);
+  qry.prepare("INSERT INTO schedules(id, init_hour, end_hour, on_lu, on_ma, on_mi, on_ju, on_vi, on_sa, on_do) VALUES(:f1, :f2, :f3, :f4, :f5, :f6, :f7, :f8, :f9, :f10)"); 
+  qry.bindValue(":f1", id);
+  qry.bindValue(":f2", initHour);
+  qry.bindValue(":f3", endHour);
+  qry.bindValue(":f4", onLu);
+  qry.bindValue(":f5", onMa);
+  qry.bindValue(":f6", onMi);
+  qry.bindValue(":f7", onJu);
+  qry.bindValue(":f8", onVi);
+  qry.bindValue(":f9", onSa);
+  qry.bindValue(":f10", onDo);
+  if (!qry.exec()) {
+    LOG_ERROR("Error inserting schedule: %s", qry.lastError().text().toStdString().c_str());
+    qry.finish();
+    return 1;
+  }
+  
+  DEBUG("Schedule %d inserted", qry.lastInsertId().toInt());
+  qry.finish();
+  return 0;
+}
+
+int GeneraDB::insertScheduleService(int idSchedule, int idService)
+{
+  if (!this->db.isOpen()) { 
+    DEBUG("Database genera is not open");
+    return 1;
+  }
+
+  QSqlQuery qry(this->db);
+  qry.prepare("INSERT INTO schedules_services(id_schedule, id_service) VALUES(:f1, :f2)"); 
+  qry.bindValue(":f1", idSchedule);
+  qry.bindValue(":f2", idService);
+  if (!qry.exec()) {
+    LOG_ERROR("Error inserting schedule_service: %s", qry.lastError().text().toStdString().c_str());
+    qry.finish();
+    return 1;
+  }
+  
+  DEBUG("squedule_service %d inserted", qry.lastInsertId().toInt());
+  qry.finish();
+  return 0;
+}
+
+int GeneraDB::insertPersonService(int idPerson, int idService, int serviceGroup)
+{
+  if (!this->db.isOpen()) { 
+    DEBUG("Database genera is not open");
+    return 1;
+  }
+
+  QSqlQuery qry(this->db);
+  qry.prepare("INSERT INTO persons_services(id_person, id_service, last_served_timestamp, service_group) VALUES(:f1, :f2, 0, :f3)"); 
+  qry.bindValue(":f1", idPerson);
+  qry.bindValue(":f2", idService);
+  qry.bindValue(":f3", serviceGroup);
+  if (!qry.exec()) {
+    LOG_ERROR("Error inserting person_service: %s", qry.lastError().text().toStdString().c_str());
+    qry.finish();
+    return 1;
+  }
+  
+  DEBUG("person_service %d inserted", qry.lastInsertId().toInt());
+  qry.finish();
+  return 0;
+}
 #endif
 
 bool ImportDB::init(const char *databaseName)
@@ -592,23 +724,24 @@ bool ImportDB::init(const char *databaseName)
   return true;
 }
 
-void ImportDB::importDatabase(IDKITWrapper *idkit)
+void ImportDB::importDatabase(IDKITWrapper *idkit, GeneraDB *generaDb)
 {
   UNUSED(idkit);
+  UNUSED(generaDb);
   QSqlDatabase db = QSqlDatabase::database("import");
   
 #ifdef TEMPO
   importDatabaseTempo(idkit, &db);
 #elif SNACK
-  importDatabaseSnack(idkit, &db);
+  importDatabaseSnack(idkit, &db, generaDb);
 #endif
 }
 
 #ifdef TEMPO
-void ImportDB::importDatabaseTempo(IDKITWrapper *idkit, QSqlDatabase *db)
+void ImportDB::importDatabaseTempo(IDKITWrapper *idkit, QSqlDatabase *importDb)
 {
   int importCount = 0;
-  QSqlQuery qry(*db);
+  QSqlQuery qry(*importDb);
 
   if (!qry.exec("SELECT p.identificadorper, "
         "p.nombreper || ' ' || p.apppaternoper || ' ' || p.appmaternoper, "
@@ -653,13 +786,8 @@ void ImportDB::importDatabaseTempo(IDKITWrapper *idkit, QSqlDatabase *db)
 #endif
 
 #ifdef SNACK
-void ImportDB::importDatabaseSnack(IDKITWrapper *idkit, QSqlDatabase *db)
+void ImportDB::importDatabaseSnack(IDKITWrapper *idkit, QSqlDatabase *importDb, GeneraDB *generaDb)
 {
-<<<<<<< HEAD
-  UNUSED(idkit);
-  UNUSED(db);
-  DEBUG("Not implemented yet...");
-=======
   int importCount = 0;
   QSqlQuery qry(*importDb);
   
@@ -788,7 +916,6 @@ void ImportDB::importDatabaseSnack(IDKITWrapper *idkit, QSqlDatabase *db)
     }
     qry.finish();
   }
->>>>>>> 9bf309d... snack10 v0.8 almost ready
 }
 #endif
 
