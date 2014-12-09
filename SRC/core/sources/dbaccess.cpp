@@ -392,125 +392,48 @@ int GeneraDB::isUserIdentifiedOnLastMinute(QString identifier, int type)
 int GeneraDB::getServicesForUser(int userId, int day, int hour, QMap<int, ServiceDAO*> *services)
 {
   int count = 0;
-
-  QString sql = "";
+  QString strDay = "";
   switch (day) {
-    case 1:
-      sql = "SELECT DISTINCT s.id AS id, s.name AS name, s.repetition AS repetition, sh.init_hour AS init_hour,"
-        " sh.end_hour AS end_hour, ps.service_group AS service_group, ps.last_served_timestamp AS last_served"
-        " FROM services s"
-        " INNER JOIN persons_services ps ON s.id = ps.id_service"
-        " INNER JOIN schedules_services ss ON s.id = ss.id_service"
-        " INNER JOIN schedules sh ON ss.id_schedule = sh.id"
-        " WHERE ps.id_person = :f1 AND sh.on_lu = 1 AND"
-        " CASE WHEN sh.init_hour <= sh.end_hour"
-        " THEN sh.init_hour <= :f2 AND sh.end_hour >= :f3"
-        " ELSE"
-        "   (sh.init_hour <= :f4 AND sh.end_hour <= :f5)"
-        "   OR"
-        "   (sh.init_hour >= :f6 AND sh.end_hour >= :f7)"
-        " END";
+    case 1: 
+      strDay = "on_lu";
       break;
     case 2:
-      sql = "SELECT DISTINCT s.id AS id, s.name AS name, s.repetition AS repetition, sh.init_hour AS init_hour,"
-        " sh.end_hour AS end_hour, ps.service_group AS service_group, ps.last_served_timestamp AS last_served"
-        " FROM services s"
-        " INNER JOIN persons_services ps ON s.id = ps.id_service"
-        " INNER JOIN schedules_services ss ON s.id = ss.id_service"
-        " INNER JOIN schedules sh ON ss.id_schedule = sh.id"
-        " WHERE ps.id_person = :f1 AND sh.on_ma = 1 AND"
-        " CASE WHEN sh.init_hour <= sh.end_hour"
-        " THEN sh.init_hour <= :f2 AND sh.end_hour >= :f3"
-        " ELSE"
-        "   (sh.init_hour <= :f4 AND sh.end_hour <= :f5)"
-        "   OR"
-        "   (sh.init_hour >= :f6 AND sh.end_hour >= :f7)"
-        " END";
+      strDay = "on_ma";
       break;
     case 3:
-      sql = "SELECT DISTINCT s.id AS id, s.name AS name, s.repetition AS repetition, sh.init_hour AS init_hour,"
-        " sh.end_hour AS end_hour, ps.service_group AS service_group, ps.last_served_timestamp AS last_served"
-        " FROM services s"
-        " INNER JOIN persons_services ps ON s.id = ps.id_service"
-        " INNER JOIN schedules_services ss ON s.id = ss.id_service"
-        " INNER JOIN schedules sh ON ss.id_schedule = sh.id"
-        " WHERE ps.id_person = :f1 AND sh.on_mi = 1 AND"
-        " CASE WHEN sh.init_hour <= sh.end_hour"
-        " THEN sh.init_hour <= :f2 AND sh.end_hour >= :f3"
-        " ELSE"
-        "   (sh.init_hour <= :f4 AND sh.end_hour <= :f5)"
-        "   OR"
-        "   (sh.init_hour >= :f6 AND sh.end_hour >= :f7)"
-        " END";
+      strDay = "on_mi";
       break;
     case 4:
-      sql = "SELECT DISTINCT s.id AS id, s.name AS name, s.repetition AS repetition, sh.init_hour AS init_hour,"
-        " sh.end_hour AS end_hour, ps.service_group AS service_group, ps.last_served_timestamp AS last_served"
-        " FROM services s"
-        " INNER JOIN persons_services ps ON s.id = ps.id_service"
-        " INNER JOIN schedules_services ss ON s.id = ss.id_service"
-        " INNER JOIN schedules sh ON ss.id_schedule = sh.id"
-        " WHERE ps.id_person = :f1 AND sh.on_ju = 1 AND"
-        " CASE WHEN sh.init_hour <= sh.end_hour"
-        " THEN sh.init_hour <= :f2 AND sh.end_hour >= :f3"
-        " ELSE"
-        "   (sh.init_hour <= :f4 AND sh.end_hour <= :f5)"
-        "   OR"
-        "   (sh.init_hour >= :f6 AND sh.end_hour >= :f7)"
-        " END";
+      strDay = "on_ju";
       break;
     case 5:
-      sql = "SELECT DISTINCT s.id AS id, s.name AS name, s.repetition AS repetition, sh.init_hour AS init_hour,"
-        " sh.end_hour AS end_hour, ps.service_group AS service_group, ps.last_served_timestamp AS last_served"
-        " FROM services s"
-        " INNER JOIN persons_services ps ON s.id = ps.id_service"
-        " INNER JOIN schedules_services ss ON s.id = ss.id_service"
-        " INNER JOIN schedules sh ON ss.id_schedule = sh.id"
-        " WHERE ps.id_person = :f1 AND sh.on_vi = 1 AND"
-        " CASE WHEN sh.init_hour <= sh.end_hour"
-        " THEN sh.init_hour <= :f2 AND sh.end_hour >= :f3"
-        " ELSE"
-        "   (sh.init_hour <= :f4 AND sh.end_hour <= :f5)"
-        "   OR"
-        "   (sh.init_hour >= :f6 AND sh.end_hour >= :f7)"
-        " END";
+      strDay = "on_vi";
       break;
     case 6:
-      sql = "SELECT DISTINCT s.id AS id, s.name AS name, s.repetition AS repetition, sh.init_hour AS init_hour,"
-        " sh.end_hour AS end_hour, ps.service_group AS service_group, ps.last_served_timestamp AS last_served"
-        " FROM services s"
-        " INNER JOIN persons_services ps ON s.id = ps.id_service"
-        " INNER JOIN schedules_services ss ON s.id = ss.id_service"
-        " INNER JOIN schedules sh ON ss.id_schedule = sh.id"
-        " WHERE ps.id_person = :f1 AND sh.on_sa = 1 AND"
-        " CASE WHEN sh.init_hour <= sh.end_hour"
-        " THEN sh.init_hour <= :f2 AND sh.end_hour >= :f3"
-        " ELSE"
-        "   (sh.init_hour <= :f4 AND sh.end_hour <= :f5)"
-        "   OR"
-        "   (sh.init_hour >= :f6 AND sh.end_hour >= :f7)"
-        " END";
+      strDay = "on_sa";
       break;
     case 7:
-      sql = "SELECT DISTINCT s.id AS id, s.name AS name, s.repetition AS repetition, sh.init_hour AS init_hour,"
-        " sh.end_hour AS end_hour, ps.service_group AS service_group, ps.last_served_timestamp AS last_served"
-        " FROM services s"
-        " INNER JOIN persons_services ps ON s.id = ps.id_service"
-        " INNER JOIN schedules_services ss ON s.id = ss.id_service"
-        " INNER JOIN schedules sh ON ss.id_schedule = sh.id"
-        " WHERE ps.id_person = :f1 AND sh.on_do = 1 AND"
-        " CASE WHEN sh.init_hour <= sh.end_hour"
-        " THEN sh.init_hour <= :f2 AND sh.end_hour >= :f3"
-        " ELSE"
-        "   (sh.init_hour <= :f4 AND sh.end_hour <= :f5)"
-        "   OR"
-        "   (sh.init_hour >= :f6 AND sh.end_hour >= :f7)"
-        " END";
+      strDay = "on_do";
       break;
     default:
       LOG_ERROR("Wrong Day %d", day);
       return 0;
   }
+  
+  QString sql = QString("SELECT DISTINCT s.id AS id, s.name AS name, s.repetition AS repetition, sh.init_hour AS init_hour,"
+        " sh.end_hour AS end_hour, ps.service_group AS service_group, ps.last_served_timestamp AS last_served"
+        " FROM services s"
+        " INNER JOIN persons_services ps ON s.id = ps.id_service"
+        " INNER JOIN schedules_services ss ON s.id = ss.id_service"
+        " INNER JOIN schedules sh ON ss.id_schedule = sh.id"
+        " WHERE ps.id_person = :f1 AND sh.%1 = 1 AND"
+        " CASE WHEN sh.init_hour <= sh.end_hour"
+        " THEN sh.init_hour <= :f2 AND sh.end_hour >= :f3"
+        " ELSE"
+        "   (sh.init_hour <= :f4 AND sh.end_hour <= :f5)"
+        "   OR"
+        "   (sh.init_hour >= :f6 AND sh.end_hour >= :f7)"
+        " END").arg(strDay);
 
   QSqlQuery qry(this->db);
   qry.prepare(sql);
@@ -642,7 +565,8 @@ int GeneraDB::insertSchedule(int id, int initHour, int endHour, int onLu, int on
   }
 
   QSqlQuery qry(this->db);
-  qry.prepare("INSERT INTO schedules(id, init_hour, end_hour, on_lu, on_ma, on_mi, on_ju, on_vi, on_sa, on_do) VALUES(:f1, :f2, :f3, :f4, :f5, :f6, :f7, :f8, :f9, :f10)"); 
+  qry.prepare("INSERT INTO schedules(id, init_hour, end_hour, on_lu, on_ma, on_mi, on_ju, on_vi, on_sa, on_do) "
+      "VALUES(:f1, :f2, :f3, :f4, :f5, :f6, :f7, :f8, :f9, :f10)"); 
   qry.bindValue(":f1", id);
   qry.bindValue(":f2", initHour);
   qry.bindValue(":f3", endHour);
@@ -694,7 +618,8 @@ int GeneraDB::insertPersonService(int idPerson, int idService, int serviceGroup)
   }
 
   QSqlQuery qry(this->db);
-  qry.prepare("INSERT INTO persons_services(id_person, id_service, last_served_timestamp, service_group) VALUES(:f1, :f2, 0, :f3)"); 
+  qry.prepare("INSERT INTO persons_services(id_person, id_service, last_served_timestamp, service_group) "
+      "VALUES(:f1, :f2, 0, :f3)"); 
   qry.bindValue(":f1", idPerson);
   qry.bindValue(":f2", idService);
   qry.bindValue(":f3", serviceGroup);
@@ -813,7 +738,8 @@ void ImportDB::importDatabaseSnack(IDKITWrapper *idkit, QSqlDatabase *importDb, 
     qry.finish();
   }
   
-  if (!qry.exec("SELECT s.id_schedule, s.init_hour, s.end_hour, s.on_lu, s.on_ma, s.on_mi, s.on_ju, s.on_vi, s.on_sa, s.on_do FROM schedules s")) {
+  if (!qry.exec("SELECT s.id_schedule, s.init_hour, s.end_hour, s.on_lu, s.on_ma, s.on_mi, s.on_ju, s.on_vi, "
+        "s.on_sa, s.on_do FROM schedules s")) {
     LOG_ERROR("Query error: %s.", qry.lastError().databaseText().toStdString().c_str());
     qry.finish();
     return;
