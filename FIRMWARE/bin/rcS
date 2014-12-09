@@ -51,7 +51,7 @@ if [ -n "$BOARD" ]; then
     nohup /usr/local/bin/backup 2>&1 | /usr/local/bin/ftee /tmp/app.log &
 		exit
 	elif [ "$BOARD" == "ultragate" ]; then
-		# nohup  /usr/local/bin/KAIROSApp -qws  2>&1 | /usr/local/bin/ftee /tmp/app.log &
+    # nohup /usr/local/bin/GeneraApp -qws 2>&1 | /usr/local/bin/ftee /tmp/app.log &
 		exit
 	fi
 fi
