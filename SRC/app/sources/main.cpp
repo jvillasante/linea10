@@ -105,6 +105,7 @@ int main(int argc, char *argv[])
     if (!settings->contains("keepEvents")) { settings->setValue("keepEvents", 15); }
     if (!settings->contains("generaDB"))   { settings->setValue("generaDB", "/mnt/jffs2/genera.db"); }
     if (!settings->contains("ntpIP"))      { settings->setValue("ntpIP", newSettings.value("ntpIP").toString()); }
+    settings->setValue("fw", newSettings.value("fw").toString());
     settings->setValue("fwVersion", newSettings.value("fwVersion").toString());
   } 
   settings->sync();
