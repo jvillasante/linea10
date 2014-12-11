@@ -82,7 +82,7 @@ error:
 }
 
 #ifdef TEMPO
-bool IDKITWrapper::registerUserFromTemplate(unsigned char *tpl, int userId, char *userIdentifier, char *userName, char *userRut, char *userEmp)
+bool IDKITWrapper::registerUserFromTemplate(unsigned char *tpl, char *userIdentifier, char *userName, char *userRut, char *userEmp)
 {
   int rc;
   IENGINE_USER user;
@@ -111,7 +111,8 @@ bool IDKITWrapper::registerUserFromTemplate(unsigned char *tpl, int userId, char
     CHECK_IDKIT(rc, "IEngine_SetStringTag (empresa)");
 
     // Register user
-    rc = IEngine_RegisterUserAs(user, userId);
+    int userId;
+    rc = IEngine_RegisterUser(user, &userId);
     CHECK_IDKIT(rc, "IEngine_RegisterUser");
 
     // Free user

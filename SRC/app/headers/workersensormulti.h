@@ -71,9 +71,9 @@ class WorkerSensorMulti : public QObject
 #ifdef TEMPO
     void match(QString userIdentifier, QString userName, QString userRut);
     void buttonPressed(int button, QString userName);  // 0: TIMEOUT, 1: IN, 2: OUT
+    void enrollWorkDone(uchar *compositeImage, uchar *templateImage, int width, int height);
 #elif SNACK
     void match(QString userIdentifier, QString userName, QString userRut, QString service, int servicesCount);
-    void enrollWorkDone(uchar *compositeImage, uchar *templateImage, int width, int height);
 #endif
     
     void finished();

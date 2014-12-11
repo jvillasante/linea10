@@ -14,8 +14,8 @@ class IDKITWrapper
     void close();
     
 #ifdef TEMPO
-    bool registerUserFromTemplate(unsigned char *tpl, int userId, char *userIdentifier, char *userName, 
-        char *userRut, char *userEmp);
+    bool registerUserFromTemplate(unsigned char *tpl, char *userIdentifier, char *userName, char *userRut, 
+        char *userEmp);
     bool matchFromRawImage(unsigned char *rawImage, int width, int height, char *userIdentifier, char *userName, 
         char *userRut, char *userEmp);
 #elif SNACK
