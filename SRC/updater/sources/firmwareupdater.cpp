@@ -17,7 +17,7 @@ FirmwareUpdater::FirmwareUpdater()
   connect(soapHandler, SIGNAL(error(QString)), this, SLOT(error(QString)));
 
   timer = new QTimer(this);
-  timer->setInterval(settings->value("timerActualizacion", 60000).toInt());
+  timer->setInterval(settings->value("timerActualizacion", 3600000).toInt());
   connect(timer, SIGNAL(timeout()), this, SLOT(doWork()));
   timer->start(); 
 }
