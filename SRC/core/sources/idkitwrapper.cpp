@@ -120,7 +120,7 @@ bool IDKITWrapper::registerUserFromTemplate(unsigned char *tpl, char *userIdenti
     CHECK_IDKIT(rc, "IEngine_FreeUser");
 
     LOG_INFO("IDKITWrapper::registerUserFromTemplate OK");
-    LOG_INFO("User %s registered", userName);
+    LOG_INFO("User %d: %s registered", userId, userName);
     return true;
   }
 
@@ -182,7 +182,7 @@ bool IDKITWrapper::registerUserFromTemplateSnack(unsigned char *tpl, int userId,
     CHECK_IDKIT(rc, "IEngine_FreeUser");
 
     LOG_INFO("IDKITWrapper::registerUserFromTemplate OK");
-    LOG_INFO("User %s registered", userName);
+    LOG_INFO("User %d: %s registered", userId, userName);
     return true;
   }
 

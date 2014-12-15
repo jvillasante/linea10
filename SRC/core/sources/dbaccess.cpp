@@ -292,7 +292,7 @@ bool GeneraDB::writeDatabaseToFile()
       return false;
     } 
     
-    DEBUG("Selected. Beginnning to write synchronized events to file: %s.", filename.toStdString().c_str());
+    DEBUG("Selected. Beginning to write synchronized events to file: %s.", filename.toStdString().c_str());
     while(qry.next()) {
       int sentido = qry.value(0).toInt();
       QString ident = qry.value(1).toString();
@@ -314,7 +314,7 @@ bool GeneraDB::writeDatabaseToFile()
       return false;
     } 
     
-    DEBUG("Selected. Beginnning to write synchronized events to file: %s.", filename.toStdString().c_str());
+    DEBUG("Selected. Beginning to write synchronized events to file: %s.", filename.toStdString().c_str());
     while(qry.next()) {
       int sentido = qry.value(0).toInt();
       QString ident = qry.value(1).toString();
@@ -637,15 +637,25 @@ int GeneraDB::insertPersonService(int idPerson, int idService, int serviceGroup)
 
 bool ImportDB::init(const char *databaseName)
 {
-  QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", "import");
-  db.setDatabaseName(databaseName);
-
+  QSqlDatabase db;
+  if (QSqlDatabase::contains("import")) {
+    db = QSqlDatabase::database("import");
+    db.setDatabaseName(databaseName);
+  } else {
+    db = QSqlDatabase::addDatabase("QSQLITE", "import");
+    db.setDatabaseName(databaseName);
+  }
+  
   if(!db.open()) {
     LOG_ERROR("Failed to connect to %s: %s", databaseName, db.lastError().databaseText().toStdString().c_str());
     return false;
   }
-
+  
   LOG_INFO("Connected to %s database", databaseName);
+  db.exec("PRAGMA auto_vacuum = FULL");
+  db.exec("PRAGMA busy_timeout = 1000");
+  db.exec("PRAGMA encoding = UTF-8");
+  db.exec("PRAGMA shrink_memory");
   return true;
 }
 
@@ -677,7 +687,7 @@ void ImportDB::importDatabaseTempo(IDKITWrapper *idkit, QSqlDatabase *importDb)
     LOG_ERROR("Query error: %s.", qry.lastError().databaseText().toStdString().c_str());
     qry.finish();
   } else {
-    DEBUG("Selected. Beginnning to import data.");
+    DEBUG("Selected. Beginning to import data.");
 
     while(qry.next()) {
       QString identifier = qry.value(0).toString();
@@ -803,7 +813,7 @@ void ImportDB::importDatabaseSnack(IDKITWrapper *idkit, QSqlDatabase *importDb, 
     LOG_ERROR("Query error: %s.", qry.lastError().databaseText().toStdString().c_str());
     qry.finish();
   } else {
-    DEBUG("Selected. Beginnning to import data.");
+    DEBUG("Selected. Beginning to import data.");
 
     while(qry.next()) {
       int userId = qry.value(0).toInt();
@@ -847,15 +857,25 @@ void ImportDB::importDatabaseSnack(IDKITWrapper *idkit, QSqlDatabase *importDb, 
 
 bool ConfigDB::init(const char *databaseName)
 { 
-  QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", "config");
-  db.setDatabaseName(databaseName);
+  QSqlDatabase db;
+  if (QSqlDatabase::contains("config")) {
+    db = QSqlDatabase::database("config");
+    db.setDatabaseName(databaseName);
+  } else {
+    db = QSqlDatabase::addDatabase("QSQLITE", "config");
+    db.setDatabaseName(databaseName);
+  }
 
   if(!db.open()) {
     LOG_ERROR("Failed to connect to %s: %s", databaseName, db.lastError().databaseText().toStdString().c_str());
     return false;
   }
-
+  
   LOG_INFO("Connected to %s database", databaseName);
+  db.exec("PRAGMA auto_vacuum = FULL");
+  db.exec("PRAGMA busy_timeout = 1000");
+  db.exec("PRAGMA encoding = UTF-8");
+  db.exec("PRAGMA shrink_memory");
   return true;
 }
 
@@ -870,7 +890,7 @@ bool ConfigDB::getOldConfigs(QMap<QString, QString> &configMap)
     qry.finish();
     return false;
   } else {
-    DEBUG("Selected. Beginnning to generate data.");
+    DEBUG("Selected. Beginning to generate data.");
 
     while(qry.next()) {
       QString param = qry.value(0).toString();

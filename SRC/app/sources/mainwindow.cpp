@@ -40,7 +40,9 @@ MainWindow::MainWindow(QSettings *settings, QWidget *parent) :
 
   updatePrinterStatus();
   updateInternetStatus();
-  printInitTicket();
+  if (printer->getStatus()) {
+    printInitTicket();
+  }
 }
 
 MainWindow::~MainWindow()
