@@ -97,8 +97,6 @@ class MainWindow : public QWidget
     SoapHandler *soapHandler;
 #endif
 
-    bool ntp_is_running;
-
   private:
     void initializeUI();
     void initializeGeneraDatabase();
@@ -109,6 +107,8 @@ class MainWindow : public QWidget
     void initializeWorkerSensorEnroll();
     void initializeWorkerEnroller();
     void printInitTicket();
+    void setFullScreen(QString msg);
+    void startReboot(QString msg);
 
     inline void updatePrinterStatus();
     inline void updateInternetStatus();

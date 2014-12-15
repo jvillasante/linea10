@@ -197,6 +197,7 @@ bool WorkerEnroller::parseXml(QString &response, QString &pathGenMaster, int &si
 void WorkerEnroller::import(QString importDbName, int restart)
 {
   if (restart == 1) {
+    emit enrollProgressSignal(-1);
     DEBUG("Cleaning database...");
     if (idkit->clearDatabase()) {
       ImportDB dbImport;

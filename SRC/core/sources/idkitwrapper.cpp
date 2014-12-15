@@ -57,7 +57,10 @@ bool IDKITWrapper::init()
   rc = IEngine_SetParameter(CFG_SIMILARITY_THRESHOLD, 12300);
   CHECK_IDKIT(rc, "IEngine_SetParameter");
 
-  rc = IEngine_SetParameter(CFG_IDENTIFICATION_SPEED, 8);
+  rc = IEngine_SetParameter(CFG_IDENTIFICATION_SPEED, 7);
+  CHECK_IDKIT(rc, "IEngine_SetParameter");
+  
+  rc = IEngine_SetParameter(CFG_MAX_ROTATION, 50);
   CHECK_IDKIT(rc, "IEngine_SetParameter");
 
   // Prints out maximum number of users in the database This limit is defined in your license
@@ -70,6 +73,13 @@ bool IDKITWrapper::init()
   rc = IEngine_Connect((char *) settings->value("iengineDB", "Resources/iengine.db").toString().toStdString().c_str());
   CHECK_IDKIT(rc, "IEngine_Connect");
   DEBUG("Database file %s selected.", settings->value("iengineDB", "NO DATABASE SELECTED FROM CONFIGURATIONS!").toString().toStdString().c_str());
+
+#ifndef NDEBUG
+  int memoryUsage;
+  rc = IEngine_GetMemoryUsage(&memoryUsage);
+  CHECK_IDKIT(rc, "IEngine_GetMemoryUsage");
+  DEBUG("IDKIT Memory Usage: %d", memoryUsage);
+#endif
 
   isOpen = true;
   LOG_INFO("IDKITWrapper::init OK");
@@ -119,7 +129,7 @@ bool IDKITWrapper::registerUserFromTemplate(unsigned char *tpl, char *userIdenti
     rc = IEngine_FreeUser(user);
     CHECK_IDKIT(rc, "IEngine_FreeUser");
 
-    LOG_INFO("IDKITWrapper::registerUserFromTemplate OK");
+    DEBUG("IDKITWrapper::registerUserFromTemplate OK");
     LOG_INFO("User %d: %s registered", userId, userName);
     return true;
   }
@@ -181,7 +191,7 @@ bool IDKITWrapper::registerUserFromTemplateSnack(unsigned char *tpl, int userId,
     rc = IEngine_FreeUser(user);
     CHECK_IDKIT(rc, "IEngine_FreeUser");
 
-    LOG_INFO("IDKITWrapper::registerUserFromTemplate OK");
+    DEBUG("IDKITWrapper::registerUserFromTemplate OK");
     LOG_INFO("User %d: %s registered", userId, userName);
     return true;
   }

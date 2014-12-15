@@ -163,22 +163,27 @@ void MainWindow::buttonPressed(int button, QString userName)
 }
 #endif
 
+void MainWindow::enrollProgress(int importCount) // massive enroll
+{
+  DEBUG("Enroll thread progress..");
+
+  if (importCount == -1) {
+    setFullScreen(tr("Comenzando proceso para<br>Carga Masiva.<br><br>Espere por favor..."));
+  } else {
+    lblOutput->setText(tr("Ejecutando Carga Masiva.<br><br>Usuarios Registrados:<br>%1<br><br>Espere por favor...").arg(importCount));
+  }
+}
+
 void MainWindow::enrollFinished() // massive enroll
 {
   DEBUG("Enroll thread finished enrolling users");
-  lblMsg->setText(tr("Usuarios Registrados: %1").arg(idkit->getUserCount()));
+  startReboot(tr("Carga masiva efectuada<br>exitosamente.<br><br>Usuarios Registrados:<br>%1<br><br>Terminando procesos para<br>reinicio del sistema.<br><br>Espere por favor...").arg(idkit->getUserCount()));
 }
 
 void MainWindow::enrollError() // massive enroll
 {
   DEBUG("Enroll thread finished with an error");
   LOG_ERROR("Error enrolling users...");
-}
-
-void MainWindow::enrollProgress(int importCount) // massive enroll
-{
-  DEBUG("Enroll thread progress..");
-  lblMsg->setText(tr("Usuarios Registrados: %1").arg(importCount));
 }
 
 void MainWindow::identifierWorkDone()
@@ -239,38 +244,8 @@ void MainWindow::updateEveryHour()
 
     DEBUG("UPDATES READY... KILLING PROCESSES...");
 
-    lblGeneraLogo->setVisible(false);
-    lblEmpresaHolding->setVisible(false);
-    lblDate->setVisible(false);
-    lblTime->setVisible(false);
-    lblMsg->setVisible(false);
-#ifdef TEMPO
-    enrollButton->setVisible(false);
-#endif
-    lbl1->setVisible(false);
-    lbl2->setVisible(false);
-    lbl3->setVisible(false);
-    lblOutput->setFixedHeight(320);
-    lblOutput->setFixedWidth(240);
-    lblOutput->setText(tr("Actualizaciones Disponibles<br>Terminando procesos para<br>reinicio del sistema...<br><br>Espere por favor..."));
-    qApp->processEvents();
-
-    workerSensor->abort();
-    threadSensor->wait();
-
-    // disconnect(workerEnroller, SIGNAL(enrollProgressSignal(int)), this, SLOT(enrollProgress(int)));
-    workerEnroller->abort();
-    threadEnroller->wait();
-
-    everySecondTimer->stop();
-    everyHourTimer->stop();
-
-    DEBUG("STARTING REBOOT TIMER...");
-    QTimer *rebootTimer = new QTimer(this);
-    rebootTimer->setInterval(1000);
-    connect(rebootTimer, SIGNAL(timeout()), this, SLOT(updateRebootCountDown()));
-    rebootTimer->start();
-    updateRebootCountDown();
+    setFullScreen(tr("Actualizaciones Disponibles<br><br>Terminando procesos para<br>reinicio del sistema.<br><br>Espere por favor..."));
+    startReboot(NULL);
   } else {
     DEBUG("NO UPDATES AVAILABLE");
   }
@@ -280,8 +255,8 @@ void MainWindow::updateRebootCountDown()
 {
   rebootCountdownCounter -= 1;
 
-  lblOutput->setText(tr("Actualizaciones disponibles<br>Reiniciando sistema en...<br>%1 segundo(s)").arg(rebootCountdownCounter));
-  if (rebootCountdownCounter == 0) {
+  lblOutput->setText(tr("Reiniciando sistema en...<br>%1 segundo(s)").arg(rebootCountdownCounter));
+  if (rebootCountdownCounter <= 1) {
     Utils::reboot();
   }
 }
@@ -568,87 +543,63 @@ void MainWindow::alarmasError(QString error)
 }
 #endif
 
+void MainWindow::setFullScreen(QString msg)
+{
+  lblGeneraLogo->setVisible(false);
+  lblEmpresaHolding->setVisible(false);
+  lblDate->setVisible(false);
+  lblTime->setVisible(false);
+  lblMsg->setVisible(false);
+#ifdef TEMPO
+  enrollButton->setVisible(false);
+#endif
+  lbl1->setVisible(false);
+  lbl2->setVisible(false);
+  lbl3->setVisible(false);
+  lblOutput->setFixedHeight(320);
+  lblOutput->setFixedWidth(240);
+  lblOutput->setText(msg);
+  qApp->processEvents();
+}
+
+void MainWindow::startReboot(QString msg)
+{
+  if (msg != NULL) {
+    lblOutput->setText(msg);
+    qApp->processEvents();
+  }
+  
+  workerSensor->abort();
+  threadSensor->wait();
+
+  workerEnroller->abort();
+  threadEnroller->wait();
+
+  everySecondTimer->stop();
+  everyHourTimer->stop();
+
+  DEBUG("STARTING REBOOT TIMER...");
+  QTimer *rebootTimer = new QTimer(this);
+  rebootTimer->setInterval(1000);
+  connect(rebootTimer, SIGNAL(timeout()), this, SLOT(updateRebootCountDown()));
+  rebootTimer->start();
+  updateRebootCountDown();
+}
+
 inline void MainWindow::updateDate(QDateTime now)
 {
-  QString strDate;
-  QDate currentDate = now.date();
-
+  static const QString DAYS[] = { "", "LUN", "MAR", "MIE", "JUE", "VIE", "SAB", "DOM" };
+  static const QString MONTHS[] = {"", "ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO", "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE" };
+  
   if (lang == "en") {
-    strDate = currentDate.toString("ddd, dd MMMM yyyy");
+    lblDate->setText(now.date().toString("ddd, dd MMMM yyyy"));
   } else {
-    switch (currentDate.dayOfWeek()) {
-      case 1:
-        strDate = "LUN";
-        break;
-      case 2:
-        strDate = "MAR";
-        break;
-      case 3:
-        strDate = "MIE";
-        break;
-      case 4:
-        strDate = "JUE";
-        break;
-      case 5:
-        strDate = "VIE";
-        break;
-      case 6:
-        strDate = "SAB";
-        break;
-      case 7:
-        strDate = "DOM";
-        break;
-      default:
-        strDate = "ERROR";
-        break;
-    }
-    
-    strDate += ", " + now.toString("dd") + " ";
-
-    switch(currentDate.month()) {
-      case 1:
-        strDate += "ENERO";
-        break;
-      case 2:
-        strDate += "FEBRERO";
-        break;
-      case 3:
-        strDate += "MARZO";
-        break;
-      case 4:
-        strDate += "ABRIL";
-        break;
-      case 5:
-        strDate += "MAYO";
-        break;
-      case 6:
-        strDate += "JUNIO";
-        break;
-      case 7:
-        strDate += "JULIO";
-        break;
-      case 8:
-        strDate += "AGOSTO";
-        break;
-      case 9:
-        strDate += "SEPTIEMBRE";
-        break;
-      case 10:
-        strDate += "OCTUBRE";
-        break;
-      case 11:
-        strDate += "NOVIEMBRE";
-        break;
-      case 12:
-        strDate += "DICIEMBRE";
-        break;
-      default:
-        strDate += "ERROR";
-        break;
-    }
-    
-    strDate += " " + now.toString("yyyy");
+    QDate currentDate = now.date();
+    lblDate->setText(QString("%1, %2 %3 %4")
+      .arg(DAYS[currentDate.dayOfWeek()])
+      .arg(currentDate.day())
+      .arg(MONTHS[currentDate.month()])
+      .arg(currentDate.year()));
   }
-
-  lblDate->setText(strDate);
 }
+
