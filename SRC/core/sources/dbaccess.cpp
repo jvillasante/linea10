@@ -23,6 +23,14 @@ GeneraDB::~GeneraDB()
   }
 }
 
+void GeneraDB::close()
+{
+  if (this->db.isOpen()) {
+    DEBUG("Closing Database...");
+    this->db.close();
+  }
+}
+
 bool GeneraDB::init(const char *databaseName)
 {
   bool dbExists = Utils::fileExists(databaseName);
@@ -691,24 +699,26 @@ void ImportDB::importDatabaseTempo(IDKITWrapper *idkit, QSqlDatabase *importDb)
     DEBUG("Selected. Beginning to import data.");
 
     while(qry.next()) {
-      QString identifier = qry.value(0).toString();
-      Utils::limitString(identifier, 32);
+      {
+        QString identifier = qry.value(0).toString();
+        Utils::limitString(identifier, 32);
 
-      QString name = qry.value(1).toString();
-      Utils::limitString(name, 100);
+        QString name = qry.value(1).toString();
+        Utils::limitString(name, 100);
 
-      QString rut = qry.value(2).toString();
-      Utils::limitString(rut, 15);
+        QString rut = qry.value(2).toString();
+        Utils::limitString(rut, 15);
 
-      QString tpl = qry.value(3).toString();
-      QByteArray bytes = QByteArray::fromBase64(tpl.toUtf8());
+        QString tpl = qry.value(3).toString();
+        QByteArray bytes = QByteArray::fromBase64(tpl.toUtf8());
 
-      QString emp = qry.value(4).toString();
-      Utils::limitString(emp, 32);
+        QString emp = qry.value(4).toString();
+        Utils::limitString(emp, 32);
 
-      if (idkit->registerUserFromTemplate(reinterpret_cast<unsigned char *>(bytes.data()), (char *) identifier.toStdString().c_str(),
-            (char *) name.toStdString().c_str(), (char *) rut.toStdString().c_str(), (char *) emp.toStdString().c_str())) {
-        importCount += 1;
+        if (idkit->registerUserFromTemplate(reinterpret_cast<unsigned char *>(bytes.data()), (char *) identifier.toStdString().c_str(),
+              (char *) name.toStdString().c_str(), (char *) rut.toStdString().c_str(), (char *) emp.toStdString().c_str())) {
+          importCount += 1;
+        }
       }
 
       if (importCount % 10 == 0) {
@@ -740,11 +750,13 @@ void ImportDB::importDatabaseSnack(IDKITWrapper *idkit, QSqlDatabase *importDb, 
     return;
   } else {
     while (qry.next()) {
-      int service_id = qry.value(0).toInt();
-      QString service_name = qry.value(1).toString();
-      int service_repetition = qry.value(2).toInt();
+      {
+        int service_id = qry.value(0).toInt();
+        QString service_name = qry.value(1).toString();
+        int service_repetition = qry.value(2).toInt();
 
-      generaDb->insertService(service_id, service_name, service_repetition);
+        generaDb->insertService(service_id, service_name, service_repetition);
+      }
     }
     
     qry.clear();
@@ -758,18 +770,20 @@ void ImportDB::importDatabaseSnack(IDKITWrapper *idkit, QSqlDatabase *importDb, 
     return;
   } else {
     while (qry.next()) {
-      int schedule_id = qry.value(0).toInt();
-      int init_hour = qry.value(1).toInt();
-      int end_hour = qry.value(2).toInt();
-      int onLu = qry.value(3).toInt();
-      int onMa = qry.value(4).toInt();
-      int onMi = qry.value(5).toInt();
-      int onJu = qry.value(6).toInt();
-      int onVi = qry.value(7).toInt();
-      int onSa = qry.value(8).toInt();
-      int onDo = qry.value(9).toInt();
+      {
+        int schedule_id = qry.value(0).toInt();
+        int init_hour = qry.value(1).toInt();
+        int end_hour = qry.value(2).toInt();
+        int onLu = qry.value(3).toInt();
+        int onMa = qry.value(4).toInt();
+        int onMi = qry.value(5).toInt();
+        int onJu = qry.value(6).toInt();
+        int onVi = qry.value(7).toInt();
+        int onSa = qry.value(8).toInt();
+        int onDo = qry.value(9).toInt();
 
-      generaDb->insertSchedule(schedule_id, init_hour, end_hour, onLu, onMa, onMi, onJu, onVi, onSa, onDo);
+        generaDb->insertSchedule(schedule_id, init_hour, end_hour, onLu, onMa, onMi, onJu, onVi, onSa, onDo);
+      } 
     }
     
     qry.clear();
@@ -782,10 +796,12 @@ void ImportDB::importDatabaseSnack(IDKITWrapper *idkit, QSqlDatabase *importDb, 
     return;
   } else {
     while (qry.next()) {
-      int schedule_id = qry.value(0).toInt();
-      int service_id = qry.value(1).toInt();
+      {
+        int schedule_id = qry.value(0).toInt();
+        int service_id = qry.value(1).toInt();
 
-      generaDb->insertScheduleService(schedule_id, service_id);
+        generaDb->insertScheduleService(schedule_id, service_id);
+      }
     }
     
     qry.clear();
@@ -798,11 +814,13 @@ void ImportDB::importDatabaseSnack(IDKITWrapper *idkit, QSqlDatabase *importDb, 
     return;
   } else {
     while (qry.next()) {
-      int person_id = qry.value(0).toInt();
-      int service_id = qry.value(1).toInt();
-      int service_group = qry.value(2).toInt();
+      {
+        int person_id = qry.value(0).toInt();
+        int service_id = qry.value(1).toInt();
+        int service_group = qry.value(2).toInt();
 
-      generaDb->insertPersonService(person_id, service_id, service_group);
+        generaDb->insertPersonService(person_id, service_id, service_group);
+      }
     }
     
     qry.clear();
@@ -822,33 +840,35 @@ void ImportDB::importDatabaseSnack(IDKITWrapper *idkit, QSqlDatabase *importDb, 
     DEBUG("Selected. Beginning to import data.");
 
     while(qry.next()) {
-      int userId = qry.value(0).toInt();
-      
-      QString identifier = qry.value(1).toString();
-      Utils::limitString(identifier, 32);
+      {
+        int userId = qry.value(0).toInt();
 
-      QString name = qry.value(2).toString();
-      Utils::limitString(name, 100);
+        QString identifier = qry.value(1).toString();
+        Utils::limitString(identifier, 32);
 
-      QString rut = qry.value(3).toString();
-      Utils::limitString(rut, 15);
+        QString name = qry.value(2).toString();
+        Utils::limitString(name, 100);
 
-      int repeticion = qry.value(4).toInt();
+        QString rut = qry.value(3).toString();
+        Utils::limitString(rut, 15);
 
-      QString centroCosto = qry.value(5).toString();
-      Utils::limitString(centroCosto, 32);
-      
-      QString tpl = qry.value(6).toString();
-      QByteArray bytes = QByteArray::fromBase64(tpl.toUtf8());
+        int repeticion = qry.value(4).toInt();
 
-      QString emp = qry.value(7).toString();
-      Utils::limitString(emp, 32);
+        QString centroCosto = qry.value(5).toString();
+        Utils::limitString(centroCosto, 32);
 
-      if (idkit->registerUserFromTemplateSnack(reinterpret_cast<unsigned char *>(bytes.data()), userId, 
-            (char *) identifier.toStdString().c_str(), (char *) name.toStdString().c_str(), 
-            (char *) rut.toStdString().c_str(), (char *) emp.toStdString().c_str(), repeticion,
-            (char *) centroCosto.toStdString().c_str())) {
-        importCount += 1;
+        QString tpl = qry.value(6).toString();
+        QByteArray bytes = QByteArray::fromBase64(tpl.toUtf8());
+
+        QString emp = qry.value(7).toString();
+        Utils::limitString(emp, 32);
+
+        if (idkit->registerUserFromTemplateSnack(reinterpret_cast<unsigned char *>(bytes.data()), userId, 
+              (char *) identifier.toStdString().c_str(), (char *) name.toStdString().c_str(), 
+              (char *) rut.toStdString().c_str(), (char *) emp.toStdString().c_str(), repeticion,
+              (char *) centroCosto.toStdString().c_str())) {
+          importCount += 1;
+        }
       }
 
       if (importCount % 10 == 0) {

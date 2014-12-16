@@ -16,6 +16,7 @@ class GeneraDB : public QObject
     ~GeneraDB();
 
     bool init(const char *databaseName);
+    void close();
 
     QSqlQuery *getEventsToSynchronize();
     bool setEventSynchronized(int id);

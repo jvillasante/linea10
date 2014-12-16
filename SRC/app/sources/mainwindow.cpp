@@ -17,6 +17,7 @@
 MainWindow::MainWindow(QSettings *settings, QWidget *parent) :
   QWidget(parent)
 {
+  this->flag = 0;
   this->settings = settings;
   lang = settings->value("lang", "es").toString();
 
@@ -83,6 +84,12 @@ MainWindow::~MainWindow()
   delete hbox;
   delete box;
   delete grid;
+}
+
+void MainWindow::closeApp()
+{
+  QApplication::quit(); 
+  flag = 500;
 }
 
 #ifdef TEMPO
@@ -254,10 +261,12 @@ void MainWindow::updateEveryHour()
 void MainWindow::updateRebootCountDown()
 {
   rebootCountdownCounter -= 1;
-
-  lblOutput->setText(tr("Reiniciando sistema en...<br>%1 segundo(s)").arg(rebootCountdownCounter));
-  if (rebootCountdownCounter <= 1) {
-    Utils::reboot();
+  if (rebootCountdownCounter > 0) {
+    lblOutput->setText(tr("Reiniciando sistema en...<br>%1 segundo(s)").arg(rebootCountdownCounter));
+  } else if (rebootCountdownCounter == 0) {
+    this->closeApp();
+  } else {
+    lblOutput->setText(tr("Error reiniciando sistema.<br>Por favor, reinicie<br>manualmente."));
   }
 }
 
@@ -560,6 +569,18 @@ void MainWindow::setFullScreen(QString msg)
   lblOutput->setFixedWidth(240);
   lblOutput->setText(msg);
   qApp->processEvents();
+  
+  workerSensor->abort();
+  threadSensor->wait();
+  
+  everySecondTimer->stop();
+  everyHourTimer->stop();
+  
+  system("killall ntpd");
+  system("killall updater");
+  system("killall synchronizer");
+  system("killall backup");
+  system("sync; echo 3 > /proc/sys/vm/drop_caches");
 }
 
 void MainWindow::startReboot(QString msg)
@@ -569,15 +590,9 @@ void MainWindow::startReboot(QString msg)
     qApp->processEvents();
   }
   
-  workerSensor->abort();
-  threadSensor->wait();
-
   workerEnroller->abort();
   threadEnroller->wait();
-
-  everySecondTimer->stop();
-  everyHourTimer->stop();
-
+  
   DEBUG("STARTING REBOOT TIMER...");
   QTimer *rebootTimer = new QTimer(this);
   rebootTimer->setInterval(1000);

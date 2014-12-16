@@ -19,14 +19,7 @@ PrinterSerial::PrinterSerial(QSettings *settings)
 
 PrinterSerial::~PrinterSerial()
 {
-  if (this->serialPort != NULL) {
-    if (this->serialPort->isOpen()) {
-      this->serialPort->close();
-    }
-
-    delete this->serialPort;
-    LOG_INFO("Printer Serial is now closed");
-  }
+  this->close();
 }
 
 bool PrinterSerial::init()
@@ -59,6 +52,18 @@ bool PrinterSerial::init()
   } else {
     this->serialPort->close();
     return false;
+  }
+}
+
+void PrinterSerial::close()
+{
+  if (this->serialPort != NULL) {
+    if (this->serialPort->isOpen()) {
+      this->serialPort->close();
+    }
+
+    delete this->serialPort;
+    LOG_INFO("Printer Serial is now closed");
   }
 }
 

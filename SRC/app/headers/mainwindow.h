@@ -32,6 +32,7 @@ class MainWindow : public QWidget
   public:
     explicit MainWindow(QSettings *settings, QWidget *parent = 0);
     ~MainWindow();
+    int flag;
 
   public slots:
 #ifdef TEMPO
@@ -57,7 +58,7 @@ class MainWindow : public QWidget
     void updateEverySecond();
     void updateEveryHour();
     void updateRebootCountDown();
-
+    
   private:
     QGridLayout *grid;
     QHBoxLayout *hbox;
@@ -109,6 +110,8 @@ class MainWindow : public QWidget
     void printInitTicket();
     void setFullScreen(QString msg);
     void startReboot(QString msg);
+
+    void closeApp();
 
     inline void updatePrinterStatus();
     inline void updateInternetStatus();

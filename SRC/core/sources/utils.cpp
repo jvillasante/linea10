@@ -7,6 +7,7 @@
 #include <QFile>
 #include <QDateTime>
 #include <QDate>
+#include <QStringList>
 
 namespace Utils
 {
@@ -21,15 +22,10 @@ namespace Utils
 
   void reboot()
   {
-    DEBUG("rebooting.................................");
     QProcess rebootProcess;
-    rebootProcess.start("reboot");
+    DEBUG("rebooting ..................................");
+    rebootProcess.start("/sbin/reboot");
     rebootProcess.waitForFinished(-1);
-
-    QString rebootStdout = rebootProcess.readAllStandardOutput();
-    QString rebootStderr = rebootProcess.readAllStandardError();
-    DEBUG("reboot stdout: %s", rebootStdout.toStdString().c_str());
-    DEBUG("reboot stderr: %s", rebootStderr.toStdString().c_str());
   }
 
   bool wgetCall(QString &dest, QString &source)
@@ -109,6 +105,29 @@ namespace Utils
 
     DEBUG("md5sum command FAIL");
     return false;
+  }
+  
+  bool copyFile(QString &source, const QString &destDir)
+  {
+    QString copyCommand = QString("cp -f %1 %2").arg(source).arg(destDir);
+    DEBUG("Sending command %s", copyCommand.toStdString().c_str());
+
+    QProcess copyProcess;
+    copyProcess.start(copyCommand);
+    copyProcess.waitForFinished(-1);
+
+    QString copyStdout = copyProcess.readAllStandardOutput();
+    QString copyStderr = copyProcess.readAllStandardError();
+    DEBUG("cp stdout: %s", copyStdout.toStdString().c_str());
+    DEBUG("cp stderr: %s", copyStderr.toStdString().c_str());
+
+    if (copyStdout.contains(QString("No such file"))) {
+      DEBUG("cp command FAIL");
+      return false;
+    }
+
+    DEBUG("cp command OK");
+    return true;
   }
 
   bool moveFile(QString &source, const QString &destDir)
@@ -205,15 +224,5 @@ namespace Utils
     if (result < 10) return result + '0';
     else if (result == 10) return 'K';
     else return '0';
-  }
-  
-  bool isNtpRunning() {
-    if (Utils::fileExists("/usr/local/bin/Resources/ntp_is_running")) {
-      // DEBUG("NTP is running");
-      return true;
-    } else {
-      // DEBUG("NTP is NOT running");
-      return false;
-    }
   }
 }

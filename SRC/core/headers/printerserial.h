@@ -17,6 +17,7 @@ class PrinterSerial : public QObject
     ~PrinterSerial();
 
     bool init();
+    void close();
     void write_hello(QString mac, QString ip, QString gateway, QString masc, QString broadcast);
 #ifdef TEMPO
     void write_user(QString type, QString userIdentifier, QString userName, QString userRut, QString userEmp);

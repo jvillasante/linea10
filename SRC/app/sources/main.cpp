@@ -11,6 +11,8 @@
 #include <QMap>
 #include <QMapIterator>
 
+#include <stdlib.h>
+#include <unistd.h>
 #include "utils.h"
 #include "dbaccess.h"
 
@@ -81,7 +83,7 @@ int main(int argc, char *argv[])
   QString src = appPath + "/Resources/settings/app.ini";
   if (Utils::fileExists("/mnt/jffs2/Gen_Config.sql")) {
     const QString dest = "/mnt/jffs2/app.ini";
-    Utils::moveFile(src, dest);
+    Utils::copyFile(src, dest);
     settings = new QSettings(dest, QSettings::IniFormat);
 
     configure("/mnt/jffs2/Gen_Config.sql");
@@ -164,6 +166,20 @@ int main(int argc, char *argv[])
   window->showFullScreen();
 
   int rc = app.exec();
+
+  if (window) {
+    DEBUG("MainWindow Flag: %d", window->flag);
+    if (window->flag == 500) {
+      if (settings) { delete settings; }
+      if (window)   { delete window; }
+      
+      DEBUG("Bye Bye...");
+      fflush(stdout);
+      fflush(stderr);
+      execl("/sbin/reboot", "reboot", NULL);
+      return 0;
+    }
+  }
 
   if (settings) { delete settings; }
   if (window)   { delete window; }
