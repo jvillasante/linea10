@@ -60,13 +60,4 @@ class ImportDB : public QObject
     void importProgress(int);
 };
 
-class ConfigDB : public QObject
-{
-  Q_OBJECT
-    
-  public:
-    bool init(const char *databaseName);
-    bool getOldConfigs(QMap<QString, QString> &configMap);
-};
-
 #endif

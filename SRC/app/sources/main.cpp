@@ -32,38 +32,6 @@ void signalHandler(int signum)
   exit(signum);
 }
 
-void configure(const char *configDb) 
-{
-  QMap<QString, QString> configMap; 
-  
-  ConfigDB db;
-  db.init(configDb); 
-  db.getOldConfigs(configMap);
-  
-  settings->setValue("serieImpresora", configMap["serie_impresora"]);
-  QString cliente = configMap["cliente"];
-  QString clienteUpdate = configMap["cliente"].replace("HORUS9", "Update");
-  
-  settings->setValue("empresaHolding", configMap["empresa_holding"]);
-  settings->setValue("serialEquipo", configMap["serial_equipo"]);
-  settings->setValue("identificadorEquipo", configMap["identificador_equipo"]);
-  settings->setValue("wsIP", configMap["ws_ip"]);
-  settings->setValue("wsPort", configMap["ws_port"]);
-
-  settings->setValue("wsCargaMasivaURL", QString("http://%1:%2/%3/WS_HORUS9.asmx?WSDL")
-      .arg(configMap["ws_ip"]).arg(configMap["ws_port"]).arg(cliente));
-  settings->setValue("wsFirmwareUpdateURL", QString("http://%1:%2/%3/UpdateLinea9.asmx")
-      .arg(configMap["ws_ip"]).arg(configMap["ws_port"]).arg(clienteUpdate));
-  settings->setValue("wsSincronizacionURL", QString("http://%1:%2/%3/WS_HORUS9.asmx?op=SincronizacionMarcasM")
-      .arg(configMap["ws_ip"]).arg(configMap["ws_port"]).arg(cliente));
-  settings->setValue("wsVerificaPersonaURL", QString("http://%1:%2/%3/WS_HORUS9.asmx?op=VerificaPersonaM")
-      .arg(configMap["ws_ip"]).arg(configMap["ws_port"]).arg(cliente));
-  settings->setValue("wsEnrollURL", QString("http://%1:%2/%3/WS_HORUS9.asmx?op=enrollM")
-      .arg(configMap["ws_ip"]).arg(configMap["ws_port"]).arg(cliente));
-  settings->setValue("wsAlarmasURL", QString("http://%1:%2/%3/WS_HORUS9.asmx?op=alarma")
-      .arg(configMap["ws_ip"]).arg(configMap["ws_port"]).arg(cliente));
-}
-
 int main(int argc, char *argv[])
 {
   signal(SIGINT, signalHandler);
@@ -79,37 +47,17 @@ int main(int argc, char *argv[])
 #endif
   
   QString appPath = QApplication::applicationDirPath();
-  
-  QString src = appPath + "/Resources/settings/app.ini";
-  if (Utils::fileExists("/mnt/jffs2/Gen_Config.sql")) {
-    const QString dest = "/mnt/jffs2/app.ini";
-    Utils::copyFile(src, dest);
-    settings = new QSettings(dest, QSettings::IniFormat);
 
-    configure("/mnt/jffs2/Gen_Config.sql");
-    Utils::removeFile("/mnt/jffs2/Gen_Config.sql");
-  } else {
-    QSettings newSettings(src, QSettings::IniFormat);
-    settings = new QSettings("/mnt/jffs2/app.ini", QSettings::IniFormat);
-    
-    if (settings->contains("key1"))        { settings->remove("key1"); }
-    if (settings->contains("key2"))        { settings->remove("key2"); }
-    if (settings->contains("key3"))        { settings->remove("key3"); }
-    if (settings->contains("key4"))        { settings->remove("key4"); }
-    if (settings->contains("key5"))        { settings->remove("key5"); }
-    if (settings->contains("key6"))        { settings->remove("key6"); }
-    if (settings->contains("key7"))        { settings->remove("key7"); }
-    if (settings->contains("key8"))        { settings->remove("key8"); }
-    if (settings->contains("key9"))        { settings->remove("key9"); }
-    if (settings->contains("key10"))       { settings->remove("key10"); }
-    if (settings->contains("eventsDB"))    { settings->remove("eventsDB"); }
-    
-    if (!settings->contains("keepEvents")) { settings->setValue("keepEvents", 15); }
-    if (!settings->contains("generaDB"))   { settings->setValue("generaDB", "/mnt/jffs2/genera.db"); }
-    if (!settings->contains("ntpIP"))      { settings->setValue("ntpIP", newSettings.value("ntpIP").toString()); }
-    settings->setValue("fw", newSettings.value("fw").toString());
-    settings->setValue("fwVersion", newSettings.value("fwVersion").toString());
-  } 
+  QString configPath = "/mnt/jffs2/app.ini";
+  QString newConfigPath = appPath + "/Resources/settings/app.ini";
+  settings = new QSettings(configPath, QSettings::IniFormat);
+  
+  if (Utils::fileExists(newConfigPath.toStdString().c_str())) {
+    QSettings *newSettings = new QSettings(newConfigPath, QSettings::IniFormat);
+    settings->setValue("fwVersion", newSettings->value("fwVersion").toString());
+    delete newSettings;
+    Utils::removeFile(newConfigPath.toStdString().c_str());
+  }
   settings->sync();
   
   QString lang = settings->value("lang", "es").toString();
