@@ -49,16 +49,7 @@ int main(int argc, char *argv[])
   QString appPath = QApplication::applicationDirPath();
 
   QString configPath = "/mnt/jffs2/app.ini";
-  QString newConfigPath = appPath + "/Resources/settings/app.ini";
   settings = new QSettings(configPath, QSettings::IniFormat);
-  
-  if (Utils::fileExists(newConfigPath.toStdString().c_str())) {
-    QSettings *newSettings = new QSettings(newConfigPath, QSettings::IniFormat);
-    settings->setValue("fwVersion", newSettings->value("fwVersion").toString());
-    delete newSettings;
-    Utils::removeFile(newConfigPath.toStdString().c_str());
-  }
-  settings->sync();
   
   QString lang = settings->value("lang", "es").toString();
   DEBUG("Language is: %s.", lang.toStdString().c_str());

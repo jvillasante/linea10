@@ -5,6 +5,15 @@ echo Starting Genera scripts
 
 source /usr/local/bin/profile                                                        
 
+# copy firmware version
+if [ -f /usr/local/bin/Resources/settings/app.ini ]; then
+  fwVersion=$(sed -n 's/^fwVersion*=*\([^ ]*.*\)/\1/p' < /usr/local/bin/Resources/settings/app.ini)
+  echo "FIRMWARE VERSION: $fwVersion"
+  sed -i "s/fwVersion=.*/fwVersion=\"$fwVersion\"/" /mnt/jffs2/app.ini
+  rm -f /usr/local/bin/Resources/settings/app.ini
+fi
+
+
 # Call web server
 /usr/sbin/httpd -p 80 -h /usr/local/bin/www
 
@@ -51,14 +60,12 @@ if [ -n "$BOARD" ]; then
       mkfifo /tmp/app.log 
       
       nohup /usr/local/bin/GeneraApp -qws -display transformed:Rot270 2>&1 | /usr/local/bin/ftee /tmp/app.log &
-      sleep 2
       nohup /usr/local/bin/updater 2>&1 | /usr/local/bin/ftee /tmp/app.log &
       nohup /usr/local/bin/synchronizer 2>&1 | /usr/local/bin/ftee /tmp/app.log &
       nohup /usr/local/bin/backup 2>&1 | /usr/local/bin/ftee /tmp/app.log &
       exit
     elif [ $MODO = "RELEASE" ]; then
       nohup /usr/local/bin/GeneraApp -qws -display transformed:Rot270 > /dev/null 2>&1 &
-      sleep 2
       nohup /usr/local/bin/updater > /dev/null 2>&1 &
       nohup /usr/local/bin/synchronizer > /dev/null 2>&1 &
       nohup /usr/local/bin/backup > /dev/null 2>&1 &
