@@ -228,7 +228,7 @@ void WorkerSensorMulti::doIdentifySnack()
       if (count <= 0) {
         emit match(userIdentifier, userName, userRut, NULL, 0);
       } else if (count == 1) {
-        ServiceDAO *service;
+        ServiceDAO *service = NULL;
         QMap<int, ServiceDAO*>::iterator it;
         for (it = services.begin(); it != services.end(); ++it)
           service = it.value();
