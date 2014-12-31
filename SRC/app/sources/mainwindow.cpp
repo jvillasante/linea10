@@ -175,7 +175,11 @@ void MainWindow::enrollProgress(int importCount) // massive enroll
   DEBUG("Enroll thread progress..");
 
   if (importCount == -1) {
+#ifdef TEMPO
     setFullScreen(tr("Comenzando proceso para<br>Carga Masiva.<br><br>Espere por favor..."));
+#elif SNACK
+    setFullScreen(tr("Importando servicios de<br>Casino. Este proceso puede<br>demorar un tiempo.<br><br>Espere por favor..."));
+#endif
   } else {
     lblOutput->setText(tr("Ejecutando Carga Masiva.<br><br>Usuarios Registrados:<br>%1<br><br>Espere por favor...").arg(importCount));
   }
