@@ -33,4 +33,4 @@ alias m="more"
 alias +="more"
 
 export MODO=DEBUG
-export EQUIPO=SNACK
+export EQUIPO=TEMPO

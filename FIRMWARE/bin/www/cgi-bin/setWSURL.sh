@@ -59,20 +59,20 @@ else
   
   if [ $EQUIPO = "TEMPO" ]; then
     xWSClienteUpdate="${xWSCliente//HORUS9/Update}"
-    sed -i "s/wsFirmwareUpdateURL=.*/wsFirmwareUpdateURL=http:\/\/\"$xWSIP\":\"$xWSPuerto\"\/\"$xWSClienteUpdate\"\/UpdateLinea9.asmx/" /mnt/jffs2/app.ini
-    sed -i "s/wsCargaMasivaURL=.*/wsCargaMasivaURL=http:\/\/\"$xWSIP\":\"$xWSPuerto\"\/\"$xWSCliente\"\/WS_HORUS9.asmx?op\=getCargaMasivaM/" /mnt/jffs2/app.ini
-    sed -i "s/wsSincronizacionURL=.*/wsSincronizacionURL=http:\/\/\"$xWSIP\":\"$xWSPuerto\"\/\"$xWSCliente\"\/WS_HORUS9.asmx?op\=SincronizacionmarcasM/" /mnt/jffs2/app.ini
-    sed -i "s/wsVerificaPersonaURL=.*/wsVerificaPersonaURL=http:\/\/\"$xWSIP\":\"$xWSPuerto\"\/\"$xWSCliente\"\/WS_HORUS9.asmx?op\=VerificaPersonaM/" /mnt/jffs2/app.ini
-    sed -i "s/wsEnrollURL=.*/wsEnrollURL=http:\/\/\"$xWSIP\":\"$xWSPuerto\"\/\"$xWSCliente\"\/WS_HORUS9.asmx?op\=enrollM/" /mnt/jffs2/app.ini
-    sed -i "s/wsAlarmasURL=.*/wsAlarmasURL=http:\/\/\"$xWSIP\":\"$xWSPuerto\"\/\"$xWSCliente\"\/WS_HORUS9.asmx?op\=alarma/" /mnt/jffs2/app.ini
+    sed -i "s/wsFirmwareUpdateURL=.*/wsFirmwareUpdateURL=\"http:\/\/$xWSIP:$xWSPuerto\/$xWSClienteUpdate\/UpdateLinea9.asmx\"/" /mnt/jffs2/app.ini
+    sed -i "s/wsCargaMasivaURL=.*/wsCargaMasivaURL=\"http:\/\/$xWSIP:$xWSPuerto\/$xWSCliente\/WS_HORUS9.asmx?op\=getCargaMasivaM\"/" /mnt/jffs2/app.ini
+    sed -i "s/wsSincronizacionURL=.*/wsSincronizacionURL=\"http:\/\/$xWSIP:$xWSPuerto\/$xWSCliente\/WS_HORUS9.asmx?op\=SincronizacionmarcasM\"/" /mnt/jffs2/app.ini
+    sed -i "s/wsVerificaPersonaURL=.*/wsVerificaPersonaURL=\"http:\/\/$xWSIP:$xWSPuerto\/$xWSCliente\/WS_HORUS9.asmx?op\=VerificaPersonaM\"/" /mnt/jffs2/app.ini
+    sed -i "s/wsEnrollURL=.*/wsEnrollURL=\"http:\/\/$xWSIP:$xWSPuerto\/$xWSCliente\/WS_HORUS9.asmx?op\=enrollM\"/" /mnt/jffs2/app.ini
+    sed -i "s/wsAlarmasURL=.*/wsAlarmasURL=\"http:\/\/$xWSIP:$xWSPuerto\/$xWSCliente\/WS_HORUS9.asmx?op\=alarma\"/" /mnt/jffs2/app.ini
   elif [ $EQUIPO = "SNACK" ]; then
     xWSClienteUpdate="${xWSCliente//SNACK9/Update}"
-    sed -i "s/wsFirmwareUpdateURL=.*/wsFirmwareUpdateURL=http:\/\/\"$xWSIP\":\"$xWSPuerto\"\/\"$xWSClienteUpdate\"\/UpdateLinea9.asmx/" /mnt/jffs2/app.ini
-    sed -i "s/wsCargaMasivaURL=.*/wsCargaMasivaURL=http:\/\/\"$xWSIP\":\"$xWSPuerto\"\/\"$xWSCliente\"\/WS_SNACK9.asmx?op\=getCargaMasivaM/" /mnt/jffs2/app.ini
-    sed -i "s/wsSincronizacionURL=.*/wsSincronizacionURL=http:\/\/\"$xWSIP\":\"$xWSPuerto\"\/\"$xWSCliente\"\/WS_SNACK9.asmx?op\=SincronizacionmarcasM/" /mnt/jffs2/app.ini
-    sed -i "s/wsVerificaPersonaURL=.*/wsVerificaPersonaURL=http:\/\/\"$xWSIP\":\"$xWSPuerto\"\/\"$xWSCliente\"\/WS_SNACK9.asmx?op\=VerificaPersonaM/" /mnt/jffs2/app.ini
-    sed -i "s/wsEnrollURL=.*/wsEnrollURL=http:\/\/\"$xWSIP\":\"$xWSPuerto\"\/\"$xWSCliente\"\/WS_SNACK9.asmx?op\=enrollM/" /mnt/jffs2/app.ini
-    sed -i "s/wsAlarmasURL=.*/wsAlarmasURL=http:\/\/\"$xWSIP\":\"$xWSPuerto\"\/\"$xWSCliente\"\/WS_SNACK9.asmx?op\=alarma/" /mnt/jffs2/app.ini
+    sed -i "s/wsFirmwareUpdateURL=.*/wsFirmwareUpdateURL=\"http:\/\/$xWSIP:$xWSPuerto\/$xWSClienteUpdate\/UpdateLinea9.asmx\"/" /mnt/jffs2/app.ini
+    sed -i "s/wsCargaMasivaURL=.*/wsCargaMasivaURL=\"http:\/\/$xWSIP:$xWSPuerto\/$xWSCliente\/SNACK9.asmx?op\=getCargaMasivaM\"/" /mnt/jffs2/app.ini
+    sed -i "s/wsSincronizacionURL=.*/wsSincronizacionURL=\"http:\/\/$xWSIP:$xWSPuerto\/$xWSCliente\/SNACK9.asmx?op\=SincronizacionMarcasM\"/" /mnt/jffs2/app.ini
+    sed -i "s/wsVerificaPersonaURL=.*/wsVerificaPersonaURL=\"http:\/\/$xWSIP:$xWSPuerto\/$xWSCliente\/SNACK9.asmx?op\=VerificaPersonaM\"/" /mnt/jffs2/app.ini
+    sed -i "s/wsEnrollURL=.*/wsEnrollURL=\"http:\/\/$xWSIP:$xWSPuerto\/$xWSCliente\/SNACK9.asmx?op\=enrollM\"/" /mnt/jffs2/app.ini
+    sed -i "s/wsAlarmasURL=.*/wsAlarmasURL=\"http:\/\/$xWSIP:$xWSPuerto\/$xWSCliente\/SNACK9.asmx?op\=alarma\"/" /mnt/jffs2/app.ini
   fi
   
   echo "MODIFICADO EXITOSAMENTE WS IP:" $xWSIP

@@ -13,7 +13,6 @@ if [ -f /usr/local/bin/Resources/settings/app.ini ]; then
   rm -f /usr/local/bin/Resources/settings/app.ini
 fi
 
-
 # Call web server
 /usr/sbin/httpd -p 80 -h /usr/local/bin/www
 

@@ -328,7 +328,7 @@ void WorkerSensorMulti::giveService(ServiceDAO *service, int userId, char *userI
     emit message("Ha ocurrido un error<br>Por favor, notifique<br>a los encargados.");
   }
 
-  rc = generaDB->insertEvent(0, userIdentifier, Utils::getCurrentUnixTimestamp(), service->id, 0);
+  rc = generaDB->insertEvent(1, userIdentifier, Utils::getCurrentUnixTimestamp(), service->id, 0);
   if (rc == 0) {
     LOG_INFO("Event added to events database...");
   } else if (rc == 1) {
