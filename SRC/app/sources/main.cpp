@@ -48,6 +48,7 @@ int main(int argc, char *argv[])
 #endif
 #ifdef PRESENCIA
   app.setApplicationName("Presencia10");
+  Utils::disableLeds();
 #endif
 
   QString appPath = QApplication::applicationDirPath();

@@ -1,6 +1,7 @@
 #include "utils.h"
 #include "debug_macros.h"
 #include <sys/stat.h>
+#include <unistd.h>
 
 #include <QString>
 #include <QProcess>
@@ -224,5 +225,54 @@ namespace Utils
     if (result < 10) return result + '0';
     else if (result == 10) return 'K';
     else return '0';
+  }
+
+  void disableLeds() {
+    DEBUG("Disabling Leds...");
+    system("echo 1 > /sys/class/leds/led1/brightness");
+    system("echo 1 > /sys/class/leds/led2/brightness");
+    system("echo 1 > /sys/class/leds/led3/brightness");
+    system("echo 1 > /sys/class/leds/led4/brightness");
+    DEBUG("Leds Disabled!");
+  }
+
+  void setLed(bool in, bool access) {
+    if (in) {
+      if (access) {
+        system("echo 0 > /sys/class/leds/led1/brightness");  // habilitar verde entrada
+        DEBUG("Enabling Led1 In Green");
+      } else {
+        system("echo 0 > /sys/class/leds/led2/brightness");  //habilitar rojo entrada
+        DEBUG("Enabling Led2 In Red");
+      }
+    } else {
+      if (access) {
+        system("echo 0 > /sys/class/leds/led3/brightness");  //habilitar verde salida
+        DEBUG("Enabling Led3 Out Green");
+      } else {
+        system("echo 0 > /sys/class/leds/led4/brightness");  //habilitar rojo salida
+        DEBUG("Enabling Led4 Out Red");
+      }
+    }
+  }
+
+  void setRelay(bool in) {
+    if (in) {
+      system("echo 1 > /sys/class/leds/relay1/brightness");
+      DEBUG("Activating Relay1");
+
+      usleep(2 * 100000);
+
+      system("echo 0 > /sys/class/leds/relay1/brightness");
+      DEBUG("Disabling Relay1");
+    } else {
+      system("echo 1 > /sys/class/leds/relay2/brightness");
+      DEBUG("Activating Relay2");
+
+      usleep(2 * 100000);
+
+      system("echo 0 > /sys/class/leds/relay2/brightness");
+      DEBUG("Disabling Relay2");
+    }
   }
 }

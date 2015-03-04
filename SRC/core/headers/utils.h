@@ -25,12 +25,14 @@ namespace Utils
   void getFromUnixTimestamp(QDateTime &dateTime, uint unixTimeStamp);
 
   bool fileExists(const char *name);
-
   char rutVerifyDigit(unsigned rut);
-
   bool isNtpRunning();
-
   void getCurrentDateTimeForSnack(int result[]);
+
+  // leds - presencia
+  void disableLeds();
+  void setLed(bool in, bool access);
+  void setRelay(bool in);
 }
 
 #endif // UTILS_H
