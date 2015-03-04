@@ -90,14 +90,14 @@ void PrinterSerial::write_hello(QString mac, QString ip, QString gateway, QStrin
   bytes.append(tr("ETHERNET GATEWAY: ").toAscii()).append(gateway.toAscii()).append("\r\n");
   bytes.append(tr("ETHERNET MASC: ").toAscii()).append(masc.toAscii()).append("\r\n");
   bytes.append(tr("ETHERNET BROADCASTING: ").toAscii()).append(broadcast.toAscii()).append("\r\n");
-  
+
   QDateTime now = Utils::getCurrentTimestamp();
   if (lang == "EN") {
     bytes.append(QString("Date :%1 Time: %2\r\n").arg(getDate(now)).arg(now.toString("hh:mm")).toAscii());
   } else {
     bytes.append(QString("Fecha :%1 Hora: %2\r\n").arg(getDate(now)).arg(now.toString("hh:mm")).toAscii());
   }
-  
+
   if (this->writeBytes(bytes)) {
     LOG_INFO("PrinterSerial::write_hello OK");
     this->send_cut();
@@ -131,7 +131,7 @@ void PrinterSerial::write_user(QString type, QString userIdentifier, QString use
     bytes.clear();
 
     QDateTime now = Utils::getCurrentTimestamp();
-    
+
     if (lang == "en") {
       bytes.append(QString("Date   :%1 Time: %2\r\n").arg(getDate(now)).arg(now.toString("hh:mm")).toAscii());
     } else {
@@ -161,7 +161,7 @@ void PrinterSerial::write_user(QString type, QString userIdentifier, QString use
   }
 }
 #elif SNACK
-void PrinterSerial::write_user(QString service, QString userIdentifier, QString userName, QString userRut, 
+void PrinterSerial::write_user(QString service, QString userIdentifier, QString userName, QString userRut,
     QString userEmp, QString userCentroCosto)
 {
   QByteArray bytes;
@@ -186,7 +186,7 @@ void PrinterSerial::write_user(QString service, QString userIdentifier, QString 
     bytes.clear();
 
     QDateTime now = Utils::getCurrentTimestamp();
-    
+
     if (lang == "en") {
       bytes.append(QString("Date   :%1 Time: %2\r\n").arg(getDate(now)).arg(now.toString("hh:mm")).toAscii());
     } else {
@@ -204,7 +204,7 @@ void PrinterSerial::write_user(QString service, QString userIdentifier, QString 
     bytes.append(QString(tr("Nombre :")).toAscii());
     bytes.append(QString(userName).toAscii());
     bytes.append(QString("\r\n").toAscii());
-    
+
     bytes.append(QString(tr("C.Costo:")).toAscii());
     bytes.append(QString(userCentroCosto).toAscii());
     bytes.append(QString("\r\n").toAscii());
@@ -238,7 +238,7 @@ bool PrinterSerial::getRealTimePaperStatus(QString &msg)
     char pData[2] = {0};
     // sleep(2);
     int e = this->serialPort->read(&pData[0], 1);
-    
+
     if (e == 1) {
       DEBUG("PrinterSerial::getRealTimePaperStatus Leyendo Estado del PapeAl");
       switch (pData[0]) {
@@ -268,7 +268,7 @@ bool PrinterSerial::getRealTimePaperStatus(QString &msg)
     DEBUG("Fallo Comando Estado del Papel");
     return false;
   }
-  
+
   return false;
 }
 
@@ -312,7 +312,7 @@ bool PrinterSerial::getRealTimeStatus(QString &msg)
     DEBUG("Fallo Comando Estado de Impresora");
     return false;
   }
-  
+
   return false;
 }
 
@@ -324,7 +324,7 @@ bool PrinterSerial::getRealTimeOfflineStatus(QString &msg)
   int sizedata = bytes.size();
   int i = this->serialPort->write(bytes, sizedata);
   this->serialPort->flush();
-  
+
   if (i == sizedata) {
     DEBUG("PrinterSerial::getRealTimeOfflineStatus Write OK");
     char pData[2] = {0};

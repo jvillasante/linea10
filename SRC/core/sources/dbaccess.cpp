@@ -34,7 +34,7 @@ void GeneraDB::close()
 bool GeneraDB::init(const char *databaseName)
 {
   bool dbExists = Utils::fileExists(databaseName);
-  
+
   if (QSqlDatabase::contains("genera")) {
     this->db = QSqlDatabase::database("genera");
     this->db.setDatabaseName(databaseName);
@@ -42,12 +42,12 @@ bool GeneraDB::init(const char *databaseName)
     this->db = QSqlDatabase::addDatabase("QSQLITE", "genera");
     this->db.setDatabaseName(databaseName);
   }
-  
+
   if(!this->db.open()) {
     LOG_ERROR("Failed to connect to %s: %s", databaseName, this->db.lastError().databaseText().toStdString().c_str());
     return false;
   }
-  
+
   LOG_INFO("Connected to %s database", databaseName);
   this->db.exec("PRAGMA auto_vacuum = FULL");
   this->db.exec("PRAGMA busy_timeout = 1000");
@@ -58,7 +58,7 @@ bool GeneraDB::init(const char *databaseName)
     DEBUG("Database %s already exists. No need to create schema.", databaseName);
     return true;
   }
-  
+
   DEBUG("Creating schema on database %s", databaseName);
 
 #ifdef TEMPO
@@ -73,12 +73,45 @@ bool GeneraDB::init(const char *databaseName)
     LOG_ERROR("Query error: %s.", qry.lastError().databaseText().toStdString().c_str());
     qry.clear();
     return false;
-  } else { 
+  } else {
     LOG_INFO("Schema created on database %s", databaseName);
     qry.clear();
     return true;
   }
-#elif SNACK
+#endif
+#ifdef PRESENCIA
+  QSqlQuery qry(this->db);
+  if (!qry.exec("CREATE TABLE IF NOT EXISTS events ("
+                "id INTEGER PRIMARY KEY,"   // identificador del evento
+                "sense INTEGER,"            // sentido (entrada/salida)
+                "ident VARCHAR(32),"        // identificador de la persona
+                "date INTEGER,"             // fecha del evento (unixtimestamp)
+                "synchronized INTEGER"      // boolean para saber si el evento ya fue enviado
+                ");")) {
+    LOG_ERROR("Query error: %s.", qry.lastError().databaseText().toStdString().c_str());
+    qry.clear();
+    return false;
+  } else {
+    qry.clear();
+  }
+
+  if (!qry.exec("CREATE TABLE IF NOT EXISTS schedules ("
+                "id INTEGER PRIMARY KEY,"          // identificador del horario
+                "id_person INTEGER NOT NULL,"      // identificador de persona
+                "init_hour INTEGER DEFAULT 0,"     // hora de inicio (0800 para las 08:00 horas)
+                "end_hour INTEGER DEFAULT 0"      // hora de terminacion (1500 para las 15:00 horas)
+                ");")) {
+    LOG_ERROR("Query error: %s.", qry.lastError().databaseText().toStdString().c_str());
+    qry.clear();
+    return false;
+  } else {
+    qry.clear();
+  }
+
+  LOG_INFO("Schema created on database %s", databaseName);
+  return true;
+#endif
+#ifdef SNACK
   QSqlQuery qry(this->db);
   if (!qry.exec("CREATE TABLE IF NOT EXISTS events ("
                 "id INTEGER PRIMARY KEY,"   // identificador del evento
@@ -91,10 +124,10 @@ bool GeneraDB::init(const char *databaseName)
     LOG_ERROR("Query error: %s.", qry.lastError().databaseText().toStdString().c_str());
     qry.clear();
     return false;
-  } else { 
+  } else {
     qry.clear();
   }
-  
+
   if (!qry.exec("CREATE TABLE IF NOT EXISTS services ("
                 "id INTEGER PRIMARY KEY,"       // identificador del servicio
                 "name VARCHAR(100),"            // nombre del servicio
@@ -103,10 +136,10 @@ bool GeneraDB::init(const char *databaseName)
     LOG_ERROR("Query error: %s.", qry.lastError().databaseText().toStdString().c_str());
     qry.clear();
     return false;
-  } else { 
+  } else {
     qry.clear();
   }
-  
+
   if (!qry.exec("CREATE TABLE IF NOT EXISTS persons_services ("
                 "id_person INTEGER NOT NULL,"                 // identificador de persona
                 "id_service INTEGER NOT NULL,"                // identificador de servicio
@@ -117,10 +150,10 @@ bool GeneraDB::init(const char *databaseName)
     LOG_ERROR("Query error: %s.", qry.lastError().databaseText().toStdString().c_str());
     qry.clear();
     return false;
-  } else { 
+  } else {
     qry.clear();
   }
-  
+
   if (!qry.exec("CREATE TABLE IF NOT EXISTS schedules ("
                 "id INTEGER PRIMARY KEY,"              // identificador del horario
                 "init_hour INTEGER DEFAULT 0,"         // hora de inicio (0800 para las 08:00 horas)
@@ -136,10 +169,10 @@ bool GeneraDB::init(const char *databaseName)
     LOG_ERROR("Query error: %s.", qry.lastError().databaseText().toStdString().c_str());
     qry.clear();
     return false;
-  } else { 
+  } else {
     qry.clear();
   }
-  
+
   if (!qry.exec("CREATE TABLE IF NOT EXISTS schedules_services ("
                 "id_schedule INTEGER NOT NULL,"        // identificador del horario
                 "id_service INTEGER NOT NULL,"         // identificador de servicio
@@ -148,20 +181,20 @@ bool GeneraDB::init(const char *databaseName)
     LOG_ERROR("Query error: %s.", qry.lastError().databaseText().toStdString().c_str());
     qry.clear();
     return false;
-  } else { 
+  } else {
     qry.clear();
   }
-  
+
   LOG_INFO("Schema created on database %s", databaseName);
   return true;
 #endif
   return false;
 }
 
-#ifdef TEMPO
+#if defined(TEMPO) || defined(PRESENCIA)
 int GeneraDB::insertEvent(int sense, char *ident, int date, int synchronized)
 {
-  if (!this->db.isOpen()) { 
+  if (!this->db.isOpen()) {
     DEBUG("Database genera is not open");
     return 1;
   }
@@ -170,7 +203,7 @@ int GeneraDB::insertEvent(int sense, char *ident, int date, int synchronized)
   if (sense == 2) { sense = 0; }
 
   QSqlQuery qry(this->db);
-  qry.prepare("INSERT INTO events(id, sense, ident, date, synchronized) VALUES(NULL, :f1, :f2, :f3, :f4)"); 
+  qry.prepare("INSERT INTO events(id, sense, ident, date, synchronized) VALUES(NULL, :f1, :f2, :f3, :f4)");
   qry.bindValue(":f1", sense);
   qry.bindValue(":f2", ident);
   qry.bindValue(":f3", date);
@@ -185,16 +218,17 @@ int GeneraDB::insertEvent(int sense, char *ident, int date, int synchronized)
   qry.clear();
   return 0;
 }
-#elif SNACK
+#endif
+#ifdef SNACK
 int GeneraDB::insertEvent(int sense, char *ident, int date, int serviceId, int synchronized)
 {
-  if (!this->db.isOpen()) { 
+  if (!this->db.isOpen()) {
     DEBUG("Database genera is not open");
     return 1;
   }
 
   QSqlQuery qry(this->db);
-  qry.prepare("INSERT INTO events(id, sense, ident, date, service, synchronized) VALUES(NULL, :f1, :f2, :f3, :f4, :f5)"); 
+  qry.prepare("INSERT INTO events(id, sense, ident, date, service, synchronized) VALUES(NULL, :f1, :f2, :f3, :f4, :f5)");
   qry.bindValue(":f1", sense);
   qry.bindValue(":f2", ident);
   qry.bindValue(":f3", date);
@@ -216,20 +250,21 @@ QSqlQuery *GeneraDB::getEventsToSynchronize()
 {
   QSqlQuery *qry = new QSqlQuery(this->db);
 
-#ifdef TEMPO
+#if defined(TEMPO) || defined(PRESENCIA)
   if (!qry->exec("SELECT id, sense, ident, date FROM events WHERE synchronized = 0 LIMIT 20")) {
     LOG_ERROR("Query error: %s.", qry->lastError().databaseText().toStdString().c_str());
     qry->clear();
     delete qry;
     return NULL;
-  } 
-#elif SNACK
+  }
+#endif
+#ifdef SNACK
   if (!qry->exec("SELECT id, sense, ident, date, service FROM events WHERE synchronized = 0 LIMIT 20")) {
     LOG_ERROR("Query error: %s.", qry->lastError().databaseText().toStdString().c_str());
     qry->clear();
     delete qry;
     return NULL;
-  } 
+  }
 #endif
 
   DEBUG("Genera selected... events ready to be synchronized...");
@@ -239,7 +274,7 @@ QSqlQuery *GeneraDB::getEventsToSynchronize()
 bool GeneraDB::setEventSynchronized(int id)
 {
   QSqlQuery qry(this->db);
-  qry.prepare("UPDATE events SET synchronized = 1 WHERE id = :f1"); 
+  qry.prepare("UPDATE events SET synchronized = 1 WHERE id = :f1");
   qry.bindValue(":f1", id);
 
   if (!qry.exec()) {
@@ -289,7 +324,7 @@ bool GeneraDB::writeDatabaseToFile()
     QSqlQuery qry(this->db);
     QTextStream stream(&file);
 
-#ifdef TEMPO
+#if defined(TEMPO) || defined(PRESENCIA)
     if (fileIsNew)
       stream << "#sentido;identificador;fecha;sincronizado (Timestamp: " << Utils::getCurrentTimestamp().toString("yyyy/MM/dd hh:mm:ss") << ")\n\n";
 
@@ -298,20 +333,21 @@ bool GeneraDB::writeDatabaseToFile()
       qry.clear();
       file.close();
       return false;
-    } 
-    
+    }
+
     DEBUG("Selected. Beginning to write synchronized events to file: %s.", filename.toStdString().c_str());
     while(qry.next()) {
       int sentido = qry.value(0).toInt();
       QString ident = qry.value(1).toString();
       int unixDate = qry.value(2).toInt();
       int synchronized = qry.value(3).toInt();
-      
+
       Utils::getFromUnixTimestamp(eventDateTime, unixDate);
       stream << QString("%1;%2;%3;%4").arg(sentido).arg(ident).arg(eventDateTime.toString("yyyy-MM-dd hh:mm:ss")).arg(synchronized) << "\n";
       eventsCount += 1;
     }
-#elif SNACK
+#endif
+#ifdef SNACK
     if (fileIsNew)
       stream << "#sentido;identificador;fecha;servicio;sincronizado (Timestamp: " << Utils::getCurrentTimestamp().toString("yyyy/MM/dd hh:mm:ss") << ")\n\n";
 
@@ -320,8 +356,8 @@ bool GeneraDB::writeDatabaseToFile()
       qry.clear();
       file.close();
       return false;
-    } 
-    
+    }
+
     DEBUG("Selected. Beginning to write synchronized events to file: %s.", filename.toStdString().c_str());
     while(qry.next()) {
       int sentido = qry.value(0).toInt();
@@ -329,7 +365,7 @@ bool GeneraDB::writeDatabaseToFile()
       int unixDate = qry.value(2).toInt();
       int service = qry.value(3).toInt();
       int synchronized = qry.value(4).toInt();
-      
+
       Utils::getFromUnixTimestamp(eventDateTime, unixDate);
       stream << QString("%1;%2;%3;%4;%5").arg(sentido).arg(ident).arg(eventDateTime.toString("yyyy-MM-dd hh:mm:ss")).arg(service).arg(synchronized) << "\n";
       eventsCount += 1;
@@ -359,7 +395,7 @@ int GeneraDB::isUserIdentifiedOnLastMinute(QString identifier, int type)
 
   // Salida...
   if (type == 2) { type = 0; }
-  
+
   QSqlQuery qry(this->db);
   qry.prepare("SELECT id, date FROM events WHERE ident = :f1 AND sense = :f2 ORDER BY id DESC LIMIT 1");
   qry.bindValue(":f1", identifier);
@@ -369,7 +405,7 @@ int GeneraDB::isUserIdentifiedOnLastMinute(QString identifier, int type)
     qry.clear();
     return 0;
   }
-  
+
   while (qry.next()) {
     dbTimestamp = qry.value(1).toInt();
     count += 1;
@@ -380,12 +416,6 @@ int GeneraDB::isUserIdentifiedOnLastMinute(QString identifier, int type)
     return 2;
   }
 
-  DEBUG("*********************************************************");
-  DEBUG("DB %d      : ", dbTimestamp);
-  DEBUG("DB + 60 %d : ", dbTimestamp + 60);
-  DEBUG("CURRENT %d : ", Utils::getCurrentUnixTimestamp());
-  DEBUG("*********************************************************");
-  
   if ((dbTimestamp + 60) >= Utils::getCurrentUnixTimestamp()) {
     qry.clear();
     return 1;
@@ -402,7 +432,7 @@ int GeneraDB::getServicesForUser(int userId, int day, int hour, QMap<int, Servic
   int count = 0;
   QString strDay = "";
   switch (day) {
-    case 1: 
+    case 1:
       strDay = "on_lu";
       break;
     case 2:
@@ -427,7 +457,7 @@ int GeneraDB::getServicesForUser(int userId, int day, int hour, QMap<int, Servic
       LOG_ERROR("Wrong Day %d", day);
       return 0;
   }
-  
+
   QString sql = QString("SELECT DISTINCT s.id AS id, s.name AS name, s.repetition AS repetition, sh.init_hour AS init_hour,"
         " sh.end_hour AS end_hour, ps.service_group AS service_group, ps.last_served_timestamp AS last_served"
         " FROM services s"
@@ -457,7 +487,7 @@ int GeneraDB::getServicesForUser(int userId, int day, int hour, QMap<int, Servic
     qry.clear();
     return 0;
   }
-  
+
   while(qry.next()) {
     int service_id = qry.value(0).toInt();
     QString service_name = qry.value(1).toString();
@@ -476,23 +506,23 @@ int GeneraDB::getServicesForUser(int userId, int day, int hour, QMap<int, Servic
     dao->group = service_group;
     dao->lastServed = service_timestamp;
     services->insert(service_id, dao);
-    
+
     count += 1;
   }
-  
+
   qry.clear();
   return count;
 }
 
 int GeneraDB::updateService(int userId, int serviceGroup)
 {
-  if (!this->db.isOpen()) { 
+  if (!this->db.isOpen()) {
     DEBUG("Database genera is not open");
     return 1;
   }
 
   QSqlQuery qry(this->db);
-  qry.prepare("UPDATE persons_services SET last_served_timestamp = :f1 WHERE id_person = :f2 AND service_group = :f3"); 
+  qry.prepare("UPDATE persons_services SET last_served_timestamp = :f1 WHERE id_person = :f2 AND service_group = :f3");
   qry.bindValue(":f1", Utils::getCurrentUnixTimestamp());
   qry.bindValue(":f2", userId);
   qry.bindValue(":f3", serviceGroup);
@@ -509,48 +539,49 @@ int GeneraDB::updateService(int userId, int serviceGroup)
 
 int GeneraDB::truncateTables()
 {
-  if (!this->db.isOpen()) { 
+  if (!this->db.isOpen()) {
     DEBUG("Database genera is not open");
     return 1;
   }
 
   QSqlQuery qry(this->db);
   if (!qry.exec("DELETE FROM schedules_services")) {
-    LOG_ERROR("Error deleting synchronized events: %s", qry.lastError().text().toStdString().c_str());
+    LOG_ERROR("Error deleting schedules_services: %s", qry.lastError().text().toStdString().c_str());
     qry.clear();
     return 1;
   }
 
   if (!qry.exec("DELETE FROM persons_services")) {
-    LOG_ERROR("Error deleting synchronized events: %s", qry.lastError().text().toStdString().c_str());
+    LOG_ERROR("Error deleting persons_services: %s", qry.lastError().text().toStdString().c_str());
     qry.clear();
     return 1;
   }
 
   if (!qry.exec("DELETE FROM services")) {
-    LOG_ERROR("Error deleting synchronized events: %s", qry.lastError().text().toStdString().c_str());
+    LOG_ERROR("Error deleting services: %s", qry.lastError().text().toStdString().c_str());
     qry.clear();
     return 1;
   }
 
   if (!qry.exec("DELETE FROM schedules")) {
-    LOG_ERROR("Error deleting synchronized events: %s", qry.lastError().text().toStdString().c_str());
+    LOG_ERROR("Error deleting schedules events: %s", qry.lastError().text().toStdString().c_str());
     qry.clear();
     return 1;
   }
 
+  qry.clear();
   return 0;
 }
 
 int GeneraDB::insertService(int id, QString name, int repetition)
 {
-  if (!this->db.isOpen()) { 
+  if (!this->db.isOpen()) {
     DEBUG("Database genera is not open");
     return 1;
   }
 
   QSqlQuery qry(this->db);
-  qry.prepare("INSERT INTO services(id, name, repetition) VALUES(:f1, :f2, :f3)"); 
+  qry.prepare("INSERT INTO services(id, name, repetition) VALUES(:f1, :f2, :f3)");
   qry.bindValue(":f1", id);
   qry.bindValue(":f2", name);
   qry.bindValue(":f3", repetition);
@@ -559,7 +590,7 @@ int GeneraDB::insertService(int id, QString name, int repetition)
     qry.clear();
     return 1;
   }
-  
+
   DEBUG("Service %d inserted", qry.lastInsertId().toInt());
   qry.clear();
   return 0;
@@ -567,14 +598,14 @@ int GeneraDB::insertService(int id, QString name, int repetition)
 
 int GeneraDB::insertSchedule(int id, int initHour, int endHour, int onLu, int onMa, int onMi, int onJu, int onVi, int onSa, int onDo)
 {
-  if (!this->db.isOpen()) { 
+  if (!this->db.isOpen()) {
     DEBUG("Database genera is not open");
     return 1;
   }
 
   QSqlQuery qry(this->db);
   qry.prepare("INSERT INTO schedules(id, init_hour, end_hour, on_lu, on_ma, on_mi, on_ju, on_vi, on_sa, on_do) "
-      "VALUES(:f1, :f2, :f3, :f4, :f5, :f6, :f7, :f8, :f9, :f10)"); 
+      "VALUES(:f1, :f2, :f3, :f4, :f5, :f6, :f7, :f8, :f9, :f10)");
   qry.bindValue(":f1", id);
   qry.bindValue(":f2", initHour);
   qry.bindValue(":f3", endHour);
@@ -590,7 +621,7 @@ int GeneraDB::insertSchedule(int id, int initHour, int endHour, int onLu, int on
     qry.clear();
     return 1;
   }
-  
+
   DEBUG("Schedule %d inserted", qry.lastInsertId().toInt());
   qry.clear();
   return 0;
@@ -598,13 +629,13 @@ int GeneraDB::insertSchedule(int id, int initHour, int endHour, int onLu, int on
 
 int GeneraDB::insertScheduleService(int idSchedule, int idService)
 {
-  if (!this->db.isOpen()) { 
+  if (!this->db.isOpen()) {
     DEBUG("Database genera is not open");
     return 1;
   }
 
   QSqlQuery qry(this->db);
-  qry.prepare("INSERT INTO schedules_services(id_schedule, id_service) VALUES(:f1, :f2)"); 
+  qry.prepare("INSERT INTO schedules_services(id_schedule, id_service) VALUES(:f1, :f2)");
   qry.bindValue(":f1", idSchedule);
   qry.bindValue(":f2", idService);
   if (!qry.exec()) {
@@ -612,7 +643,7 @@ int GeneraDB::insertScheduleService(int idSchedule, int idService)
     qry.clear();
     return 1;
   }
-  
+
   DEBUG("squedule_service %d inserted", qry.lastInsertId().toInt());
   qry.clear();
   return 0;
@@ -620,14 +651,14 @@ int GeneraDB::insertScheduleService(int idSchedule, int idService)
 
 int GeneraDB::insertPersonService(int idPerson, int idService, int serviceGroup)
 {
-  if (!this->db.isOpen()) { 
+  if (!this->db.isOpen()) {
     DEBUG("Database genera is not open");
     return 1;
   }
 
   QSqlQuery qry(this->db);
   qry.prepare("INSERT INTO persons_services(id_person, id_service, last_served_timestamp, service_group) "
-      "VALUES(:f1, :f2, 0, :f3)"); 
+      "VALUES(:f1, :f2, 0, :f3)");
   qry.bindValue(":f1", idPerson);
   qry.bindValue(":f2", idService);
   qry.bindValue(":f3", serviceGroup);
@@ -636,8 +667,52 @@ int GeneraDB::insertPersonService(int idPerson, int idService, int serviceGroup)
     qry.clear();
     return 1;
   }
-  
+
   DEBUG("person_service %d inserted", qry.lastInsertId().toInt());
+  qry.clear();
+  return 0;
+}
+#endif
+
+#ifdef PRESENCIA
+int GeneraDB::truncateTables()
+{
+  if (!this->db.isOpen()) {
+    DEBUG("Database genera is not open");
+    return 1;
+  }
+
+  QSqlQuery qry(this->db);
+  if (!qry.exec("DELETE FROM schedules")) {
+    LOG_ERROR("Error deleting schedules: %s", qry.lastError().text().toStdString().c_str());
+    qry.clear();
+    return 1;
+  }
+
+  qry.clear();
+  return 0;
+}
+
+int GeneraDB::insertSchedule(int id, int idPerson, int initHour, int endHour)
+{
+  if (!this->db.isOpen()) {
+    DEBUG("Database genera is not open");
+    return 1;
+  }
+
+  QSqlQuery qry(this->db);
+  qry.prepare("INSERT INTO schedules(id, idPerson, init_hour, end_hour) VALUES(:f1, :f2, :f3, :f4)");
+  qry.bindValue(":f1", id);
+  qry.bindValue(":f2", idPerson);
+  qry.bindValue(":f3", initHour);
+  qry.bindValue(":f4", endHour);
+  if (!qry.exec()) {
+    LOG_ERROR("Error inserting schedule: %s", qry.lastError().text().toStdString().c_str());
+    qry.clear();
+    return 1;
+  }
+
+  DEBUG("Schedule %d inserted", qry.lastInsertId().toInt());
   qry.clear();
   return 0;
 }
@@ -653,12 +728,12 @@ bool ImportDB::init(const char *databaseName)
     db = QSqlDatabase::addDatabase("QSQLITE", "import");
     db.setDatabaseName(databaseName);
   }
-  
+
   if(!db.open()) {
     LOG_ERROR("Failed to connect to %s: %s", databaseName, db.lastError().databaseText().toStdString().c_str());
     return false;
   }
-  
+
   LOG_INFO("Connected to %s database", databaseName);
   db.exec("PRAGMA auto_vacuum = FULL");
   db.exec("PRAGMA busy_timeout = 1000");
@@ -672,11 +747,15 @@ void ImportDB::importDatabase(IDKITWrapper *idkit, GeneraDB *generaDb)
   UNUSED(idkit);
   UNUSED(generaDb);
   QSqlDatabase db = QSqlDatabase::database("import");
-  
+
 #ifdef TEMPO
   importDatabaseTempo(idkit, &db);
-#elif SNACK
+#endif
+#ifdef SNACK
   importDatabaseSnack(idkit, &db, generaDb);
+#endif
+#ifdef PRESENCIA
+  importDatabasePresencia(idkit, &db, generaDb);
 #endif
 }
 
@@ -736,7 +815,7 @@ void ImportDB::importDatabaseSnack(IDKITWrapper *idkit, QSqlDatabase *importDb, 
 {
   int importCount = 0;
   QSqlQuery qry(*importDb);
-  
+
   int rc = generaDb->truncateTables();
   if (rc != 0) {
     LOG_ERROR("Error truncating genera tables.");
@@ -758,10 +837,10 @@ void ImportDB::importDatabaseSnack(IDKITWrapper *idkit, QSqlDatabase *importDb, 
         generaDb->insertService(service_id, service_name, service_repetition);
       }
     }
-    
+
     qry.clear();
   }
-  
+
   if (!qry.exec("SELECT s.id_schedule, s.init_hour, s.end_hour, s.on_lu, s.on_ma, s.on_mi, s.on_ju, s.on_vi, "
         "s.on_sa, s.on_do FROM schedules s")) {
     LOG_ERROR("Query error: %s.", qry.lastError().databaseText().toStdString().c_str());
@@ -783,12 +862,12 @@ void ImportDB::importDatabaseSnack(IDKITWrapper *idkit, QSqlDatabase *importDb, 
         int onDo = qry.value(9).toInt();
 
         generaDb->insertSchedule(schedule_id, init_hour, end_hour, onLu, onMa, onMi, onJu, onVi, onSa, onDo);
-      } 
+      }
     }
-    
+
     qry.clear();
   }
-  
+
   if (!qry.exec("SELECT s.id_schedule, s.id_service FROM schedules_services s")) {
     LOG_ERROR("Query error: %s.", qry.lastError().databaseText().toStdString().c_str());
     qry.clear();
@@ -803,10 +882,10 @@ void ImportDB::importDatabaseSnack(IDKITWrapper *idkit, QSqlDatabase *importDb, 
         generaDb->insertScheduleService(schedule_id, service_id);
       }
     }
-    
+
     qry.clear();
   }
-  
+
   if (!qry.exec("SELECT p.id_person, p.id_service, p.service_group FROM persons_services p")) {
     LOG_ERROR("Query error: %s.", qry.lastError().databaseText().toStdString().c_str());
     qry.clear();
@@ -822,7 +901,7 @@ void ImportDB::importDatabaseSnack(IDKITWrapper *idkit, QSqlDatabase *importDb, 
         generaDb->insertPersonService(person_id, service_id, service_group);
       }
     }
-    
+
     qry.clear();
   }
 
@@ -863,8 +942,8 @@ void ImportDB::importDatabaseSnack(IDKITWrapper *idkit, QSqlDatabase *importDb, 
         QString emp = qry.value(7).toString();
         Utils::limitString(emp, 32);
 
-        if (idkit->registerUserFromTemplateSnack(reinterpret_cast<unsigned char *>(bytes.data()), userId, 
-              (char *) identifier.toStdString().c_str(), (char *) name.toStdString().c_str(), 
+        if (idkit->registerUserFromTemplateSnack(reinterpret_cast<unsigned char *>(bytes.data()), userId,
+              (char *) identifier.toStdString().c_str(), (char *) name.toStdString().c_str(),
               (char *) rut.toStdString().c_str(), (char *) emp.toStdString().c_str(), repeticion,
               (char *) centroCosto.toStdString().c_str())) {
           importCount += 1;
@@ -881,3 +960,79 @@ void ImportDB::importDatabaseSnack(IDKITWrapper *idkit, QSqlDatabase *importDb, 
 }
 #endif
 
+#ifdef PRESENCIA
+void ImportDB::importDatabasePresencia(IDKITWrapper *idkit, QSqlDatabase *importDb, GeneraDB *generaDb)
+{
+  int importCount = 0;
+  QSqlQuery qry(*importDb);
+
+  int rc = generaDb->truncateTables();
+  if (rc != 0) {
+    LOG_ERROR("Error truncating genera tables.");
+    return;
+  }
+
+  if (!qry.exec("SELECT s.id_per_horario, s.identificador_per, s.hr_ini, s.hr_fin FROM gen_persona_horario_pre s")) {
+    LOG_ERROR("Query error: %s.", qry.lastError().databaseText().toStdString().c_str());
+    qry.clear();
+    importDb->close();
+    return;
+  } else {
+    while (qry.next()) {
+      {
+        int schedule_id = qry.value(0).toInt();
+        int person_id = qry.value(1).toInt();
+        int init_hour = qry.value(2).toInt();
+        int end_hour = qry.value(3).toInt();
+
+        generaDb->insertSchedule(schedule_id, person_id, init_hour, end_hour);
+      }
+    }
+
+    qry.clear();
+  }
+
+  if (!qry.exec("SELECT p.identificador_per, "
+        "p.nombreper || ' ' || p.apppaternoper || ' ' || p.appmaternoper, "
+        "p.rutper || '-' ||  p.rutdvper, h.template, e.empnombre "
+        "FROM gen_persona p "
+        "INNER JOIN gen_huella_dactilar h ON p.identificador_per = h.identificador_per "
+        "INNER JOIN gen_empresa e ON p.idper = e.idemp")) {
+    LOG_ERROR("Query error: %s.", qry.lastError().databaseText().toStdString().c_str());
+    qry.clear();
+    importDb->close();
+  } else {
+    DEBUG("Selected. Beginning to import data.");
+    while(qry.next()) {
+      {
+        QString identifier = qry.value(0).toString();
+        Utils::limitString(identifier, 32);
+
+        QString name = qry.value(1).toString();
+        Utils::limitString(name, 100);
+
+        QString rut = qry.value(2).toString();
+        Utils::limitString(rut, 15);
+
+        QString tpl = qry.value(3).toString();
+        QByteArray bytes = QByteArray::fromBase64(tpl.toUtf8());
+
+        QString emp = qry.value(4).toString();
+        Utils::limitString(emp, 32);
+
+        if (idkit->registerUserFromTemplate(reinterpret_cast<unsigned char *>(bytes.data()),
+              (char *) identifier.toStdString().c_str(), (char *) name.toStdString().c_str(),
+              (char *) rut.toStdString().c_str(), (char *) emp.toStdString().c_str())) {
+          importCount += 1;
+        }
+      }
+
+      if (importCount % 10 == 0) {
+        emit importProgress(importCount);
+      }
+    }
+    qry.clear();
+    importDb->close();
+  }
+}
+#endif

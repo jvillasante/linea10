@@ -10,7 +10,7 @@
 class GeneraDB : public QObject
 {
   Q_OBJECT
-    
+
   public:
     explicit GeneraDB();
     ~GeneraDB();
@@ -26,15 +26,21 @@ class GeneraDB : public QObject
 #ifdef TEMPO
     int insertEvent(int sense, char *ident, int date, int synchronized);
     int isUserIdentifiedOnLastMinute(QString identifier, int type);
-#elif SNACK
+#endif
+#ifdef SNACK
     int insertEvent(int sense, char *ident, int date, int serviceId, int synchronized);
-    int getServicesForUser(int userId, int day, int hour, QMap<int, ServiceDAO*> *services);   
+    int getServicesForUser(int userId, int day, int hour, QMap<int, ServiceDAO*> *services);
     int updateService(int userId, int serviceGroup);
     int truncateTables();
     int insertService(int id, QString name, int repetition);
     int insertSchedule(int id, int initHour, int endHour, int onLu, int onMa, int onMi, int onJu, int onVi, int onSa, int onDo);
     int insertScheduleService(int idSchedule, int idService);
     int insertPersonService(int idPerson, int idService, int serviceGroup);
+#endif
+#ifdef PRESENCIA
+    int insertEvent(int sense, char *ident, int date, int synchronized);
+    int truncateTables();
+    int insertSchedule(int id, int idPerson, int initHour, int endHour);
 #endif
 
   private:
@@ -44,7 +50,7 @@ class GeneraDB : public QObject
 class ImportDB : public QObject
 {
   Q_OBJECT
-    
+
   public:
     bool init(const char *databaseName);
     void importDatabase(IDKITWrapper *idkit, GeneraDB *generaDb);
@@ -52,8 +58,12 @@ class ImportDB : public QObject
   private:
 #ifdef TEMPO
     void importDatabaseTempo(IDKITWrapper *idkit, QSqlDatabase *importDb);
-#elif SNACK
+#endif
+#ifdef SNACK
     void importDatabaseSnack(IDKITWrapper *idkit, QSqlDatabase *importDb, GeneraDB *generaDb);
+#endif
+#ifdef PRESENCIA
+    void importDatabasePresencia(IDKITWrapper *idkit, QSqlDatabase *importDb, GeneraDB *generaDb);
 #endif
 
   signals:

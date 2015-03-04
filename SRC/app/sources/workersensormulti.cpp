@@ -35,7 +35,7 @@ WorkerSensorMulti::WorkerSensorMulti(QObject *parent) :
 {
   _abort = false;
   _interrupt = false;
-  
+
 #ifdef SNACK
   memset(keypadDevice, 0, sizeof(char) * 20);
   int deviceIndex = determineInputDeviceIndex();
@@ -51,7 +51,9 @@ WorkerSensorMulti::WorkerSensorMulti(QObject *parent) :
 
 void WorkerSensorMulti::setVCOMWrapper(VCOMWrapper *vcom) { this->vcom = vcom; }
 void WorkerSensorMulti::setIDKITWrapper(IDKITWrapper *idkit) { this->idkit = idkit; }
+#if defined(TEMPO) || defined(SNACK)
 void WorkerSensorMulti::setPrinterSerial(PrinterSerial *printer) { this->printer = printer; }
+#endif
 void WorkerSensorMulti::setSQLiteManager(GeneraDB *manager) { this->generaDB = manager; }
 
 void WorkerSensorMulti::requestMethod(WorkerSensorMulti::Method method)
@@ -77,8 +79,12 @@ void WorkerSensorMulti::doIdentify()
 
 #ifdef TEMPO
   doIdentifyTempo();
-#elif SNACK
+#endif
+#ifdef SNACK
   doIdentifySnack();
+#endif
+#ifdef PRESENCIA
+  doIdentifyPresencia();
 #endif
 }
 
@@ -87,10 +93,10 @@ void WorkerSensorMulti::doIdentifyTempo()
 {
   bool abort;
   bool interrupt;
-  
+
   mutex.lock(); abort = _abort; interrupt = _interrupt; mutex.unlock();
   if (abort || interrupt) { DEBUG("Interrupting Identify in thread %p", thread()->currentThreadId()); return; }
-  
+
   uchar *compositeImage;
   uchar templateImage[2048];
   uint width;
@@ -103,11 +109,11 @@ void WorkerSensorMulti::doIdentifyTempo()
   char userName[100];
   char userRut[15];
   char userEmp[32];
-  
+
   width = this->vcom->getImageWidth();
   height = this->vcom->getImageHeight();
   compositeImage = new uchar[width * height];
-  
+
   memset(compositeImage, 0, sizeof(uchar) * width * height);
   memset(userIdentifier, 0, sizeof(char) * 32);
   memset(userName, 0, sizeof(char) * 100);
@@ -118,10 +124,10 @@ void WorkerSensorMulti::doIdentifyTempo()
   while (stop == false) {
     rc = vcom->capture(compositeImage, width, height, templateImage, templateSize, spoof, 1, 0);
     mutex.lock(); abort = _abort; interrupt = _interrupt; mutex.unlock();
-    if (abort || interrupt) { 
-      DEBUG("Interrupting Identify in thread %p", thread()->currentThreadId()); 
+    if (abort || interrupt) {
+      DEBUG("Interrupting Identify in thread %p", thread()->currentThreadId());
       if (compositeImage) { delete [] compositeImage; }
-      return; 
+      return;
     }
     if (rc != 1) { stop = true; }
   }
@@ -140,11 +146,11 @@ void WorkerSensorMulti::doIdentifyTempo()
           emit match(NULL, QString(userName), QString(userRut));
         } else if (rc == 2) {
           emit buttonPressed(typeInt, QString(userName));
-          
+
           if (printer->getStatus()) {
             printer->write_user(typeStr, QString(userIdentifier), QString(userName), QString(userRut), QString(userEmp));
           }
-          
+
           rc = generaDB->insertEvent(typeInt, userIdentifier, Utils::getCurrentUnixTimestamp(), 0);
           if (rc == 0) {
             LOG_INFO("Event added to events database...");
@@ -172,15 +178,15 @@ void WorkerSensorMulti::doIdentifyTempo()
 }
 #endif
 
-#ifdef SNACK
-void WorkerSensorMulti::doIdentifySnack()
+#ifdef PRESENCIA
+void WorkerSensorMulti::doIdentifyPresencia()
 {
   bool abort;
   bool interrupt;
-  
+
   mutex.lock(); abort = _abort; interrupt = _interrupt; mutex.unlock();
   if (abort || interrupt) { DEBUG("Interrupting Identify in thread %p", thread()->currentThreadId()); return; }
-  
+
   uchar *compositeImage;
   uchar templateImage[2048];
   uint width;
@@ -188,7 +194,98 @@ void WorkerSensorMulti::doIdentifySnack()
   uint templateSize;
   int spoof;
   int rc;
-  
+
+  char userIdentifier[32];
+  char userName[100];
+  char userRut[15];
+  char userEmp[32];
+
+  width = this->vcom->getImageWidth();
+  height = this->vcom->getImageHeight();
+  compositeImage = new uchar[width * height];
+
+  memset(compositeImage, 0, sizeof(uchar) * width * height);
+  memset(userIdentifier, 0, sizeof(char) * 32);
+  memset(userName, 0, sizeof(char) * 100);
+  memset(userRut, 0, sizeof(char) * 8);
+  memset(userEmp, 0, sizeof(char) * 32);
+
+  bool stop = false;
+  while (stop == false) {
+    rc = vcom->capture(compositeImage, width, height, templateImage, templateSize, spoof, 1, 0);
+    mutex.lock(); abort = _abort; interrupt = _interrupt; mutex.unlock();
+    if (abort || interrupt) {
+      DEBUG("Interrupting Identify in thread %p", thread()->currentThreadId());
+      if (compositeImage) { delete [] compositeImage; }
+      return;
+    }
+    if (rc != 1) { stop = true; }
+  }
+
+  if (rc == 0) {
+    if (idkit->matchFromRawImage(compositeImage, width, height, &userIdentifier[0], &userName[0], &userRut[0], &userEmp[0])) {
+      emit match(QString(userIdentifier), QString(userName), QString(userRut));
+      DEBUG("User: %s", userName);
+
+      // QString typeStr;
+      // int typeInt;
+      // if (isButtonPressed(typeStr, typeInt)) {
+        // rc = generaDB->isUserIdentifiedOnLastMinute(QString(userIdentifier), typeInt);
+        // if (rc == 0) {
+          // emit message("Ha ocurrido un error<br>Por favor, notifique<br>a los encargados.");
+        // } else if (rc == 1) {
+          // emit match(NULL, QString(userName), QString(userRut));
+        // } else if (rc == 2) {
+          // emit buttonPressed(typeInt, QString(userName));
+
+          // if (printer->getStatus()) {
+            // printer->write_user(typeStr, QString(userIdentifier), QString(userName), QString(userRut), QString(userEmp));
+          // }
+
+          // rc = generaDB->insertEvent(typeInt, userIdentifier, Utils::getCurrentUnixTimestamp(), 0);
+          // if (rc == 0) {
+            // LOG_INFO("Event added to events database...");
+          // } else if (rc == 1) {
+            // emit message("Ha ocurrido un error<br>Por favor, notifique<br>a los encargados.");
+          // } else {
+            // emit message("Ha ocurrido un error<br>Por favor, notifique<br>a los encargados.");
+          // }
+        // } else {
+          // emit message("Ha ocurrido un error<br>Por favor, notifique<br>a los encargados.");
+        // }
+      // } else {
+        // emit buttonPressed(0, QString(userName));
+      // }
+    } else {
+      emit match(NULL, NULL, NULL);
+    }
+  } else {
+    emit message("Ha ocurrido un error<br>Por favor, notifique<br>a los encargados.");
+  }
+
+  if (compositeImage)
+    delete [] compositeImage;
+  emit identifierWorkDone();
+}
+#endif
+
+#ifdef SNACK
+void WorkerSensorMulti::doIdentifySnack()
+{
+  bool abort;
+  bool interrupt;
+
+  mutex.lock(); abort = _abort; interrupt = _interrupt; mutex.unlock();
+  if (abort || interrupt) { DEBUG("Interrupting Identify in thread %p", thread()->currentThreadId()); return; }
+
+  uchar *compositeImage;
+  uchar templateImage[2048];
+  uint width;
+  uint height;
+  uint templateSize;
+  int spoof;
+  int rc;
+
   width = this->vcom->getImageWidth();
   height = this->vcom->getImageHeight();
   compositeImage = new uchar[width * height];
@@ -198,10 +295,10 @@ void WorkerSensorMulti::doIdentifySnack()
   while (stop == false) {
     rc = vcom->capture(compositeImage, width, height, templateImage, templateSize, spoof, 1, 0);
     mutex.lock(); abort = _abort; interrupt = _interrupt; mutex.unlock();
-    if (abort || interrupt) { 
-      DEBUG("Interrupting Identify in thread %p", thread()->currentThreadId()); 
+    if (abort || interrupt) {
+      DEBUG("Interrupting Identify in thread %p", thread()->currentThreadId());
       if (compositeImage) { delete [] compositeImage; }
-      return; 
+      return;
     }
     if (rc != 1) { stop = true; }
   }
@@ -209,22 +306,22 @@ void WorkerSensorMulti::doIdentifySnack()
   if (rc == 0) {
     char userIdentifier[32], userName[100], userRut[15], userEmp[32], userCentroCosto[32];
     int userId, repeticion;
-    
+
     memset(userIdentifier, 0, sizeof(char) * 32);
     memset(userName, 0, sizeof(char) * 100);
     memset(userRut, 0, sizeof(char) * 8);
     memset(userEmp, 0, sizeof(char) * 32);
     memset(userCentroCosto, 0, sizeof(char) * 32);
-    
-    if (idkit->matchFromRawImageSnack(compositeImage, width, height, &userId, &userIdentifier[0], &userName[0], 
+
+    if (idkit->matchFromRawImageSnack(compositeImage, width, height, &userId, &userIdentifier[0], &userName[0],
           &userRut[0], &userEmp[0], &repeticion, &userCentroCosto[0])) {
       int datetime[2];  // hora actual: [2,1330] (martes, 13:30 horas)
       Utils::getCurrentDateTimeForSnack(datetime);
-      
-      QMap<int, ServiceDAO*> services; 
+
+      QMap<int, ServiceDAO*> services;
       int count = generaDB->getServicesForUser(userId, datetime[0], datetime[1], &services);
       DEBUG("User %d (%s) has %d service(s) on [%d, %d]", userId, userIdentifier, count, datetime[0], datetime[1]);
-      
+
       if (count <= 0) {
         emit match(userIdentifier, userName, userRut, NULL, 0);
       } else if (count == 1) {
@@ -232,14 +329,14 @@ void WorkerSensorMulti::doIdentifySnack()
         QMap<int, ServiceDAO*>::iterator it;
         for (it = services.begin(); it != services.end(); ++it)
           service = it.value();
-        
+
         if ((repeticion == 1) || (service->repetition == 1)) {
           giveService(service, userId, userIdentifier, userName, userRut, userEmp, userCentroCosto);
         } else {
           QDateTime lastServed;
           Utils::getFromUnixTimestamp(lastServed, service->lastServed);
           QDateTime current = Utils::getCurrentTimestamp();
-          
+
           if (lastServed.date() >= current.date()) { // servicio ya dado
             emit match(userIdentifier, userName, userRut, service->name, -1);
           } else { // servicio no dado aun
@@ -250,7 +347,7 @@ void WorkerSensorMulti::doIdentifySnack()
         emit match(userIdentifier, userName, userRut, NULL, count);
         int numberEntered = waitForKeyboard();
         DEBUG("Number Entered: %d", numberEntered);
-        
+
         if (numberEntered == -1) {
           LOG_ERROR("Error on keyboard input");
           emit message("Ha ocurrido un error<br>Por favor, notifique<br>a los encargados.");
@@ -264,14 +361,14 @@ void WorkerSensorMulti::doIdentifySnack()
             ServiceDAO *lastServedServiceInGroup = getLastServedFromGroup(services, service);
             DEBUG("Service: %s", service->name.toStdString().c_str());
             DEBUG("Last served service in group: %s", lastServedServiceInGroup->name.toStdString().c_str());
-            
+
             if ((repeticion == 1) || (service->repetition == 1)) {
               giveService(service, userId, userIdentifier, userName, userRut, userEmp, userCentroCosto);
             } else {
               QDateTime lastServed;
               Utils::getFromUnixTimestamp(lastServed, lastServedServiceInGroup->lastServed);
               QDateTime current = Utils::getCurrentTimestamp();
-              
+
               if (lastServed.date() >= current.date()) { // servicio ya dado
                 emit match(userIdentifier, userName, userRut, service->name, -1);
               } else { // servicio no dado aun
@@ -287,7 +384,7 @@ void WorkerSensorMulti::doIdentifySnack()
           emit message("Ha ocurrido un error<br>Por favor, notifique<br>a los encargados.");
         }
       }
-      
+
       // delete ServiceDAO from map
       QMap<int, ServiceDAO*>::iterator it;
       for (it = services.begin(); it != services.end(); ++it)
@@ -304,19 +401,19 @@ void WorkerSensorMulti::doIdentifySnack()
   emit identifierWorkDone();
 }
 
-void WorkerSensorMulti::giveService(ServiceDAO *service, int userId, char *userIdentifier, char *userName, 
+void WorkerSensorMulti::giveService(ServiceDAO *service, int userId, char *userIdentifier, char *userName,
     char *userRut, char *userEmp, char *userCentroCosto)
 {
   int rc;
 
   emit match(userIdentifier, userName, userRut, service->name, 1);
-  
+
   if (!printer->getStatus()) {
     emit match(userIdentifier, userName, userRut, service->name, -2);
     return;
   }
-  
-  printer->write_user(service->name, QString(userIdentifier), QString(userName), QString(userRut), 
+
+  printer->write_user(service->name, QString(userIdentifier), QString(userName), QString(userRut),
       QString(userEmp), QString(userCentroCosto));
 
   rc = generaDB->updateService(userId, service->group);
@@ -345,10 +442,10 @@ void WorkerSensorMulti::doEnroll()
   DEBUG("Starting enroll in thread %p", thread()->currentThreadId());
   bool abort;
   bool interrupt;
-  
+
   mutex.lock(); abort = _abort; interrupt = _interrupt; mutex.unlock();
   if (abort || interrupt) { DEBUG("Interrupting Enroll in thread %p", thread()->currentThreadId()); return; }
-  
+
   uchar *compositeImage;
   uchar *templateImage;
   uint width;
@@ -361,30 +458,30 @@ void WorkerSensorMulti::doEnroll()
   height = this->vcom->getImageHeight();
   compositeImage = new uchar[width * height];
   templateImage = new uchar[2048];
-  
+
   memset(templateImage, 0, 2048);
   memset(compositeImage, 0, sizeof(uchar) * width * height);
-  
+
   bool stop = false;
   while (stop == false) {
     rc = vcom->capture(compositeImage, width, height, templateImage, templateSize, spoof, 1, 1);
     mutex.lock(); abort = _abort; interrupt = _interrupt; mutex.unlock();
-    if (abort || interrupt) { 
-      DEBUG("Interrupting Enroll in thread %p", thread()->currentThreadId()); 
+    if (abort || interrupt) {
+      DEBUG("Interrupting Enroll in thread %p", thread()->currentThreadId());
       if (compositeImage) { delete [] compositeImage; }
       if (templateImage) { delete [] templateImage; }
-      return; 
+      return;
     }
     if (rc != 1) { stop = true; }
   }
-  
+
   if (rc == 0) {
     DEBUG("capture image for enroll OK");
     emit enrollWorkDone(compositeImage, templateImage, width, height);
   } else {
     DEBUG("capture image for enroll FAIL");
     emit enrollWorkDone(NULL, NULL, 0, 0);
-    
+
     if (compositeImage) delete [] compositeImage;
     if (templateImage) delete [] templateImage;
   }
@@ -396,7 +493,7 @@ void WorkerSensorMulti::doWait()
   DEBUG("Starting worker wait in thread %p", thread()->currentThreadId());
   bool abort;
   bool interrupt;
-  
+
   while (true) {
     mutex.lock(); abort = _abort; interrupt = _interrupt; mutex.unlock();
     if (abort || interrupt) { DEBUG("Interrupting Wait in thread %p", thread()->currentThreadId()); return; }
@@ -521,7 +618,8 @@ error:
   DEBUG("/dev/input/event0 closed in error handler");
   return false;
 }
-#elif SNACK
+#endif
+#ifdef SNACK
 ServiceDAO *WorkerSensorMulti::getLastServedFromGroup(QMap<int, ServiceDAO*> services, ServiceDAO *service)
 {
   ServiceDAO *result = NULL;
@@ -533,10 +631,10 @@ ServiceDAO *WorkerSensorMulti::getLastServedFromGroup(QMap<int, ServiceDAO*> ser
       }
     }
   }
-  
+
   return (result == NULL) ? service : result;
 }
-  
+
 std::string WorkerSensorMulti::execute(const char* cmd)
 {
   FILE* pipe = popen(cmd, "r");
@@ -555,7 +653,7 @@ std::string WorkerSensorMulti::execute(const char* cmd)
 }
 
 int WorkerSensorMulti::determineInputDeviceIndex()
-{ 
+{
   // extract input number from /proc/bus/input/devices (I don't know how to do it better. If you have an idea, please let me know.)
   std::string output = execute(COMMAND_STR_DEVICES);
 
@@ -568,7 +666,7 @@ int WorkerSensorMulti::waitForKeyboard()
   int number = 0;
   bool done = false;
   bool ignoreEvent = false;
-  
+
   int fd;
   struct input_event event;
   ssize_t bytesRead;
@@ -576,14 +674,14 @@ int WorkerSensorMulti::waitForKeyboard()
   int ret;
   struct timeval tv;
   fd_set readfds;
-  
+
   mutex.lock(); bool abort = _abort; mutex.unlock();
   if (abort) { DEBUG("Aborting worker sensor process in Thread %p on buttons Handler", thread()->currentThreadId()); return -1; }
 
   fd = open(keypadDevice, O_RDONLY);
   CHECK(fd != -1, "Error opening keyboard for reading");
   DEBUG("%s oppened for reading", keypadDevice);
-  
+
   /* Wait on fd for input */
   FD_ZERO(&readfds);
   FD_SET(fd, &readfds);
@@ -716,7 +814,7 @@ repeat:
         default:
           DEBUG("UNKNOWN Pressed");
           break;
-      }  
+      }
     }
   }
 
@@ -731,7 +829,7 @@ repeat:
       return -3;
     }
   }
-  
+
 error:
   if (fd) { if (close(fd) != 0) { LOG_ERROR("Error closing %s", keypadDevice); } }
   DEBUG("%s closed in error handler", keypadDevice);

@@ -24,24 +24,24 @@ EnrollDialog::EnrollDialog(QWidget *parent, QSettings *settings, WorkerSensorMul
   this->settings = settings;
   this->rutNumber = "";
   this->screen = 1;
-  
+
   soapHandlerPersona = new SoapHandler(this->settings);
   connect(soapHandlerPersona, SIGNAL(finished(QString)), this, SLOT(verificaPersonaFinished(QString)));
   connect(soapHandlerPersona, SIGNAL(error(QString)), this, SLOT(verificaPersonaError(QString)));
-  
+
   soapHandlerEnroll = new SoapHandler(this->settings);
   connect(soapHandlerEnroll, SIGNAL(finished(QString)), this, SLOT(enrollFinished(QString)));
   connect(soapHandlerEnroll, SIGNAL(error(QString)), this, SLOT(enrollError(QString)));
-  
+
   this->workerSensor = workerSensor;
   connect(workerSensor, SIGNAL(enrollWorkDone(uchar *, uchar *, int, int)), this, SLOT(enrollWorkDone(uchar *, uchar *, int, int)));
-  
+
   this->setWindowOpacity(1.0);
   this->setWindowState(Qt::WindowFullScreen);
   this->resize(240, 320);
-  
+
   initializeUI();
-  
+
   closeTimer = new QTimer(this);
   closeTimer->setInterval(settings->value("timerCloseEnrollDialog", 60000).toInt());
   connect(closeTimer, SIGNAL(timeout()), this, SLOT(timerCloseDialog()));
@@ -51,15 +51,15 @@ EnrollDialog::EnrollDialog(QWidget *parent, QSettings *settings, WorkerSensorMul
 EnrollDialog::~EnrollDialog()
 {
   DEBUG("EnrollDialog Destructor Called");
-  
+
   delete soapHandlerPersona;
   delete soapHandlerEnroll;
   delete closeTimer;
-  
+
   delete grid;
   delete btnOk;
   delete btnCancel;
-  
+
   // screen 1
   delete edtRut;
   delete lblMsg;
@@ -86,7 +86,7 @@ EnrollDialog::~EnrollDialog()
 void EnrollDialog::verificaPersona()
 {
   closeTimer->stop();
-  
+
   const QString method = "VerificaPersonaM";
   const QString wsNamespace = settings->value("wsNamespace").toString();
   QMap<QString, QString> map;
@@ -102,11 +102,11 @@ void EnrollDialog::verificaPersonaFinished(QString response)
 {
   bool rc;
   QString identifier, rut, name;
-  
+
   closeTimer->start();
-  
+
   CHECK(!response.contains("<title>Error en tiempo"), "Response error");
-  
+
   rc = parseXmlPersona(response, identifier, rut, name);
   CHECK(rc == true, "Error parsing XML");
 
@@ -115,12 +115,12 @@ void EnrollDialog::verificaPersonaFinished(QString response)
     setScreen2("", "", "");
     return;
   }
-  
+
   DEBUG("User exists. identifier = %s", identifier.toStdString().c_str());
   setScreen2(identifier, rut, name);
   workerSensor->requestMethod(WorkerSensorMulti::Enroll);
   return;
-  
+
 error:
   setScreen2("", "", "");
   DEBUG("verificaPersona error...");
@@ -147,9 +147,9 @@ void EnrollDialog::enrollWorkDone(uchar *compositeImage, uchar *templateImage, i
       imagio[i][j] = compositeImage[count];
       count++;
     }
-  } 
+  }
   delete [] compositeImage;
-  
+
   uchar templateio[2048];
   for (int i = 0; i < 2048; i++) {
     templateio[i] = templateImage[i];
@@ -168,10 +168,10 @@ void EnrollDialog::enrollWorkDone(uchar *compositeImage, uchar *templateImage, i
   grid->removeWidget(grid->itemAtPosition(0, 0)->widget());
   grid->removeWidget(grid->itemAtPosition(1, 0)->widget());
   grid->removeWidget(grid->itemAtPosition(2, 0)->widget());
-  
+
   grid->addWidget(lblEmpresa, 0, 0, 1, 4, Qt::AlignCenter);
   grid->addWidget(lblMsgScreen2, 1, 0, 4, 4, Qt::AlignCenter);
-  
+
   btnOk->setVisible(true);
   lblMsgScreen2->setPixmap(QPixmap::fromImage(scaled_image));
   lblEmpresa->setText(tr("Aceptar para enrolar"));
@@ -225,9 +225,9 @@ void EnrollDialog::enrollFinished(QString response)
 {
   bool rc;
   QString identificacion, serial, resultado;
-  
+
   CHECK(!response.contains("<title>Error en tiempo"), "Response error");
-  
+
   rc = parseXmlEnroll(response, identificacion, serial, resultado);
   CHECK(rc == true, "Error parsing XML");
 
@@ -244,11 +244,11 @@ void EnrollDialog::enrollFinished(QString response)
     closeDialog(tr("Huella ya existe..."));
     return;
   }
-  
+
   DEBUG("User fingerprint enrolled. identificacion = %s", identificacion.toStdString().c_str());
   closeDialog(tr("Huella enrolada..."));
   return;
-  
+
 error:
   closeDialog(tr("Error procesando..."));
   DEBUG("enroll error...");
@@ -300,14 +300,14 @@ void EnrollDialog::btnOkClicked()
 
     rut = splitted.at(0).trimmed().toInt();
     digit = splitted.at(1).trimmed();
-    calculatedDigit = Utils::rutVerifyDigit((unsigned) rut); 
+    calculatedDigit = Utils::rutVerifyDigit((unsigned) rut);
 
     DEBUG("**************************************************************");
     DEBUG("rut: %d", rut);
     DEBUG("digit: %s", digit.toStdString().c_str());
     DEBUG("calculatedDigit: %s", QString(calculatedDigit).toStdString().c_str());
     DEBUG("**************************************************************");
-    
+
     if (digit != QString(calculatedDigit)) {
       lblMsg->setText(tr("RUT Inválido"));
       return;
@@ -321,7 +321,7 @@ void EnrollDialog::btnOkClicked()
     lblEmpresa->setText(tr("Enrolando... Espere..."));
     update();
     qApp->processEvents();
-    
+
     enroll(rutNumber, imgRawB64, imgbaseJpg64, template1);
   } else {  // error
     closeDialog(tr("Error procesando..."));
@@ -349,12 +349,12 @@ void EnrollDialog::closeDialog(QString msg)
 void EnrollDialog::closeEvent(QCloseEvent *event)
 {
   UNUSED(event);
-  
+
   disconnect(soapHandlerPersona, SIGNAL(finished(QString)), this, SLOT(verificaPersonaFinished(QString)));
   disconnect(soapHandlerPersona, SIGNAL(error(QString)), this, SLOT(verificaPersonaError(QString)));
   disconnect(soapHandlerEnroll, SIGNAL(finished(QString)), this, SLOT(enrollFinished(QString)));
   disconnect(soapHandlerEnroll, SIGNAL(error(QString)), this, SLOT(enrollError(QString)));
-  
+
   disconnect(workerSensor, SIGNAL(enrollWorkDone(uchar *, uchar *, int, int)), this, SLOT(enrollWorkDone(uchar *, uchar *, int, int)));
   workerSensor->requestMethod(WorkerSensorMulti::Identify);
   this->deleteLater();
@@ -363,7 +363,7 @@ void EnrollDialog::closeEvent(QCloseEvent *event)
 void EnrollDialog::initializeUI()
 {
   grid = new QGridLayout();
-  
+
   lblMsg = new QLabel(tr("Introduzca su RUT"));
   lblMsg->setAlignment(Qt::AlignCenter);
   lblMsg->setStyleSheet("font-size: 12px;"
@@ -378,7 +378,7 @@ void EnrollDialog::initializeUI()
       "color:rgb(255,255,255);"
       "font-size:18px;"
       "padding-right: 10px;");
-  
+
   btnDelete = new QPushButton();
   btnDelete->resize(50, 50);
   btnDelete->setFlat(true);
@@ -388,7 +388,7 @@ void EnrollDialog::initializeUI()
       "color:rgb(255,255,255);"
       "font-size:18px");
   connect(btnDelete, SIGNAL(clicked()), this, SLOT(btnDeleteClicked()));
-  
+
   btn1 = new QPushButton();
   btn1->resize(50, 50);
   btn1->setFlat(true);
@@ -408,7 +408,7 @@ void EnrollDialog::initializeUI()
       "color:rgb(255,255,255);"
       "font-size:18px");
   connect(btn2, SIGNAL(clicked()), this, SLOT(btn2Clicked()));
-  
+
   btn3 = new QPushButton();
   btn3->resize(50, 50);
   btn3->setFlat(true);
@@ -418,7 +418,7 @@ void EnrollDialog::initializeUI()
       "color:rgb(255,255,255);"
       "font-size:18px");
   connect(btn3, SIGNAL(clicked()), this, SLOT(btn3Clicked()));
-  
+
   btn4 = new QPushButton();
   btn4->resize(50, 50);
   btn4->setFlat(true);
@@ -428,7 +428,7 @@ void EnrollDialog::initializeUI()
       "color:rgb(255,255,255);"
       "font-size:18px");
   connect(btn4, SIGNAL(clicked()), this, SLOT(btn4Clicked()));
-  
+
   btn5 = new QPushButton();
   btn5->resize(50, 50);
   btn5->setFlat(true);
@@ -438,7 +438,7 @@ void EnrollDialog::initializeUI()
       "color:rgb(255,255,255);"
       "font-size:18px");
   connect(btn5, SIGNAL(clicked()), this, SLOT(btn5Clicked()));
-  
+
   btn6 = new QPushButton();
   btn6->resize(50, 50);
   btn6->setFlat(true);
@@ -448,7 +448,7 @@ void EnrollDialog::initializeUI()
       "color:rgb(255,255,255);"
       "font-size:18px");
   connect(btn6, SIGNAL(clicked()), this, SLOT(btn6Clicked()));
-  
+
   btn7 = new QPushButton();
   btn7->resize(50, 50);
   btn7->setFlat(true);
@@ -458,7 +458,7 @@ void EnrollDialog::initializeUI()
       "color:rgb(255,255,255);"
       "font-size:18px");
   connect(btn7, SIGNAL(clicked()), this, SLOT(btn7Clicked()));
-  
+
   btn8 = new QPushButton();
   btn8->resize(50, 50);
   btn8->setFlat(true);
@@ -468,7 +468,7 @@ void EnrollDialog::initializeUI()
       "color:rgb(255,255,255);"
       "font-size:18px");
   connect(btn8, SIGNAL(clicked()), this, SLOT(btn8Clicked()));
-  
+
   btn9 = new QPushButton();
   btn9->resize(50, 50);
   btn9->setFlat(true);
@@ -478,7 +478,7 @@ void EnrollDialog::initializeUI()
       "color:rgb(255,255,255);"
       "font-size:18px");
   connect(btn9, SIGNAL(clicked()), this, SLOT(btn9Clicked()));
-  
+
   btn0 = new QPushButton();
   btn0->resize(50, 50);
   btn0->setFlat(true);
@@ -488,7 +488,7 @@ void EnrollDialog::initializeUI()
       "color:rgb(255,255,255);"
       "font-size:18px");
   connect(btn0, SIGNAL(clicked()), this, SLOT(btn0Clicked()));
-  
+
   btnHyphen = new QPushButton();
   btnHyphen->resize(50, 50);
   btnHyphen->setFlat(true);
@@ -498,7 +498,7 @@ void EnrollDialog::initializeUI()
       "color:rgb(255,255,255);"
       "font-size:18px");
   connect(btnHyphen, SIGNAL(clicked()), this, SLOT(btnHyphenClicked()));
-  
+
   btnK = new QPushButton();
   btnK->resize(50, 50);
   btnK->setFlat(true);
@@ -508,7 +508,7 @@ void EnrollDialog::initializeUI()
       "color:rgb(255,255,255);"
       "font-size:18px");
   connect(btnK, SIGNAL(clicked()), this, SLOT(btnKClicked()));
-  
+
   btnOk = new QPushButton();
   btnOk->resize(50, 50);
   btnOk->setFlat(true);
@@ -518,7 +518,7 @@ void EnrollDialog::initializeUI()
       "color:rgb(255,255,255);"
       "font-size:18px");
   connect(btnOk, SIGNAL(clicked()), this, SLOT(btnOkClicked()));
-  
+
   btnCancel = new QPushButton();
   btnCancel->resize(50, 50);
   btnCancel->setFlat(true);
@@ -528,19 +528,19 @@ void EnrollDialog::initializeUI()
       "color:rgb(255,255,255);"
       "font-size:18px");
   connect(btnCancel, SIGNAL(clicked()), this, SLOT(btnCancelClicked()));
-  
+
   lblEmpresa = new QLabel();
   lblEmpresa->setAlignment(Qt::AlignCenter);
   lblEmpresa->setStyleSheet("font-size: 18px;"
                             "color: #FFFFFF;"
                             "font-style: normal;");
-  
+
   lblName= new QLabel();
   lblName->setAlignment(Qt::AlignCenter);
   lblName->setStyleSheet("font-size: 18px;"
                          "color: #FFFFFF;"
                          "font-style: normal;");
-  
+
   lblMsgScreen2= new QLabel();
   lblMsgScreen2->setAlignment(Qt::AlignCenter);
   lblMsgScreen2->setStyleSheet("font-size: 18px;"
@@ -560,7 +560,7 @@ void EnrollDialog::initializeUI()
   grid->addWidget(btn5, 3, 1, 1, 1, Qt::AlignCenter);
   grid->addWidget(btn6, 3, 2, 1, 1, Qt::AlignCenter);
   grid->addWidget(btnHyphen, 3, 3, 1, 1, Qt::AlignCenter);
-  
+
   grid->addWidget(btn7, 4, 0, 1, 1, Qt::AlignCenter);
   grid->addWidget(btn8, 4, 1, 1, 1, Qt::AlignCenter);
   grid->addWidget(btn9, 4, 2, 1, 1, Qt::AlignCenter);
@@ -569,7 +569,7 @@ void EnrollDialog::initializeUI()
   grid->addWidget(btnCancel, 5, 0, 1, 1, Qt::AlignCenter);
   grid->addWidget(btn0, 5, 1, 1, 1, Qt::AlignCenter);
   grid->addWidget(btnOk, 5, 2, 1, 1, Qt::AlignCenter);
-  
+
   setStyleSheet("background:rgb(0,101,153);");
   setLayout(grid);
 }
@@ -585,13 +585,13 @@ void EnrollDialog::setScreen2(QString identifier, QString rut, QString name)
   } else {
     lblName->setText(tr("%1\n%2\n%3").arg(identifier).arg(rut).arg(name));
   }
-  
+
   if (identifier.isEmpty()) {
     lblMsgScreen2->setText("");
   } else {
     lblMsgScreen2->setText(tr("Coloque el dedo\nen el sensor para\ncapturar huella..."));
   }
-  
+
   grid->removeWidget(grid->itemAtPosition(0, 0)->widget());
   grid->removeWidget(grid->itemAtPosition(1, 0)->widget());
   grid->removeWidget(grid->itemAtPosition(1, 3)->widget());
@@ -609,7 +609,7 @@ void EnrollDialog::setScreen2(QString identifier, QString rut, QString name)
   grid->removeWidget(grid->itemAtPosition(5, 0)->widget());
   grid->removeWidget(grid->itemAtPosition(5, 1)->widget());
   grid->removeWidget(grid->itemAtPosition(5, 2)->widget());
-  
+
   edtRut->setVisible(false);
   lblMsg->setVisible(false);
   btn1->setVisible(false);
@@ -626,7 +626,7 @@ void EnrollDialog::setScreen2(QString identifier, QString rut, QString name)
   btnK->setVisible(false);
   btnDelete->setVisible(false);
   btnOk->setVisible(false);
-  
+
   // widget, row, col, rowSpan, colSpan
   grid->addWidget(lblEmpresa, 0, 0, 1, 4, Qt::AlignCenter);
   grid->addWidget(lblName, 1, 0, 1, 4, Qt::AlignCenter);
@@ -673,7 +673,7 @@ bool EnrollDialog::parseXmlPersona(QString &response, QString &identifier, QStri
           continue;
         }
       }
-      
+
       if (xml.name() == "nombre") {
         token = xml.readNext();
         if (xml.tokenType() == QXmlStreamReader::Characters) {
@@ -682,7 +682,7 @@ bool EnrollDialog::parseXmlPersona(QString &response, QString &identifier, QStri
           continue;
         }
       }
-      
+
       if (xml.name() == "apPaterno") {
         token = xml.readNext();
         if (xml.tokenType() == QXmlStreamReader::Characters) {
@@ -691,7 +691,7 @@ bool EnrollDialog::parseXmlPersona(QString &response, QString &identifier, QStri
           continue;
         }
       }
-      
+
       if (xml.name() == "apMaterno") {
         token = xml.readNext();
         if (xml.tokenType() == QXmlStreamReader::Characters) {
@@ -708,7 +708,7 @@ bool EnrollDialog::parseXmlPersona(QString &response, QString &identifier, QStri
     }
     continue;
   }
-  
+
   identifier = idPer;
   rut = rutStr + "-" + rutDv;
   name = nombre + " " + apPaterno + " " + apMaterno;
@@ -758,7 +758,7 @@ bool EnrollDialog::parseXmlEnroll(QString &response, QString &identificador, QSt
           continue;
         }
       }
-      
+
       if (xml.hasError()) {
         DEBUG("XML Error: %s", xml.errorString().toStdString().c_str());
         xml.clear();
@@ -766,7 +766,7 @@ bool EnrollDialog::parseXmlEnroll(QString &response, QString &identificador, QSt
     }
     continue;
   }
-  
+
   if (identificador.isEmpty() || serial.isEmpty() || resultado.isEmpty()) {
     DEBUG("WS FAIL. identificador: %s, serial: %s, resultado: %s", identificador.toStdString().c_str(), serial.toStdString().c_str(), resultado.toStdString().c_str());
     return false;

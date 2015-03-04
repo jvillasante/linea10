@@ -16,7 +16,9 @@
 
 #include "vcomwrapper.h"
 #include "idkitwrapper.h"
+#if defined(TEMPO) || defined(SNACK)
 #include "printerserial.h"
+#endif
 #include "workersensormulti.h"
 #include "workerenroller.h"
 #include "dbaccess.h"
@@ -38,27 +40,31 @@ class MainWindow : public QWidget
 #ifdef TEMPO
     void match(QString userIdentifier, QString userName, QString userRut);
     void buttonPressed(int button, QString userName);
-    
+
     void enrollButtonPressed();
     void enrollDialogClosed(QString);
 
     void alarmasFinished(QString);
     void alarmasError(QString);
-#elif SNACK
+#endif
+#ifdef SNACK
     void match(QString userIdentifier, QString userName, QString userRut, QString service, int servicesCount);
 #endif
-    
+#ifdef PRESENCIA
+    void match(QString userIdentifier, QString userName, QString userRut);
+#endif
+
     void identifierWorkDone();
     void message(QString msg);
-    
+
     void enrollProgress(int);
     void enrollFinished();
     void enrollError();
-    
+
     void updateEverySecond();
     void updateEveryHour();
     void updateRebootCountDown();
-    
+
   private:
     QGridLayout *grid;
     QHBoxLayout *hbox;
@@ -72,11 +78,15 @@ class MainWindow : public QWidget
 #ifdef TEMPO
     QPushButton *enrollButton;
 #endif
-    QLabel      *lbl1, *lbl2, *lbl3;
+#if defined(TEMPO) || defined(SNACK)
+    QLabel *lbl2;
+#endif
+
+    QLabel *lbl1, *lbl3;
 
     QSettings *settings;
     QString   lang;
-    
+
     GeneraDB *generaDB;
 
     int lblOutputCounter;
@@ -86,13 +96,15 @@ class MainWindow : public QWidget
 
     QThread            *threadSensor;
     WorkerSensorMulti  *workerSensor;
-    
+
     QThread        *threadEnroller;
     WorkerEnroller *workerEnroller;
 
     VCOMWrapper  *vcom;
     IDKITWrapper *idkit;
+#if defined(TEMPO) || defined(SNACK)
     PrinterSerial *printer;
+#endif
     NetworkMonitor *networkMonitor;
 #ifdef TEMPO
     SoapHandler *soapHandler;
@@ -107,13 +119,17 @@ class MainWindow : public QWidget
     void initializeWorkerSensor();
     void initializeWorkerSensorEnroll();
     void initializeWorkerEnroller();
+#if defined(TEMPO) || defined(SNACK)
     void printInitTicket();
+#endif
     void setFullScreen(QString msg);
     void startReboot(QString msg);
 
     void closeApp();
 
+#if defined(TEMPO) || defined(SNACK)
     inline void updatePrinterStatus();
+#endif
     inline void updateInternetStatus();
     inline void updateDate(QDateTime now);
 };

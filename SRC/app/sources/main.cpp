@@ -42,15 +42,19 @@ int main(int argc, char *argv[])
   app.setOrganizationName("Genera");
 #ifdef TEMPO
   app.setApplicationName("Tempo10");
-#elif SNACK
+#endif
+#ifdef SNACK
   app.setApplicationName("Snack10");
 #endif
-  
+#ifdef PRESENCIA
+  app.setApplicationName("Presencia10");
+#endif
+
   QString appPath = QApplication::applicationDirPath();
 
   QString configPath = "/mnt/jffs2/app.ini";
   settings = new QSettings(configPath, QSettings::IniFormat);
-  
+
   QString lang = settings->value("lang", "es").toString();
   DEBUG("Language is: %s.", lang.toStdString().c_str());
 
@@ -69,7 +73,7 @@ int main(int argc, char *argv[])
       DEBUG("Unable to install app_en.qm translation.");
     }
   }
-  
+
   DEBUG("****************************************************************************");
   DEBUG("serialEquipo: %s", settings->value("serialEquipo").toString().toStdString().c_str());
   DEBUG("identificadorEquipo: %s", settings->value("identificadorEquipo").toString().toStdString().c_str());
@@ -96,7 +100,7 @@ int main(int argc, char *argv[])
 
   x = (screenWidth - WIDTH) / 2;
   y = (screenHeight - HEIGHT) / 2;
-  
+
   window->resize(WIDTH, HEIGHT);
   window->move(x, y);
   window->setWindowOpacity(1.0);
@@ -111,7 +115,7 @@ int main(int argc, char *argv[])
     if (window->flag == 500) {
       if (settings) { delete settings; }
       if (window)   { delete window; }
-      
+
       DEBUG("Bye Bye...");
       fflush(stdout);
       fflush(stderr);

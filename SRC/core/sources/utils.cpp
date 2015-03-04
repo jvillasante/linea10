@@ -106,7 +106,7 @@ namespace Utils
     DEBUG("md5sum command FAIL");
     return false;
   }
-  
+
   bool copyFile(QString &source, const QString &destDir)
   {
     QString copyCommand = QString("cp -f %1 %2").arg(source).arg(destDir);
@@ -158,63 +158,63 @@ namespace Utils
     struct stat buffer;
     return (stat(name, &buffer) == 0);
   }
-  
+
   QString dateFormat(const QString &format)
   {
     QDateTime now = getCurrentTimestamp();
     return now.date().toString(format);
   }
-  
+
   QDateTime getCurrentTimestamp()
   {
     return QDateTime::currentDateTime();
   }
-  
+
   QDateTime getCurrentTimestampUtc()
   {
     return QDateTime::currentDateTimeUtc();
   }
-  
+
   uint getCurrentUnixTimestamp()
   {
     QDateTime now = getCurrentTimestamp();
     return now.toTime_t();
   }
-  
+
   uint getCurrentUnixTimestampUtc()
   {
     QDateTime now = getCurrentTimestampUtc();
     return now.toTime_t();
   }
-  
+
   void getFromUnixTimestamp(QDateTime &dateTime, uint unixTimeStamp)
   {
     dateTime.setTime_t(unixTimeStamp);
   }
-  
+
   void getCurrentDateTimeForSnack(int result[])
   {
     QDateTime now = getCurrentTimestamp();
     QDate currentDate = now.date();
-    
+
     int day = currentDate.dayOfWeek();
     int time = now.toString("hhmm").toInt();
     result[0] = day;
     result[1] = time;
   }
-  
+
   char rutVerifyDigit(unsigned rut)
   {
     unsigned factor, sum, digit;
     unsigned rest, result;
-    
+
     for (factor = 2, sum = 0; rut > 0; factor++) {
       digit = rut % 10;
       rut /= 10;
       sum += digit * factor;
 
       if (factor >= 7) factor = 1;
-    } 
+    }
 
     rest = sum % 11;
     result = 11 - rest;

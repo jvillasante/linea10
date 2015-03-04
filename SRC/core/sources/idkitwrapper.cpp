@@ -59,7 +59,7 @@ bool IDKITWrapper::init()
 
   rc = IEngine_SetParameter(CFG_IDENTIFICATION_SPEED, 7);
   CHECK_IDKIT(rc, "IEngine_SetParameter");
-  
+
   rc = IEngine_SetParameter(CFG_MAX_ROTATION, 50);
   CHECK_IDKIT(rc, "IEngine_SetParameter");
 
@@ -91,8 +91,9 @@ error:
   return false;
 }
 
-#ifdef TEMPO
-bool IDKITWrapper::registerUserFromTemplate(unsigned char *tpl, char *userIdentifier, char *userName, char *userRut, char *userEmp)
+#if defined(TEMPO) || defined(PRESENCIA)
+bool IDKITWrapper::registerUserFromTemplate(unsigned char *tpl, char *userIdentifier, char *userName,
+    char *userRut, char *userEmp)
 {
   int rc;
   IENGINE_USER user;
@@ -148,7 +149,7 @@ error:
 #endif
 
 #ifdef SNACK
-bool IDKITWrapper::registerUserFromTemplateSnack(unsigned char *tpl, int userId, char *userIdentifier, char *userName, 
+bool IDKITWrapper::registerUserFromTemplateSnack(unsigned char *tpl, int userId, char *userIdentifier, char *userName,
     char *userRut, char *userEmp, int userRepeticion, char *userCentroCosto)
 {
   int rc;
@@ -176,10 +177,10 @@ bool IDKITWrapper::registerUserFromTemplateSnack(unsigned char *tpl, int userId,
 
     rc = IEngine_SetStringTag(user, "empresa", userEmp);
     CHECK_IDKIT(rc, "IEngine_SetStringTag (empresa)");
-    
+
     rc = IEngine_SetIntTag(user, "repeticion", userRepeticion);
     CHECK_IDKIT(rc, "IEngine_SetStringTag (repeticion)");
-    
+
     rc = IEngine_SetStringTag(user, "centro_costo", userCentroCosto);
     CHECK_IDKIT(rc, "IEngine_SetStringTag (centro_costo)");
 
@@ -211,8 +212,8 @@ error:
 }
 #endif
 
-#ifdef TEMPO
-bool IDKITWrapper::matchFromRawImage(unsigned char *rawImage, int width, int height, char *userIdentifier, 
+#if defined(TEMPO) || defined(PRESENCIA)
+bool IDKITWrapper::matchFromRawImage(unsigned char *rawImage, int width, int height, char *userIdentifier,
     char *userName, char *userRut, char *userEmp)
 {
   int rc, bmpLength, userID, score;
@@ -310,7 +311,7 @@ error:
 #endif
 
 #ifdef SNACK
-bool IDKITWrapper::matchFromRawImageSnack(unsigned char *rawImage, int width, int height, int *userId, 
+bool IDKITWrapper::matchFromRawImageSnack(unsigned char *rawImage, int width, int height, int *userId,
     char *userIdentifier, char *userName, char *userRut, char *userEmp, int *repeticion, char *userCentroCosto)
 {
   int rc, bmpLength, userID, score;
@@ -380,7 +381,7 @@ bool IDKITWrapper::matchFromRawImageSnack(unsigned char *rawImage, int width, in
 
       rc = IEngine_GetIntTag(user, "repeticion", repeticion);
       CHECK_IDKIT(rc, "IEngine_GetIntTag (repeticion)");
-      
+
       tagLength = 0;
       rc = IEngine_GetStringTag(user, "centro_costo", NULL, &tagLength);
       CHECK_IDKIT(rc, "IEngine_GetStringTag (centro_costo - First Call)");

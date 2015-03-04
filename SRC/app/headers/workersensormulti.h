@@ -7,7 +7,9 @@
 
 #include "vcomwrapper.h"
 #include "idkitwrapper.h"
+#if defined(TEMPO) || defined(SNACK)
 #include "printerserial.h"
+#endif
 #include "dbaccess.h"
 #ifdef SNACK
 #include "dao_service.h"
@@ -31,7 +33,9 @@ class WorkerSensorMulti : public QObject
 
     void setVCOMWrapper(VCOMWrapper *vcom);
     void setIDKITWrapper(IDKITWrapper *idkit);
+#if defined(TEMPO) || defined(SNACK)
     void setPrinterSerial(PrinterSerial *printer);
+#endif
     void setSQLiteManager(GeneraDB *manager);
 
   private:
@@ -43,7 +47,9 @@ class WorkerSensorMulti : public QObject
 
     VCOMWrapper *vcom;
     IDKITWrapper *idkit;
+#if defined(TEMPO) || defined(SNACK)
     PrinterSerial *printer;
+#endif
     GeneraDB *generaDB;
 
 #ifdef SNACK
@@ -57,14 +63,18 @@ class WorkerSensorMulti : public QObject
     void doIdentifyTempo();
     void doEnroll();
     bool isButtonPressed(QString &typeStr, int &typeInt);
-#elif SNACK
+#endif
+#ifdef SNACK
     void doIdentifySnack();
-    void giveService(ServiceDAO *service, int userId, char *userIdentifier, char *userName, char *userRut, 
+    void giveService(ServiceDAO *service, int userId, char *userIdentifier, char *userName, char *userRut,
         char *userEmp, char *userCentroCosto);
     std::string execute(const char* cmd);
     int determineInputDeviceIndex();
     int waitForKeyboard();
     ServiceDAO *getLastServedFromGroup(QMap<int, ServiceDAO*> services, ServiceDAO *service);
+#endif
+#ifdef PRESENCIA
+    void doIdentifyPresencia();
 #endif
 
   signals:
@@ -72,10 +82,14 @@ class WorkerSensorMulti : public QObject
     void match(QString userIdentifier, QString userName, QString userRut);
     void buttonPressed(int button, QString userName);  // 0: TIMEOUT, 1: IN, 2: OUT
     void enrollWorkDone(uchar *compositeImage, uchar *templateImage, int width, int height);
-#elif SNACK
+#endif
+#ifdef SNACK
     void match(QString userIdentifier, QString userName, QString userRut, QString service, int servicesCount);
 #endif
-    
+#ifdef PRESENCIA
+    void match(QString userIdentifier, QString userName, QString userRut);
+#endif
+
     void finished();
     void identifierWorkDone();
     void message(QString msg);

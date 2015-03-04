@@ -12,7 +12,7 @@
 class NetworkMonitor : public QObject
 {
   Q_OBJECT
-    
+
   public:
     explicit NetworkMonitor(QSettings *settings);
     ~NetworkMonitor();
@@ -21,7 +21,7 @@ class NetworkMonitor : public QObject
     bool pingServer();
     void getNetworkInfo();
     void getNetworkInfo(QString &mac, QString &ip, QString &gateway, QString &masc, QString &broadcast);
-  
+
   private:
     QSettings *settings;
     QTcpSocket *socket;

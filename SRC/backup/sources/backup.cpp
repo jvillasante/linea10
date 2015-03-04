@@ -14,13 +14,13 @@
 Backup::Backup()
 {
   settings = new QSettings("/mnt/jffs2/app.ini", QSettings::IniFormat);
-  
+
   daysToKeepBackup = settings->value("keepEvents", 15).toInt();
 
   QString db = settings->value("generaDB").toString();
   generaDB = new GeneraDB();
   generaDB->init(db.toStdString().c_str());
-  
+
   timer = new QTimer(this);
   timer->setInterval(3600000);
   // timer->setInterval(60000);
@@ -49,7 +49,7 @@ void Backup::deleteOldFiles()
         DEBUG("Fail to Delete %s", file.absoluteFilePath().toStdString().c_str());
       }
     }
-  } 
+  }
 }
 
 void Backup::doWork()

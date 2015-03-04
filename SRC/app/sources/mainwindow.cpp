@@ -39,11 +39,14 @@ MainWindow::MainWindow(QSettings *settings, QWidget *parent) :
   connect(this->soapHandler, SIGNAL(error(QString)), this, SLOT(alarmasError(QString)));
 #endif
 
-  updatePrinterStatus();
   updateInternetStatus();
+
+#if defined(TEMPO) || defined(SNACK)
+  updatePrinterStatus();
   if (printer->getStatus()) {
     printInitTicket();
   }
+#endif
 }
 
 MainWindow::~MainWindow()
@@ -62,7 +65,9 @@ MainWindow::~MainWindow()
   delete everyHourTimer;
   delete idkit;
   delete vcom;
+#if defined(TEMPO) || defined(SNACK)
   delete printer;
+#endif
   delete generaDB;
   delete networkMonitor;
 #ifdef TEMPO
@@ -79,7 +84,9 @@ MainWindow::~MainWindow()
   delete enrollButton;
 #endif
   delete lbl1;
+#if defined(TEMPO) || defined(SNACK)
   delete lbl2;
+#endif
   delete lbl3;
   delete hbox;
   delete box;
@@ -88,7 +95,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::closeApp()
 {
-  QApplication::quit(); 
+  QApplication::quit();
   flag = 500;
 }
 
@@ -112,7 +119,8 @@ void MainWindow::match(QString userIdentifier, QString userName, QString userRut
     lblOutput->setText(tr("<h4>Usuario no encontrado</h4>"));
   }
 }
-#elif SNACK
+#endif
+#ifdef SNACK
 void MainWindow::match(QString userIdentifier, QString userName, QString userRut, QString service, int servicesCount)
 {
   updatePrinterStatus();
@@ -122,7 +130,7 @@ void MainWindow::match(QString userIdentifier, QString userName, QString userRut
     lblOutput->setText(tr("<h4>Usuario no encontrado</h4>"));
     return;
   }
-  
+
   if (servicesCount == -2) {  // impresora sin papel o desconectada
     Utils::limitString(userName, 25);
     lblOutput->setText(tr("%1<br>Rut: %2<br><br><font size=4>Impresora sin papel<br>o desconectada.</font>")
@@ -153,13 +161,33 @@ void MainWindow::match(QString userIdentifier, QString userName, QString userRut
   }
 }
 #endif
+#ifdef PRESENCIA
+void MainWindow::match(QString userIdentifier, QString userName, QString userRut)
+{
+  lblOutputCounter = 30;
+
+  if (userIdentifier == NULL && userName != NULL && userRut != NULL) {
+    Utils::limitString(userName, 25);
+    lblOutput->setText(tr("%1<br>Rut: %2<br><br><font size=4>Usted ya marco...</font>")
+        .arg(userName)
+        .arg(userRut));
+  } else if (userIdentifier != NULL && userName != NULL && userRut != NULL) {
+    Utils::limitString(userName, 25);
+    lblOutput->setText(tr("%1<br>Rut: %2")
+        .arg(userName)
+        .arg(userRut));
+  } else {
+    lblOutput->setText(tr("<h4>Usuario no encontrado</h4>"));
+  }
+}
+#endif
 
 #ifdef TEMPO
 void MainWindow::buttonPressed(int button, QString userName)
 {
   Utils::limitString(userName, 25);
   lblOutputCounter = 30;
-  
+
   if (button == 0) {
     lblOutput->setText(tr("%1<br><br><font size=6>TIMEOUT</font>").arg(userName));
   } else  if (button == 1) {
@@ -177,8 +205,12 @@ void MainWindow::enrollProgress(int importCount) // massive enroll
   if (importCount == -1) {
 #ifdef TEMPO
     setFullScreen(tr("Comenzando proceso para<br>Carga Masiva.<br><br>Espere por favor..."));
-#elif SNACK
+#endif
+#ifdef SNACK
     setFullScreen(tr("Importando servicios de<br>Casino. Este proceso puede<br>demorar un tiempo.<br><br>Espere por favor..."));
+#endif
+#ifdef PRESENCIA
+    setFullScreen(tr("Importando turnos de<br>Presencia. Este proceso puede<br>demorar un tiempo.<br><br>Espere por favor..."));
 #endif
   } else {
     lblOutput->setText(tr("Ejecutando Carga Masiva.<br><br>Usuarios Registrados:<br>%1<br><br>Espere por favor...").arg(importCount));
@@ -341,11 +373,13 @@ void MainWindow::initializeUI()
   QPixmap lbl1Pixmap(":/img/Resources/images/internet_habilitada.bmp");
   lbl1->setPixmap(lbl1Pixmap);
 
+#if defined(TEMPO) || defined(SNACK)
   lbl2 = new QLabel();
   lbl2->setAlignment(Qt::AlignCenter);
   lbl2->setStyleSheet("background-color: #333333;");
   QPixmap lbl2Pixmap(":/img/Resources/images/impresora_encendida.bmp");
   lbl2->setPixmap(lbl2Pixmap);
+#endif
 
   lbl3 = new QLabel();
   lbl3->setAlignment(Qt::AlignCenter);
@@ -380,7 +414,9 @@ void MainWindow::initializeUI()
   hbox->addWidget(enrollButton, 0, Qt::AlignCenter);
 #endif
   hbox->addWidget(lbl1, 0, Qt::AlignCenter);
+#if defined(TEMPO) || defined(SNACK)
   hbox->addWidget(lbl2, 0, Qt::AlignCenter);
+#endif
   hbox->addWidget(lbl3, 0, Qt::AlignCenter);
 
   box->setLayout(hbox);
@@ -428,8 +464,10 @@ void MainWindow::initializeCore()
     lblMsg->setText(tr("No hay usuarios registrados"));
   }
 
+#if defined(TEMPO) || defined(SNACK)
   printer = new PrinterSerial(settings);
   printer->init();
+#endif
 }
 
 void MainWindow::initializeWorkerSensor()
@@ -438,7 +476,9 @@ void MainWindow::initializeWorkerSensor()
   workerSensor = new WorkerSensorMulti();
   workerSensor->setVCOMWrapper(vcom);
   workerSensor->setIDKITWrapper(idkit);
+#if defined(TEMPO) || defined(SNACK)
   workerSensor->setPrinterSerial(printer);
+#endif
   workerSensor->setSQLiteManager(generaDB);
   workerSensor->moveToThread(threadSensor);
 
@@ -449,8 +489,12 @@ void MainWindow::initializeWorkerSensor()
 #ifdef TEMPO
   connect(workerSensor, SIGNAL(match(QString, QString, QString)), this, SLOT(match(QString, QString, QString)));
   connect(workerSensor, SIGNAL(buttonPressed(int, QString)), this, SLOT(buttonPressed(int, QString)));
-#elif SNACK
+#endif
+#ifdef SNACK
   connect(workerSensor, SIGNAL(match(QString, QString, QString, QString, int)), this, SLOT(match(QString, QString, QString, QString, int)));
+#endif
+#ifdef PRESENCIA
+  connect(workerSensor, SIGNAL(match(QString, QString, QString)), this, SLOT(match(QString, QString, QString)));
 #endif
   connect(workerSensor, SIGNAL(identifierWorkDone()), this, SLOT(identifierWorkDone()));
   connect(workerSensor, SIGNAL(message(QString)), this, SLOT(message(QString)));
@@ -463,7 +507,7 @@ void MainWindow::initializeWorkerEnroller()
   threadEnroller = new QThread();
   workerEnroller = new WorkerEnroller(settings, idkit);
   workerEnroller->moveToThread(threadEnroller);
-#ifdef SNACK 
+#if defined(SNACK) || defined(PRESENCIA)
   workerEnroller->setSQLiteManager(generaDB);
 #endif
 
@@ -480,11 +524,12 @@ void MainWindow::initializeWorkerEnroller()
   workerEnroller->requestWork();
 }
 
+#if defined(TEMPO) || defined(SNACK)
 void MainWindow::printInitTicket()
 {
   QString mac, ip, gateway, masc, broadcast;
   networkMonitor->getNetworkInfo(mac, ip, gateway, masc, broadcast);
-  
+
   printer->write_hello(mac, ip, gateway, masc, broadcast);
 }
 
@@ -530,6 +575,7 @@ inline void MainWindow::updatePrinterStatus()
 #endif
   }
 }
+#endif
 
 inline void MainWindow::updateInternetStatus()
 {
@@ -567,19 +613,21 @@ void MainWindow::setFullScreen(QString msg)
   enrollButton->setVisible(false);
 #endif
   lbl1->setVisible(false);
+#if defined(TEMPO) || defined(SNACK)
   lbl2->setVisible(false);
+#endif
   lbl3->setVisible(false);
   lblOutput->setFixedHeight(320);
   lblOutput->setFixedWidth(240);
   lblOutput->setText(msg);
   qApp->processEvents();
-  
+
   workerSensor->abort();
   threadSensor->wait();
-  
+
   everySecondTimer->stop();
   everyHourTimer->stop();
-  
+
   system("killall ntpd");
   system("killall updater");
   system("killall synchronizer");
@@ -593,10 +641,10 @@ void MainWindow::startReboot(QString msg)
     lblOutput->setText(msg);
     qApp->processEvents();
   }
-  
+
   workerEnroller->abort();
   threadEnroller->wait();
-  
+
   DEBUG("STARTING REBOOT TIMER...");
   QTimer *rebootTimer = new QTimer(this);
   rebootTimer->setInterval(1000);
@@ -609,7 +657,7 @@ inline void MainWindow::updateDate(QDateTime now)
 {
   static const QString DAYS[] = { "", "LUN", "MAR", "MIE", "JUE", "VIE", "SAB", "DOM" };
   static const QString MONTHS[] = {"", "ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO", "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE" };
-  
+
   if (lang == "en") {
     lblDate->setText(now.date().toString("ddd, dd MMMM yyyy"));
   } else {

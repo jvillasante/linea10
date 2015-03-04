@@ -52,13 +52,13 @@ class EnrollDialog : public QDialog
 
     SoapHandler *soapHandlerPersona;
     SoapHandler *soapHandlerEnroll;
-    
+
     WorkerSensorMulti *workerSensor;
-    
+
     QGridLayout *grid;
     QPushButton *btnOk;
     QPushButton *btnCancel;
-    
+
     // screen 1
     QLineEdit *edtRut;
     QLabel *lblMsg;
@@ -80,7 +80,7 @@ class EnrollDialog : public QDialog
     QLabel *lblEmpresa;
     QLabel *lblName;
     QLabel *lblMsgScreen2;
-    
+
     QTimer *closeTimer;
 
   private:
@@ -92,7 +92,7 @@ class EnrollDialog : public QDialog
 
   signals:
     void enrollDialogClosed(QString);
-    
+
   private slots:
     void verificaPersonaFinished(QString);
     void verificaPersonaError(QString);

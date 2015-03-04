@@ -16,7 +16,7 @@ namespace Utils
   bool verifyMd5(const QString &theFileMd5);
   bool moveFile(QString &source, const QString &destDir);
   bool copyFile(QString &source, const QString &destDir);
-  
+
   QString dateFormat(const QString &format);
   QDateTime getCurrentTimestamp();
   QDateTime getCurrentTimestampUtc();

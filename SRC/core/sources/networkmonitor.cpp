@@ -21,7 +21,7 @@ bool NetworkMonitor::pingServer()
 {
   DEBUG("Connecting to %s on port %d", this->wsIp.toStdString().c_str(), this->wsPort);
   this->socket->connectToHost(this->wsIp, this->wsPort);
-  
+
   if (this->socket->waitForConnected(1000)) {
     DEBUG("Connected to server!");
     this->socket->close();
@@ -46,7 +46,7 @@ void NetworkMonitor::getNetworkInfo(QString &mac, QString &ip, QString &gateway,
         if (entry.ip().protocol() == QAbstractSocket::IPv4Protocol) {
           ip = entry.ip().toString();
           masc = entry.netmask().toString();
-          broadcast = entry.broadcast().toString();    
+          broadcast = entry.broadcast().toString();
         }
 
         if (entry.ip().protocol() == QAbstractSocket::IPv6Protocol) {

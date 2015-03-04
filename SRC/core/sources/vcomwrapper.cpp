@@ -184,7 +184,7 @@ int VCOMWrapper::capture(uchar *pCompositeImage, uint &nWidth, uint &nHeight, uc
 
   rc = V100_Capture(&dev, pCompositeImage, nWidth, nHeight, pTemplate, nTemplateSize, nSpoof, getComposite, getTemplate);
   if ((rc == GEN_ERROR_TIMEOUT) || (rc == GEN_ERROR_TIMEOUT_LATENT)) { return 1; }
-  CHECK_VCOM(rc, "Error capturing image."); 
+  CHECK_VCOM(rc, "Error capturing image.");
 
   if (fingerLift) {
     rc = V100_WaitForFingerClear(&dev);
@@ -202,53 +202,53 @@ error:
 bool VCOMWrapper::cancelOperation()
 {
   V100_ERROR_CODE rc = GEN_OK;
-	bool bTimeout = false;
-	_V100_ACQ_STATUS_TYPE Acq_Status;
-  
+  bool bTimeout = false;
+  _V100_ACQ_STATUS_TYPE Acq_Status;
+
   CHECK(isOpen, "Device is not oppened.");
-  
+
   rc = V100_Cancel_Operation(&dev);
   DEBUG("*****V100_Cancel_Operation: %s*****", VCOM_GetErrorMsg(rc));
-	if (rc != GEN_OK && rc != GEN_ERROR_APP_BUSY) { 
+  if (rc != GEN_OK && rc != GEN_ERROR_APP_BUSY) {
     DEBUG("V100_Cancel_Operation GEN_ERROR_INTERNAL");
     return false;
   }
-  
-	while (bTimeout == false) {
-		if (GEN_OK != V100_Get_Acq_Status(&dev, &Acq_Status)) {
+
+  while (bTimeout == false) {
+    if (GEN_OK != V100_Get_Acq_Status(&dev, &Acq_Status)) {
       DEBUG("V100_GET_Acq_Status GEN_ERROR_INTERNAL");
       return false;
-		}
-    
-		switch (Acq_Status) {
-      case ACQ_SPOOF_DETECTED:     { sleep(1); continue; } break;
-			case ACQ_BUSY:               { sleep(1); continue; } break;
-			case ACQ_NOOP:               { sleep(1); continue; } break;
-			case ACQ_PROCESSING:         { sleep(1); continue; } break;
-			case ACQ_FINGER_PRESENT:     { sleep(1); continue; } break;
-			case ACQ_MOVE_FINGER_UP:     { sleep(1); continue; } break;
-			case ACQ_MOVE_FINGER_DOWN:   { sleep(1); continue; } break;
-			case ACQ_MOVE_FINGER_LEFT:   { sleep(1); continue; } break;
-			case ACQ_MOVE_FINGER_RIGHT:  { sleep(1); continue; } break;
-			case ACQ_FINGER_POSITION_OK: { sleep(1); continue; } break;
-			case ACQ_NO_FINGER_PRESENT:  { sleep(1); continue; } break;
-			case ACQ_TIMEOUT:	           { sleep(1); continue; } break;
-			case ACQ_LATENT_DETECTED:	   { sleep(1); continue; } break;
+    }
 
-			// case ACQ_TIMEOUT:			{ bTimeout = true; break;}
-			case ACQ_DONE:				      { bTimeout = true; break;}
-			case ACQ_CANCELLED_BY_USER:	{ bTimeout = true; break;}
-			// case ACQ_LATENT_DETECTED:	{ bTimeout = true; break;}		
-		}
-	}
-  
-	if(Acq_Status != ACQ_DONE || Acq_Status != ACQ_CANCELLED_BY_USER) {
+    switch (Acq_Status) {
+      case ACQ_SPOOF_DETECTED:     { sleep(1); continue; } break;
+      case ACQ_BUSY:               { sleep(1); continue; } break;
+      case ACQ_NOOP:               { sleep(1); continue; } break;
+      case ACQ_PROCESSING:         { sleep(1); continue; } break;
+      case ACQ_FINGER_PRESENT:     { sleep(1); continue; } break;
+      case ACQ_MOVE_FINGER_UP:     { sleep(1); continue; } break;
+      case ACQ_MOVE_FINGER_DOWN:   { sleep(1); continue; } break;
+      case ACQ_MOVE_FINGER_LEFT:   { sleep(1); continue; } break;
+      case ACQ_MOVE_FINGER_RIGHT:  { sleep(1); continue; } break;
+      case ACQ_FINGER_POSITION_OK: { sleep(1); continue; } break;
+      case ACQ_NO_FINGER_PRESENT:  { sleep(1); continue; } break;
+      case ACQ_TIMEOUT:	           { sleep(1); continue; } break;
+      case ACQ_LATENT_DETECTED:	   { sleep(1); continue; } break;
+
+                                   // case ACQ_TIMEOUT:			{ bTimeout = true; break;}
+      case ACQ_DONE:				      { bTimeout = true; break;}
+      case ACQ_CANCELLED_BY_USER:	{ bTimeout = true; break;}
+                                  // case ACQ_LATENT_DETECTED:	{ bTimeout = true; break;}
+    }
+  }
+
+  if(Acq_Status != ACQ_DONE || Acq_Status != ACQ_CANCELLED_BY_USER) {
     DEBUG("Acq_Status != ACQ_DONE");
-		return false;
-	}
+    return false;
+  }
 
   DEBUG("VCOMWrapper::cancelOperation OK");
-	return true;
+  return true;
 
 error:
   DEBUG("VCOMWrapper::cancelOperation FAIL");
@@ -257,8 +257,8 @@ error:
 
 void VCOMWrapper::printAcqStatus()
 {
-	_V100_ACQ_STATUS_TYPE Acq_Status;
-  
+  _V100_ACQ_STATUS_TYPE Acq_Status;
+
   if (GEN_OK != V100_Get_Acq_Status(&dev, &Acq_Status)) {
     DEBUG("V100_GET_Acq_Status GEN_ERROR_INTERNAL");
     return;

@@ -46,15 +46,15 @@ void Synchronizer::doWork()
 #ifdef SNACK
   int serviceId;
 #endif
-  
+
   timer->stop();
   qry = generaDB->getEventsToSynchronize();
   if (qry == NULL) { timer->start(); return; }
-  
-  while(qry->next()) { 
+
+  while(qry->next()) {
     gotResults = true;
     eventsCount += 1;
-    
+
     id    = qry->value(0).toInt();
     sense = qry->value(1).toInt();
     ident = qry->value(2).toString();
@@ -68,7 +68,7 @@ void Synchronizer::doWork()
     QString serial = settings->value("serialEquipo").toString();
     QString fechaHora = dt.toString("yyyy-MM-dd hh:mm");
     QString min = dt.toString("ss");
-    
+
     const QString method = "SincronizacionMarcasM";
     const QString wsNamespace = settings->value("wsNamespace").toString();
     QMap<QString, QString> map;
@@ -95,11 +95,11 @@ void Synchronizer::doWork()
     soapHandler->fetch(method, wsNamespace, url, strSOAP);
   }
 
-  if (!gotResults) { 
+  if (!gotResults) {
     DEBUG("No events to synchronize at this time...");
-    timer->start(); 
+    timer->start();
   }
-  
+
   qry->finish();
   delete qry;
 }
