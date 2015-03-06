@@ -38,7 +38,7 @@ if [ -z "$QUERY_STRING" ]; then
   exit 0
 else
   echo "<br><hr /><br>"
-  
+
   # No looping this time, just extract the data you are looking for with sed:
   xWSIP=`echo "$QUERY_STRING" | sed -n 's/^.*m_wsip=\([^&]*\).*$/\1/p' | sed "s/%20/ /g"`
   xWSPuerto=`echo "$QUERY_STRING" | sed -n 's/^.*m_wspuerto=\([^&]*\).*$/\1/p' | sed "s/%20/ /g"`
@@ -53,10 +53,10 @@ else
   echo "WS_CLIENTE: " $xWSCliente
   echo '<br>'
   echo '<br>'
-  
+
   sed -i "s/wsIP=.*/wsIP=\"$xWSIP\"/" /mnt/jffs2/app.ini
   sed -i "s/wsPort=.*/wsPort=\"$xWSPuerto\"/" /mnt/jffs2/app.ini
-  
+
   if [ $EQUIPO = "TEMPO" ]; then
     xWSClienteUpdate="${xWSCliente//HORUS9/Update}"
     sed -i "s/wsFirmwareUpdateURL=.*/wsFirmwareUpdateURL=\"http:\/\/$xWSIP:$xWSPuerto\/$xWSClienteUpdate\/UpdateLinea9.asmx\"/" /mnt/jffs2/app.ini
@@ -73,8 +73,16 @@ else
     sed -i "s/wsVerificaPersonaURL=.*/wsVerificaPersonaURL=\"http:\/\/$xWSIP:$xWSPuerto\/$xWSCliente\/SNACK9.asmx?op\=VerificaPersonaM\"/" /mnt/jffs2/app.ini
     sed -i "s/wsEnrollURL=.*/wsEnrollURL=\"http:\/\/$xWSIP:$xWSPuerto\/$xWSCliente\/SNACK9.asmx?op\=enrollM\"/" /mnt/jffs2/app.ini
     sed -i "s/wsAlarmasURL=.*/wsAlarmasURL=\"http:\/\/$xWSIP:$xWSPuerto\/$xWSCliente\/SNACK9.asmx?op\=alarma\"/" /mnt/jffs2/app.ini
+  elif [ $EQUIPO = "PRESENCIA" ]; then
+    xWSClienteUpdate="${xWSCliente//PRESENCIA9/Update}"
+    sed -i "s/wsFirmwareUpdateURL=.*/wsFirmwareUpdateURL=\"http:\/\/$xWSIP:$xWSPuerto\/$xWSClienteUpdate\/UpdateLinea9.asmx\"/" /mnt/jffs2/app.ini
+    sed -i "s/wsCargaMasivaURL=.*/wsCargaMasivaURL=\"http:\/\/$xWSIP:$xWSPuerto\/$xWSCliente\/PRESENCIA9.asmx?op\=getCargaMasivaM\"/" /mnt/jffs2/app.ini
+    sed -i "s/wsSincronizacionURL=.*/wsSincronizacionURL=\"http:\/\/$xWSIP:$xWSPuerto\/$xWSCliente\/PRESENCIA9.asmx?op\=SincronizacionMarcasM\"/" /mnt/jffs2/app.ini
+    sed -i "s/wsVerificaPersonaURL=.*/wsVerificaPersonaURL=\"http:\/\/$xWSIP:$xWSPuerto\/$xWSCliente\/PRESENCIA9.asmx?op\=VerificaPersonaM\"/" /mnt/jffs2/app.ini
+    sed -i "s/wsEnrollURL=.*/wsEnrollURL=\"http:\/\/$xWSIP:$xWSPuerto\/$xWSCliente\/PRESENCIA9.asmx?op\=enrollM\"/" /mnt/jffs2/app.ini
+    sed -i "s/wsAlarmasURL=.*/wsAlarmasURL=\"http:\/\/$xWSIP:$xWSPuerto\/$xWSCliente\/PRESENCIA9.asmx?op\=alarma\"/" /mnt/jffs2/app.ini
   fi
-  
+
   echo "MODIFICADO EXITOSAMENTE WS IP:" $xWSIP
   echo '<br>'
   echo "MODIFICADO EXITOSAMENTE WS PUERTO:" $xWSPuerto
@@ -82,7 +90,7 @@ else
   echo "MODIFICADO EXITOSAMENTE WS CLIENTE:" $xWSCliente
   echo '<br>'
   echo '<br>'
-  
+
   echo "La aplicacion se reiniciara en aproximadamente 5 segundos..."
   sleep 5
   reboot

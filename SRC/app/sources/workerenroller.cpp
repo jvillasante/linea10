@@ -74,7 +74,7 @@ void WorkerEnroller::run()
   QMap<QString, QString> map;
   map["equSerial"] = settings->value("serialEquipo").toString();
   map["opcion"] = "0";
-#ifdef TEMPO
+#if defined(TEMPO) || defined(PRESENCIA)
   map["nativo"] = "0";
 #endif
   const QString strSOAP = soapHandler->getXmlPacket(method, wsNamespace, map);

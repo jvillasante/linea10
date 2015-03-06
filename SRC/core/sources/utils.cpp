@@ -204,6 +204,12 @@ namespace Utils
     result[1] = time;
   }
 
+  int getCurrentDateTimeForPresencia()
+  {
+    QDateTime now = getCurrentTimestamp();
+    return now.toString("hhmm").toInt();
+  }
+
   char rutVerifyDigit(unsigned rut)
   {
     unsigned factor, sum, digit;

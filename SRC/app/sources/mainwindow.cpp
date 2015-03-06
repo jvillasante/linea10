@@ -473,7 +473,7 @@ void MainWindow::initializeCore()
 void MainWindow::initializeWorkerSensor()
 {
   threadSensor = new QThread();
-  workerSensor = new WorkerSensorMulti();
+  workerSensor = new WorkerSensorMulti(settings);
   workerSensor->setVCOMWrapper(vcom);
   workerSensor->setIDKITWrapper(idkit);
 #if defined(TEMPO) || defined(SNACK)

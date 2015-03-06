@@ -74,15 +74,28 @@ void Synchronizer::doWork()
     QMap<QString, QString> map;
 #ifdef TEMPO
     map["evhcodigo"] = QString::number(id);
-#elif SNACK
+#endif
+#ifdef SNACK
     map["evcCodigo"] = QString::number(id);
 #endif
+#ifdef PRESENCIA
+    map["evpCodigo"] = QString::number(id);
+#endif
     map["identificacion"] = ident;
+#if defined(TEMPO) || defined(SNACK)
     map["evhFechaHora"] = fechaHora;
+#endif
+#ifdef PRESENCIA
+    map["evpFechaHora"] = fechaHora;
+#endif
 #ifdef TEMPO
     map["evhCorrelMin"] = min;
-#elif SNACK
+#endif
+#ifdef SNACK
     map["evcCorrelMin"] = min;
+#endif
+#ifdef PRESENCIA
+    map["evpCorrelMin"] = min;
 #endif
     map["tieCodigo"] = QString::number(sense);
     map["equSerial"] = serial;
@@ -159,7 +172,8 @@ bool Synchronizer::parseXml(QString &response, int &result, int &id)
           continue;
         }
       }
-#elif SNACK
+#endif
+#ifdef SNACK
       if (xml.name() == "evccodigo") {
         token = xml.readNext();
         if(xml.tokenType() == QXmlStreamReader::Characters) {
@@ -169,7 +183,16 @@ bool Synchronizer::parseXml(QString &response, int &result, int &id)
         }
       }
 #endif
-
+#ifdef PRESENCIA
+      if (xml.name() == "evpcodigo") {
+        token = xml.readNext();
+        if(xml.tokenType() == QXmlStreamReader::Characters) {
+          DEBUG("evccodigo %s", xml.text().toString().toStdString().c_str());
+          id = xml.text().toString().toInt();
+          continue;
+        }
+      }
+#endif
       if (xml.name() == "estado") {
         token = xml.readNext();
         if(xml.tokenType() == QXmlStreamReader::Characters) {
@@ -189,8 +212,12 @@ bool Synchronizer::parseXml(QString &response, int &result, int &id)
 
 #ifdef TEMPO
   DEBUG("WS OK. evhcodigo = %d, estado = %d", id, result);
-#elif SNACK
+#endif
+#ifdef SNACK
   DEBUG("WS OK. evccodigo = %d, estado = %d", id, result);
+#endif
+#ifdef PRESENCIA
+  DEBUG("WS OK. evpcodigo = %d, estado = %d", id, result);
 #endif
   return true;
 }

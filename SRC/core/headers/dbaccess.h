@@ -40,7 +40,8 @@ class GeneraDB : public QObject
 #ifdef PRESENCIA
     int insertEvent(int sense, char *ident, int date, int synchronized);
     int truncateTables();
-    int insertSchedule(int id, int idPerson, int initHour, int endHour);
+    int insertSchedule(int id, QString userIdentifier, int initHour, int endHour);
+    bool isUserInSchedule(char *userIdentifier, int currentHour);
 #endif
 
   private:

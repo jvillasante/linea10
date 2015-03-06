@@ -20,7 +20,7 @@ class WorkerSensorMulti : public QObject
   Q_OBJECT
 
   public:
-    explicit WorkerSensorMulti(QObject *parent = 0);
+    explicit WorkerSensorMulti(QSettings *settings = NULL, QObject *parent = 0);
 
     enum Method {
       Identify = 1,
@@ -44,6 +44,7 @@ class WorkerSensorMulti : public QObject
     bool _interrupt;
     QMutex mutex;
     QWaitCondition condition;
+    QSettings *settings;
 
     VCOMWrapper *vcom;
     IDKITWrapper *idkit;
@@ -54,6 +55,10 @@ class WorkerSensorMulti : public QObject
 
 #ifdef SNACK
     char keypadDevice[20];
+#endif
+
+#ifdef PRESENCIA
+    bool isIn;
 #endif
 
     void doIdentify();

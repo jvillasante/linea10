@@ -59,9 +59,9 @@ if [ -n "$BOARD" ]; then
       mkfifo /tmp/app.log
 
       nohup /usr/local/bin/GeneraApp -qws -display transformed:Rot270 2>&1 | /usr/local/bin/ftee /tmp/app.log &
-      # nohup /usr/local/bin/updater 2>&1 | /usr/local/bin/ftee /tmp/app.log &
-      # nohup /usr/local/bin/synchronizer 2>&1 | /usr/local/bin/ftee /tmp/app.log &
-      # nohup /usr/local/bin/backup 2>&1 | /usr/local/bin/ftee /tmp/app.log &
+      nohup /usr/local/bin/updater 2>&1 | /usr/local/bin/ftee /tmp/app.log &
+      nohup /usr/local/bin/synchronizer 2>&1 | /usr/local/bin/ftee /tmp/app.log &
+      nohup /usr/local/bin/backup 2>&1 | /usr/local/bin/ftee /tmp/app.log &
       exit
     elif [ $MODO = "RELEASE" ]; then
       nohup /usr/local/bin/GeneraApp -qws -display transformed:Rot270 > /dev/null 2>&1 &

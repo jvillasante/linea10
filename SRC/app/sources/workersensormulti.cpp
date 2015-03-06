@@ -30,11 +30,12 @@
 #define KEY_KEEPING_PRESSED 2
 #endif
 
-WorkerSensorMulti::WorkerSensorMulti(QObject *parent) :
+WorkerSensorMulti::WorkerSensorMulti(QSettings *settings, QObject *parent) :
   QObject(parent)
 {
   _abort = false;
   _interrupt = false;
+  this->settings = settings;
 
 #ifdef SNACK
   memset(keypadDevice, 0, sizeof(char) * 20);
@@ -46,6 +47,10 @@ WorkerSensorMulti::WorkerSensorMulti(QObject *parent) :
     sprintf(keypadDevice, "/dev/input/event%d", deviceIndex);
   }
   DEBUG("KEYPAD DEVICE: %s", keypadDevice);
+#endif
+
+#ifdef PRESENCIA
+  this->isIn = (settings->value("presenciaType").toString() == "In") ? true : false;
 #endif
 }
 
@@ -224,24 +229,9 @@ void WorkerSensorMulti::doIdentifyPresencia()
 
   if (rc == 0) {
     if (idkit->matchFromRawImage(compositeImage, width, height, &userIdentifier[0], &userName[0], &userRut[0], &userEmp[0])) {
-      emit match(QString(userIdentifier), QString(userName), QString(userRut));
-      DEBUG("User: %s", userName);
-
-      // QString typeStr;
-      // int typeInt;
-      // if (isButtonPressed(typeStr, typeInt)) {
-        // rc = generaDB->isUserIdentifiedOnLastMinute(QString(userIdentifier), typeInt);
-        // if (rc == 0) {
-          // emit message("Ha ocurrido un error<br>Por favor, notifique<br>a los encargados.");
-        // } else if (rc == 1) {
-          // emit match(NULL, QString(userName), QString(userRut));
-        // } else if (rc == 2) {
-          // emit buttonPressed(typeInt, QString(userName));
-
-          // if (printer->getStatus()) {
-            // printer->write_user(typeStr, QString(userIdentifier), QString(userName), QString(userRut), QString(userEmp));
-          // }
-
+      int currentHour = Utils::getCurrentDateTimeForPresencia();
+      if (generaDB->isUserInSchedule(&userIdentifier[0], currentHour)) {
+        emit match(QString(userIdentifier), QString(userName), QString(userRut));
           // rc = generaDB->insertEvent(typeInt, userIdentifier, Utils::getCurrentUnixTimestamp(), 0);
           // if (rc == 0) {
             // LOG_INFO("Event added to events database...");
@@ -250,12 +240,9 @@ void WorkerSensorMulti::doIdentifyPresencia()
           // } else {
             // emit message("Ha ocurrido un error<br>Por favor, notifique<br>a los encargados.");
           // }
-        // } else {
-          // emit message("Ha ocurrido un error<br>Por favor, notifique<br>a los encargados.");
-        // }
-      // } else {
-        // emit buttonPressed(0, QString(userName));
-      // }
+      } else {
+        // usuario fuera de hora...
+      }
     } else {
       emit match(NULL, NULL, NULL);
     }

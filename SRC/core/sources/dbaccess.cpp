@@ -96,10 +96,10 @@ bool GeneraDB::init(const char *databaseName)
   }
 
   if (!qry.exec("CREATE TABLE IF NOT EXISTS schedules ("
-                "id INTEGER PRIMARY KEY,"          // identificador del horario
-                "id_person INTEGER NOT NULL,"      // identificador de persona
-                "init_hour INTEGER DEFAULT 0,"     // hora de inicio (0800 para las 08:00 horas)
-                "end_hour INTEGER DEFAULT 0"      // hora de terminacion (1500 para las 15:00 horas)
+                "id INTEGER PRIMARY KEY,"            // identificador del horario
+                "user_identifier VARCHAR(32),"       // identificador de persona
+                "init_hour INTEGER DEFAULT 0,"       // hora de inicio (0800 para las 08:00 horas)
+                "end_hour INTEGER DEFAULT 0"         // hora de terminacion (1500 para las 15:00 horas)
                 ");")) {
     LOG_ERROR("Query error: %s.", qry.lastError().databaseText().toStdString().c_str());
     qry.clear();
@@ -693,7 +693,7 @@ int GeneraDB::truncateTables()
   return 0;
 }
 
-int GeneraDB::insertSchedule(int id, int idPerson, int initHour, int endHour)
+int GeneraDB::insertSchedule(int id, QString userIdentifier, int initHour, int endHour)
 {
   if (!this->db.isOpen()) {
     DEBUG("Database genera is not open");
@@ -701,9 +701,9 @@ int GeneraDB::insertSchedule(int id, int idPerson, int initHour, int endHour)
   }
 
   QSqlQuery qry(this->db);
-  qry.prepare("INSERT INTO schedules(id, idPerson, init_hour, end_hour) VALUES(:f1, :f2, :f3, :f4)");
+  qry.prepare("INSERT INTO schedules(id, user_identifier, init_hour, end_hour) VALUES(:f1, :f2, :f3, :f4)");
   qry.bindValue(":f1", id);
-  qry.bindValue(":f2", idPerson);
+  qry.bindValue(":f2", userIdentifier);
   qry.bindValue(":f3", initHour);
   qry.bindValue(":f4", endHour);
   if (!qry.exec()) {
@@ -715,6 +715,38 @@ int GeneraDB::insertSchedule(int id, int idPerson, int initHour, int endHour)
   DEBUG("Schedule %d inserted", qry.lastInsertId().toInt());
   qry.clear();
   return 0;
+}
+
+bool GeneraDB::isUserInSchedule(char *userIdentifier, int currentHour)
+{
+  int count, initHour, endHour = 0;
+  QSqlQuery qry(this->db);
+
+  qry.prepare("SELECT init_hour, end_hour FROM schedules WHERE user_identifier = :f1 LIMIT 1");
+  qry.bindValue(":f1", userIdentifier);
+  if (!qry.exec()) {
+    LOG_ERROR("Error selecting schedule: %s", qry.lastError().text().toStdString().c_str());
+    qry.clear();
+    return false;
+  }
+
+  while (qry.next()) {
+    initHour = qry.value(0).toInt();
+    endHour = qry.value(1).toInt();
+    count += 1;
+  }
+  qry.clear();
+
+  if (count != 1) {
+    LOG_ERROR("Error selecting schedule: %s", qry.lastError().text().toStdString().c_str());
+    return false;
+  }
+
+  if (currentHour >= initHour && currentHour <= endHour) {
+    return true;
+  }
+
+  return false;
 }
 #endif
 
@@ -981,11 +1013,12 @@ void ImportDB::importDatabasePresencia(IDKITWrapper *idkit, QSqlDatabase *import
     while (qry.next()) {
       {
         int schedule_id = qry.value(0).toInt();
-        int person_id = qry.value(1).toInt();
+        QString identifier = qry.value(1).toString();
+        Utils::limitString(identifier, 32);
         int init_hour = qry.value(2).toInt();
         int end_hour = qry.value(3).toInt();
 
-        generaDb->insertSchedule(schedule_id, person_id, init_hour, end_hour);
+        generaDb->insertSchedule(schedule_id, identifier, init_hour, end_hour);
       }
     }
 

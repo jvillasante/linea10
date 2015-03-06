@@ -28,6 +28,7 @@ namespace Utils
   char rutVerifyDigit(unsigned rut);
   bool isNtpRunning();
   void getCurrentDateTimeForSnack(int result[]);
+  int getCurrentDateTimeForPresencia();
 
   // leds - presencia
   void disableLeds();

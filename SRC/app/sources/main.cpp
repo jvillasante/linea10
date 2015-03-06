@@ -76,8 +76,15 @@ int main(int argc, char *argv[])
   }
 
   DEBUG("****************************************************************************");
+  DEBUG("Equipo: %s", settings->value("tipoEquipo").toString().toStdString().c_str());
+  DEBUG("NTP IP: %s", settings->value("ntpIP").toString().toStdString().c_str());
+  DEBUG("Lang: %s", settings->value("lang").toString().toStdString().c_str());
+  DEBUG("Empresa Holding: %s", settings->value("empresaHolding").toString().toStdString().c_str());
   DEBUG("serialEquipo: %s", settings->value("serialEquipo").toString().toStdString().c_str());
   DEBUG("identificadorEquipo: %s", settings->value("identificadorEquipo").toString().toStdString().c_str());
+#ifdef PRESENCIA
+  DEBUG("Tipo de Equipo: %s", (settings->value("presenciaType").toString() == "In") ? "Entrada" : "Salida");
+#endif
   DEBUG("wsIp: %s", settings->value("wsIP").toString().toStdString().c_str());
   DEBUG("wsPort: %s", settings->value("wsPort").toString().toStdString().c_str());
   DEBUG("wsCargaMasivaURL: %s", settings->value("wsCargaMasivaURL").toString().toStdString().c_str());
