@@ -719,7 +719,9 @@ int GeneraDB::insertSchedule(int id, QString userIdentifier, int initHour, int e
 
 bool GeneraDB::isUserInSchedule(char *userIdentifier, int currentHour)
 {
-  int count, initHour, endHour = 0;
+  int count = 0;
+  int initHour = 0;
+  int endHour = 0;
   QSqlQuery qry(this->db);
 
   qry.prepare("SELECT init_hour, end_hour FROM schedules WHERE user_identifier = :f1 LIMIT 1");
@@ -741,6 +743,12 @@ bool GeneraDB::isUserInSchedule(char *userIdentifier, int currentHour)
     LOG_ERROR("Error selecting schedule: %s", qry.lastError().text().toStdString().c_str());
     return false;
   }
+
+  DEBUG("count: %d", count);
+  DEBUG("userIdentifier: %s", userIdentifier);
+  DEBUG("currentHour: %d", currentHour);
+  DEBUG("initHour: %d", initHour);
+  DEBUG("endHour: %d", endHour);
 
   if (currentHour >= initHour && currentHour <= endHour) {
     return true;

@@ -168,16 +168,16 @@ void MainWindow::match(QString userIdentifier, QString userName, QString userRut
 
   if (userIdentifier == NULL && userName != NULL && userRut != NULL) {
     Utils::limitString(userName, 25);
-    lblOutput->setText(tr("%1<br>Rut: %2<br><br><font size=4>Usted ya marco...</font>")
+    lblOutput->setText(tr("%1<br>Rut: %2<br><br><font size=4>Fuera de Hora</font>")
         .arg(userName)
         .arg(userRut));
   } else if (userIdentifier != NULL && userName != NULL && userRut != NULL) {
     Utils::limitString(userName, 25);
-    lblOutput->setText(tr("%1<br>Rut: %2")
+    lblOutput->setText(tr("%1<br>Rut: %2<br><br><font size=4>Acceso Concedido</font>")
         .arg(userName)
         .arg(userRut));
   } else {
-    lblOutput->setText(tr("<h4>Usuario no encontrado</h4>"));
+    lblOutput->setText(tr("<h4>Acceso NO Concedido</h4><br><font size=4>Usuario no encontrado</font>"));
   }
 }
 #endif
@@ -264,6 +264,9 @@ void MainWindow::updateEverySecond()
   // Cambiar el texto del label mensaje al pasar 5 segundos
   if (lblOutputCounter > 0 && (--lblOutputCounter) == 0) {
     lblOutput->setText(tr("Coloque el dedo<br>en el sensor..."));
+#ifdef PRESENCIA
+    Utils::disableLeds();
+#endif
   }
 
   // cambiar la hora cada segundo

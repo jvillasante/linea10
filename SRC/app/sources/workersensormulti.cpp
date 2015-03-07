@@ -229,22 +229,44 @@ void WorkerSensorMulti::doIdentifyPresencia()
 
   if (rc == 0) {
     if (idkit->matchFromRawImage(compositeImage, width, height, &userIdentifier[0], &userName[0], &userRut[0], &userEmp[0])) {
-      int currentHour = Utils::getCurrentDateTimeForPresencia();
-      if (generaDB->isUserInSchedule(&userIdentifier[0], currentHour)) {
-        emit match(QString(userIdentifier), QString(userName), QString(userRut));
-          // rc = generaDB->insertEvent(typeInt, userIdentifier, Utils::getCurrentUnixTimestamp(), 0);
-          // if (rc == 0) {
-            // LOG_INFO("Event added to events database...");
-          // } else if (rc == 1) {
-            // emit message("Ha ocurrido un error<br>Por favor, notifique<br>a los encargados.");
-          // } else {
-            // emit message("Ha ocurrido un error<br>Por favor, notifique<br>a los encargados.");
-          // }
+      if (this->isIn) {
+        int currentHour = Utils::getCurrentDateTimeForPresencia();
+        if (generaDB->isUserInSchedule(&userIdentifier[0], currentHour)) {
+          rc = generaDB->insertEvent(1, userIdentifier, Utils::getCurrentUnixTimestamp(), 0);
+          if (rc == 0) {
+            LOG_INFO("Event added to events database...");
+            emit match(QString(userIdentifier), QString(userName), QString(userRut));
+            Utils::setLed(true, true);
+            Utils::setRelay(true);
+          } else if (rc == 1) {
+            emit message("Ha ocurrido un error<br>Por favor, notifique<br>a los encargados.");
+          } else {
+            emit message("Ha ocurrido un error<br>Por favor, notifique<br>a los encargados.");
+          }
+        } else {
+          emit match(NULL, QString(userName), QString(userRut));
+          Utils::setLed(true, false);
+        }
       } else {
-        // usuario fuera de hora...
+        rc = generaDB->insertEvent(0, userIdentifier, Utils::getCurrentUnixTimestamp(), 0);
+        if (rc == 0) {
+          LOG_INFO("Event added to events database...");
+          emit match(QString(userIdentifier), QString(userName), QString(userRut));
+          Utils::setLed(false, true);
+          Utils::setRelay(false);
+        } else if (rc == 1) {
+          emit message("Ha ocurrido un error<br>Por favor, notifique<br>a los encargados.");
+        } else {
+          emit message("Ha ocurrido un error<br>Por favor, notifique<br>a los encargados.");
+        }
       }
     } else {
       emit match(NULL, NULL, NULL);
+      if (this->isIn) {
+        Utils::setLed(true, false);
+      } else {
+        Utils::setLed(false, false);
+      }
     }
   } else {
     emit message("Ha ocurrido un error<br>Por favor, notifique<br>a los encargados.");
