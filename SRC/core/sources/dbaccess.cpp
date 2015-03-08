@@ -784,11 +784,10 @@ bool ImportDB::init(const char *databaseName)
 
 void ImportDB::importDatabase(IDKITWrapper *idkit, GeneraDB *generaDb)
 {
-  UNUSED(idkit);
-  UNUSED(generaDb);
   QSqlDatabase db = QSqlDatabase::database("import");
 
 #ifdef TEMPO
+  UNUSED(generaDb);
   importDatabaseTempo(idkit, &db);
 #endif
 #ifdef SNACK
@@ -1044,6 +1043,7 @@ void ImportDB::importDatabasePresencia(IDKITWrapper *idkit, QSqlDatabase *import
     importDb->close();
   } else {
     DEBUG("Selected. Beginning to import data.");
+
     while(qry.next()) {
       {
         QString identifier = qry.value(0).toString();
@@ -1072,6 +1072,7 @@ void ImportDB::importDatabasePresencia(IDKITWrapper *idkit, QSqlDatabase *import
         emit importProgress(importCount);
       }
     }
+
     qry.clear();
     importDb->close();
   }

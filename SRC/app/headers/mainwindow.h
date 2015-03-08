@@ -109,6 +109,9 @@ class MainWindow : public QWidget
 #ifdef TEMPO
     SoapHandler *soapHandler;
 #endif
+#ifdef PRESENCIA
+    QString presenciaType;
+#endif
 
   private:
     void initializeUI();

@@ -47,6 +47,10 @@ MainWindow::MainWindow(QSettings *settings, QWidget *parent) :
     printInitTicket();
   }
 #endif
+
+#ifdef PRESENCIA
+  this->presenciaType = (settings->value("presenciaType").toString() == "In") ? "ENTRADA" : "SALIDA";
+#endif
 }
 
 MainWindow::~MainWindow()
@@ -168,16 +172,19 @@ void MainWindow::match(QString userIdentifier, QString userName, QString userRut
 
   if (userIdentifier == NULL && userName != NULL && userRut != NULL) {
     Utils::limitString(userName, 25);
-    lblOutput->setText(tr("%1<br>Rut: %2<br><br><font size=4>Fuera de Hora</font>")
+    lblOutput->setText(tr("%1<br>Rut: %2<br><font size=4>Acceso NO Concedido<br>Fuera de Hora<br>%3</font>")
         .arg(userName)
-        .arg(userRut));
+        .arg(userRut)
+        .arg(this->presenciaType));
   } else if (userIdentifier != NULL && userName != NULL && userRut != NULL) {
     Utils::limitString(userName, 25);
-    lblOutput->setText(tr("%1<br>Rut: %2<br><br><font size=4>Acceso Concedido</font>")
+    lblOutput->setText(tr("%1<br>Rut: %2<br><br><font size=4>Acceso Concedido<br>%3</font>")
         .arg(userName)
-        .arg(userRut));
+        .arg(userRut)
+        .arg(this->presenciaType));
   } else {
-    lblOutput->setText(tr("<h4>Acceso NO Concedido</h4><br><font size=4>Usuario no encontrado</font>"));
+    lblOutput->setText(tr("<h4>Acceso NO Concedido</h4><br><font size=4>Usuario no encontrado<br>%1</font>")
+        .arg(this->presenciaType));
   }
 }
 #endif
