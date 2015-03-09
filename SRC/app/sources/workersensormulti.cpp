@@ -30,12 +30,11 @@
 #define KEY_KEEPING_PRESSED 2
 #endif
 
-WorkerSensorMulti::WorkerSensorMulti(QSettings *settings, QObject *parent) :
+WorkerSensorMulti::WorkerSensorMulti(QObject *parent) :
   QObject(parent)
 {
   _abort = false;
   _interrupt = false;
-  this->settings = settings;
 
 #ifdef SNACK
   memset(keypadDevice, 0, sizeof(char) * 20);
@@ -48,16 +47,15 @@ WorkerSensorMulti::WorkerSensorMulti(QSettings *settings, QObject *parent) :
   }
   DEBUG("KEYPAD DEVICE: %s", keypadDevice);
 #endif
-
-#ifdef PRESENCIA
-  this->isIn = (settings->value("presenciaType").toString() == "In") ? true : false;
-#endif
 }
 
 void WorkerSensorMulti::setVCOMWrapper(VCOMWrapper *vcom) { this->vcom = vcom; }
 void WorkerSensorMulti::setIDKITWrapper(IDKITWrapper *idkit) { this->idkit = idkit; }
 #if defined(TEMPO) || defined(SNACK)
 void WorkerSensorMulti::setPrinterSerial(PrinterSerial *printer) { this->printer = printer; }
+#endif
+#ifdef PRESENCIA
+void WorkerSensorMulti::setPresenciaType(bool isIn) { this->isIn = isIn; }
 #endif
 void WorkerSensorMulti::setSQLiteManager(GeneraDB *manager) { this->generaDB = manager; }
 

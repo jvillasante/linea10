@@ -483,11 +483,14 @@ void MainWindow::initializeCore()
 void MainWindow::initializeWorkerSensor()
 {
   threadSensor = new QThread();
-  workerSensor = new WorkerSensorMulti(settings);
+  workerSensor = new WorkerSensorMulti();
   workerSensor->setVCOMWrapper(vcom);
   workerSensor->setIDKITWrapper(idkit);
 #if defined(TEMPO) || defined(SNACK)
   workerSensor->setPrinterSerial(printer);
+#endif
+#ifdef PRESENCIA
+  workerSensor->setPresenciaType((settings->value("presenciaType").toString() == "In") ? true : false);
 #endif
   workerSensor->setSQLiteManager(generaDB);
   workerSensor->moveToThread(threadSensor);

@@ -20,7 +20,7 @@ class WorkerSensorMulti : public QObject
   Q_OBJECT
 
   public:
-    explicit WorkerSensorMulti(QSettings *settings = NULL, QObject *parent = 0);
+    explicit WorkerSensorMulti(QObject *parent = 0);
 
     enum Method {
       Identify = 1,
@@ -36,6 +36,9 @@ class WorkerSensorMulti : public QObject
 #if defined(TEMPO) || defined(SNACK)
     void setPrinterSerial(PrinterSerial *printer);
 #endif
+#ifdef PRESENCIA
+    void setPresenciaType(bool isIn);
+#endif
     void setSQLiteManager(GeneraDB *manager);
 
   private:
@@ -44,7 +47,6 @@ class WorkerSensorMulti : public QObject
     bool _interrupt;
     QMutex mutex;
     QWaitCondition condition;
-    QSettings *settings;
 
     VCOMWrapper *vcom;
     IDKITWrapper *idkit;
