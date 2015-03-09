@@ -1037,10 +1037,11 @@ void ImportDB::importDatabasePresencia(IDKITWrapper *idkit, QSqlDatabase *import
         "p.rutper || '-' ||  p.rutdvper, h.template, e.empnombre "
         "FROM gen_persona p "
         "INNER JOIN gen_huella_dactilar h ON p.identificador_per = h.identificador_per "
-        "INNER JOIN gen_empresa e ON p.idper = e.idemp")) {
+        "INNER JOIN gen_empresa e ON p.idemp = e.idemp")) {
     LOG_ERROR("Query error: %s.", qry.lastError().databaseText().toStdString().c_str());
     qry.clear();
     importDb->close();
+    return;
   } else {
     DEBUG("Selected. Beginning to import data.");
 

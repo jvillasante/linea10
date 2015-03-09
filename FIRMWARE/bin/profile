@@ -32,5 +32,5 @@ alias cd..="cd .."
 alias m="more"
 alias +="more"
 
-export MODO=DEBUG
+export MODO=RELEASE
 export EQUIPO=PRESENCIA
