@@ -750,11 +750,19 @@ bool GeneraDB::isUserInSchedule(char *userIdentifier, int currentHour)
   DEBUG("initHour: %d", initHour);
   DEBUG("endHour: %d", endHour);
 
-  if (currentHour >= initHour && currentHour <= endHour) {
-    return true;
+  if (initHour <= endHour) {
+    if (currentHour >= initHour && currentHour <= endHour) {
+      return true;
+    } else {
+      return false;
+    }
+  } else {
+    if ((currentHour <= initHour && currentHour <= endHour) || (currentHour >= initHour && currentHour >= endHour)) {
+      return true;
+    } else {
+      return false;
+    }
   }
-
-  return false;
 }
 #endif
 
