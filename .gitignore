@@ -15,6 +15,7 @@ build.sh
 clean.sh
 copy_target.sh
 create_firmware.sh
+create_archive.sh
 readme.txt
 .project
 
